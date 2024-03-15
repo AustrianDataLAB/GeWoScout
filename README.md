@@ -8,3 +8,15 @@ Genossenschaftswohnungen are appartments that are rented directly by the company
 Because those apartments are so **juicy**, they usually *sell* like hot cakes. Unfortunately, every Genossenschaft has their own website, where they post their currently available apartments. And because there is no official and free platform which would list all the available apartments as soon as they appear on the websites of the Genossenschaften, the hunt for such an appartment becomes extremely difficult.
 
 We would like to propose a service that allows you to see all available apartments in one place without having to switch to 10 different websites every day. As an additional helper, a notification bot will send you new apartments as soon as they appear.
+
+## Genossenschaften that we are supporting
+- BWS Gruppe https://www.bwsg.at/
+- Österreichisches Volkswohnungswerk (ÖVW) https://www.oevw.at/
+- Österreichisches Siedlungswerk (ÖSW) https://www.oesw.at/
+- Sozialbau https://www.sozialbau.at/
+- Siedlungsunion https://www.siedlungsunion.at/
+- Neue Heimat Gewog https://www.nhg.at/
+- Familienwohnbau https://familienwohnbau.at/
+- Neues Leben https://www.wohnen.at/
+- WBV-GPA https://www.wbv-gpa.at/
+- Wien Süd https://www.wiensued.at/
