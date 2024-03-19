@@ -1,6 +1,6 @@
-<mxfile modified="2024-03-19T15:49:56.488Z" host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" etag="JaJ1CX4JGjhXq-eEaA01" version="24.0.7" type="github">
+<mxfile modified="2024-03-19T15:54:24.626Z" host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" etag="gSwccCQNrazI3xjE-INU" version="24.0.7" type="github">
   <diagram id="7gcUSTIZ7YSJ5vT40chW" name="Page-1">
-    <mxGraphModel dx="1120" dy="466" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+    <mxGraphModel dx="659" dy="274" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -59,7 +59,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="C1Hb5nuXclus8YE3PItr-21" value="frontend" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.computer;pointerEvents=1;" parent="1" vertex="1">
-          <mxGeometry x="990" y="343" width="50" height="45" as="geometry" />
+          <mxGeometry x="900" y="224.5" width="50" height="45" as="geometry" />
         </mxCell>
         <mxCell id="7d_rvJGK85zuiHPVN85m-1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="C1Hb5nuXclus8YE3PItr-7" target="C1Hb5nuXclus8YE3PItr-12" edge="1">
           <mxGeometry relative="1" as="geometry">
@@ -87,11 +87,11 @@
         <mxCell id="C1Hb5nuXclus8YE3PItr-12" value="CosmosDB" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/CosmosDB.svg;" parent="1" vertex="1">
           <mxGeometry x="535" y="340" width="50" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="7d_rvJGK85zuiHPVN85m-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="7d_rvJGK85zuiHPVN85m-2" target="7d_rvJGK85zuiHPVN85m-8" edge="1">
+        <mxCell id="ejgO_KiSoNN0elxwD4rP-3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="7d_rvJGK85zuiHPVN85m-2" target="ejgO_KiSoNN0elxwD4rP-1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="7d_rvJGK85zuiHPVN85m-2" value="Azure Static Web App" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/preview/Static_Apps.svg;" parent="1" vertex="1">
-          <mxGeometry x="810" y="337" width="70" height="56.00000000000001" as="geometry" />
+          <mxGeometry x="890" y="337" width="70" height="56.00000000000001" as="geometry" />
         </mxCell>
         <mxCell id="7d_rvJGK85zuiHPVN85m-3" value="Azure Communication&amp;nbsp;&lt;div&gt;Service&lt;/div&gt;" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/other/Azure_Communication_Services.svg;" parent="1" vertex="1">
           <mxGeometry x="526" y="640" width="68" height="50" as="geometry" />
@@ -99,14 +99,20 @@
         <mxCell id="7d_rvJGK85zuiHPVN85m-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="7d_rvJGK85zuiHPVN85m-8" target="C1Hb5nuXclus8YE3PItr-12" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="7d_rvJGK85zuiHPVN85m-8" value="Static Web App&lt;div&gt;API Backend&lt;/div&gt;" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Functions.svg;" parent="1" vertex="1">
-          <mxGeometry x="670" y="342" width="50" height="46" as="geometry" />
+        <mxCell id="7d_rvJGK85zuiHPVN85m-8" value="Serverless API" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Functions.svg;" parent="1" vertex="1">
+          <mxGeometry x="650" y="342" width="50" height="46" as="geometry" />
         </mxCell>
-        <mxCell id="JG4yAsfect5d4OWR5Uj--1" value="Azure Active Directory" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.azure_active_directory;" vertex="1" parent="1">
-          <mxGeometry x="821.25" y="470" width="47.5" height="50" as="geometry" />
+        <mxCell id="JG4yAsfect5d4OWR5Uj--1" value="Azure Active Directory" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.azure_active_directory;" parent="1" vertex="1">
+          <mxGeometry x="901.25" y="470" width="47.5" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="JG4yAsfect5d4OWR5Uj--2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.51;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="7d_rvJGK85zuiHPVN85m-2" target="JG4yAsfect5d4OWR5Uj--1">
+        <mxCell id="JG4yAsfect5d4OWR5Uj--2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.51;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="7d_rvJGK85zuiHPVN85m-2" target="JG4yAsfect5d4OWR5Uj--1" edge="1">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ejgO_KiSoNN0elxwD4rP-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="ejgO_KiSoNN0elxwD4rP-1" target="7d_rvJGK85zuiHPVN85m-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ejgO_KiSoNN0elxwD4rP-1" value="API Management&lt;div&gt;(RBAC, Monitoring, ...)&lt;/div&gt;" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/app_services/API_Management_Services.svg;" vertex="1" parent="1">
+          <mxGeometry x="760" y="335" width="65" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
