@@ -31,6 +31,9 @@ We only scrape the most relevant information a user would filter by. To allow us
 - Number or rooms
 - Area
 - Move in date
+- Construction year
+- Enerey-efficiency class HWG (A++, A+, A, B, C, D, E, F, G)
+- Enerey-efficiency class FGEE (A++, A+, A, B, C, D, E, F, G)
 - Price monthly
 - Price Genossenschafts-Deposit
 - URL to Gennossenschafts site details page
