@@ -9,7 +9,7 @@
       "methods": [
         "get"
       ],
-      "route": "listings/{id}"
+      "route": "cities/{city}/listings/{id}"
     },
     {
       "type": "cosmosDB",
@@ -18,7 +18,7 @@
       "databaseName": "gewoscout-db",
       "collectionName": "ListingsByCity",
       "id": "{id}",
-      "partitionKey": "vienna",
+      "partitionKey": "{city}",
       "connectionStringSetting": "CosmosDBConnectionString"
     },
     {
