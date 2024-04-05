@@ -1,0 +1,30 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get"
+      ],
+      "route": "listings/{id}"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "in",
+      "name": "existingDoc",
+      "databaseName": "gewoscout-db",
+      "collectionName": "ListingsByCity",
+      "id": "{id}",
+      "partitionKey": "vienna",
+      "connectionStringSetting": "CosmosDBConnectionString"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "$return"
+    }
+  ]
+}
