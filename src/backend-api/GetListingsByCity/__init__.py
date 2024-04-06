@@ -63,7 +63,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     max_rent_price = req.params.get('maxRentPrice', None)
     listing_type = req.params.get('listingType', None)
 
-    if listing_type is not None and listing_type not in ["rent", "sale", "both"]:
+    if listing_type is not None and listing_type not in ["rent", "sale"]:
         return func.HttpResponse(
             "Invalid listingType parameter",
             status_code=400
@@ -121,7 +121,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         parameters.append({ "name": "@maxRentPrice", "value": max_rent_price })
 
     if listing_type is not None:
-        query += " AND c.listingType = @listingType"
+        query += " AND (c.listingType = @listingType OR c.listingType = 'both')"
         parameters.append({ "name": "@listingType", "value": listing_type })
 
     container = client.get_database_client(database_name).get_container_client(container_name)
