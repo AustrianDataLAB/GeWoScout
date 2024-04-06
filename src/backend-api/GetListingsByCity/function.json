@@ -12,16 +12,6 @@
       "route": "cities/{city}/listings"
     },
     {
-      "type": "cosmosDB",
-      "direction": "in",
-      "name": "existingDoc",
-      "databaseName": "gewoscout-db",
-      "collectionName": "ListingsByCity",
-      "createIfNotExists": "true",
-      "connectionStringSetting": "CosmosDBConnectionString",
-      "sqlQuery": "SELECT * from c WHERE c.partitionKey = {city}"
-    },
-    {
       "type": "http",
       "direction": "out",
       "name": "$return"
