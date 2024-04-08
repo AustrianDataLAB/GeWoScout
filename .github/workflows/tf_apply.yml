@@ -38,7 +38,7 @@ jobs:
       ARM_CLIENT_SECRET: ${{ startsWith(github.ref, 'refs/tags/release') && secrets.ARM_CLIENT_SECRET_PROD || github.ref == github.ref && secrets.ARM_CLIENT_SECRET_DEV }}
       ARM_SUBSCRIPTION_ID: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == github.ref && vars.INFRA_SUBSCRIPTION_ID_DEV }}
       ARM_TENANT_ID: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_TENANT_ID_PROD || github.ref == github.ref && vars.INFRA_TENANT_ID_DEV }}
-      TF_VERSION: 1.8.0
+      TF_VERSION: 1.7.5
 
     defaults:
       run:
