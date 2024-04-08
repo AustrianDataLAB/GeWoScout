@@ -9,7 +9,7 @@ on:
         default: '0'
 
   push:
-    #branches: [ "main" ]
+    branches: [ "main", "release**" ]
     paths: ["infra/**", ".github/**"]
 
 permissions:
@@ -21,19 +21,19 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # statefile environmental variables
-      TF_VAR_state_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_RESOURCE_GROUP_NAME_PROD || github.ref == github.ref && vars.STATE_RESOURCE_GROUP_NAME_DEV }}
-      TF_VAR_state_storage_account_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_STORAGE_ACCOUNT_NAME_PROD || github.ref == github.ref && vars.STATE_STORAGE_ACCOUNT_NAME_DEV }}
+      TF_VAR_state_resource_group_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.STATE_RESOURCE_GROUP_NAME_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.STATE_RESOURCE_GROUP_NAME_DEV }}
+      TF_VAR_state_storage_account_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.STATE_STORAGE_ACCOUNT_NAME_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.STATE_STORAGE_ACCOUNT_NAME_DEV }}
 
       # infra environmental variables
-      TF_VAR_infra_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_RESOURCE_GROUP_NAME_PROD || github.ref == github.ref && vars.INFRA_RESOURCE_GROUP_NAME_DEV }}
-      TF_VAR_infra_subscription_id: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == github.ref && vars.INFRA_SUBSCRIPTION_ID_DEV }}
-      TF_VAR_infra_tenant_id: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_TENANT_ID_PROD || github.ref == github.ref && vars.INFRA_TENANT_ID_DEV }}
+      TF_VAR_infra_resource_group_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_RESOURCE_GROUP_NAME_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_RESOURCE_GROUP_NAME_DEV }}
+      TF_VAR_infra_subscription_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_SUBSCRIPTION_ID_DEV }}
+      TF_VAR_infra_tenant_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_TENANT_ID_DEV }}
 
       # automatic terraform variables
-      ARM_CLIENT_ID: ${{ startsWith(github.ref, 'refs/tags/release') && secrets.ARM_CLIENT_ID_PROD || github.ref == github.ref && secrets.ARM_CLIENT_ID_DEV }}
-      ARM_CLIENT_SECRET: ${{ startsWith(github.ref, 'refs/tags/release') && secrets.ARM_CLIENT_SECRET_PROD || github.ref == github.ref && secrets.ARM_CLIENT_SECRET_DEV }}
-      ARM_SUBSCRIPTION_ID: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == github.ref && vars.INFRA_SUBSCRIPTION_ID_DEV }}
-      ARM_TENANT_ID: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_TENANT_ID_PROD || github.ref == github.ref && vars.INFRA_TENANT_ID_DEV }}
+      ARM_CLIENT_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && secrets.ARM_CLIENT_ID_DEV }}
+      ARM_CLIENT_SECRET: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_SECRET_PROD || github.ref == vars.DEVELOPMENT_BRANCH && secrets.ARM_CLIENT_SECRET_DEV }}
+      ARM_SUBSCRIPTION_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_SUBSCRIPTION_ID_DEV }}
+      ARM_TENANT_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_TENANT_ID_DEV }}
       TF_VERSION: 1.7.5
 
     defaults:
@@ -49,7 +49,6 @@ jobs:
       run: |
         echo TF_VAR_state_resource_group_name: ${{ env.TF_VAR_state_resource_group_name }}, $TF_VAR_state_resource_group_name
         echo TF_VAR_state_storage_account_name: ${{ env.TF_VAR_state_storage_account_name }}
-        echo TF_VAR_state_cotainer_name: ${{ env.TF_VAR_state_cotainer_name }}
   
         echo TF_VAR_infra_resource_group_name: ${{ env.TF_VAR_infra_resource_group_name }}
         echo TF_VAR_infra_subscription_id: ${{ env.TF_VAR_infra_subscription_id }}
