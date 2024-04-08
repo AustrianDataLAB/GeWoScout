@@ -7,8 +7,9 @@ on:
         description: 'Set to 1 to destroy the terraform architecture'     
         required: false
         default: '0'
+
   push:
-    branches: [ "main" ]
+    branches: [ "main", "release**" ]
     paths: ["infra/**", ".github/**"]
 
 permissions:
@@ -20,21 +21,20 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # statefile environmental variables
-      TS_VAR_state_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_RESOURCE_GROUP_NAME_PROD || github.ref == 'refs/heads/"main"' && vars.STATE_RESOURCE_GROUP_NAME_DEV }}
-      TS_VAR_state_storage_account_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_STORAGE_ACCOUNT_NAME_PROD || github.ref == 'refs/heads/"main"' && vars.STATE_STORAGE_ACCOUNT_NAME_DEV }}
-      TS_VAR_state_cotainer_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_CONTAINER_NAME_PROD || github.ref == 'refs/heads/"main"' && vars.STATE_CONTAINER_NAME_DEV }}
+      TF_VAR_state_resource_group_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.STATE_RESOURCE_GROUP_NAME_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.STATE_RESOURCE_GROUP_NAME_DEV }}
+      TF_VAR_state_storage_account_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.STATE_STORAGE_ACCOUNT_NAME_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.STATE_STORAGE_ACCOUNT_NAME_DEV }}
 
       # infra environmental variables
-      TS_VAR_infra_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_RESOURCE_GROUP_NAME_PROD || github.ref == 'refs/heads/"main"' && vars.INFRA_RESOURCE_GROUP_NAME_DEV }}
-      TS_VAR_infra_subscription_id: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == 'refs/heads/"main"' && vars.INFRA_SUBSCRIPTION_ID_DEV }}
-      TS_VAR_infra_tenant_id: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_TENANT_ID_PROD || github.ref == 'refs/heads/"main"' && vars.INFRA_TENANT_ID_DEV }}
+      TF_VAR_infra_resource_group_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_RESOURCE_GROUP_NAME_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_RESOURCE_GROUP_NAME_DEV }}
+      TF_VAR_infra_subscription_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_SUBSCRIPTION_ID_DEV }}
+      TF_VAR_infra_tenant_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_TENANT_ID_DEV }}
 
       # automatic terraform variables
-      ARM_CLIENT_ID: ${{ startsWith(github.ref, 'refs/tags/release') && secrets.ARM_CLIENT_ID_PROD || github.ref == 'refs/heads/"main"' && secrets.ARM_CLIENT_ID_DEV }}
-      ARM_CLIENT_SECRET: ${{ startsWith(github.ref, 'refs/tags/release') && secrets.ARM_CLIENT_SECRET_PROD || github.ref == 'refs/heads/"main"' && secrets.ARM_CLIENT_SECRET_DEV }}
-      ARM_SUBSCRIPTION_ID: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == 'refs/heads/"main"' && vars.INFRA_SUBSCRIPTION_ID_DEV }}
-      ARM_TENANT_ID: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_TENANT_ID_PROD || github.ref == 'refs/heads/"main"' && vars.INFRA_TENANT_ID_DEV }}
-      TF_VERSION: 1.8.0
+      ARM_CLIENT_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && secrets.ARM_CLIENT_ID_DEV }}
+      ARM_CLIENT_SECRET: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_SECRET_PROD || github.ref == vars.DEVELOPMENT_BRANCH && secrets.ARM_CLIENT_SECRET_DEV }}
+      ARM_SUBSCRIPTION_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_SUBSCRIPTION_ID_DEV }}
+      ARM_TENANT_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_TENANT_ID_DEV }}
+      TF_VERSION: 1.7.5
 
     defaults:
       run:
@@ -47,13 +47,12 @@ jobs:
 
     - name: Verify the Environment
       run: |
-        echo TS_VAR_state_resource_group_name: ${{ env.TS_VAR_state_resource_group_name }}, $TS_VAR_state_resource_group_name
-        echo TS_VAR_state_storage_account_name: ${{ env.TS_VAR_state_storage_account_name }}
-        echo TS_VAR_state_cotainer_name: ${{ env.TS_VAR_state_cotainer_name }}
+        echo TF_VAR_state_resource_group_name: ${{ env.TF_VAR_state_resource_group_name }}, $TF_VAR_state_resource_group_name
+        echo TF_VAR_state_storage_account_name: ${{ env.TF_VAR_state_storage_account_name }}
   
-        echo TS_VAR_infra_resource_group_name: ${{ env.TS_VAR_infra_resource_group_name }}
-        echo TS_VAR_infra_subscription_id: ${{ env.TS_VAR_infra_subscription_id }}
-        echo TS_VAR_infra_tenant_id: ${{ env.TS_VAR_infra_tenant_id }}
+        echo TF_VAR_infra_resource_group_name: ${{ env.TF_VAR_infra_resource_group_name }}
+        echo TF_VAR_infra_subscription_id: ${{ env.TF_VAR_infra_subscription_id }}
+        echo TF_VAR_infra_tenant_id: ${{ env.TF_VAR_infra_tenant_id }}
   
         echo ARM_CLIENT_ID: ${{ env.ARM_CLIENT_ID }}
         echo ARM_CLIENT_SECRET: ${{ env.ARM_CLIENT_SECRET }}
@@ -68,13 +67,12 @@ jobs:
 
     - name: Terraform fmt
       id: fmt
-      run: terraform fmt -check
+      run: terraform fmt --check --diff
 
     - name: Terraform init
       id: init
       run: |
         set -a 
-        source ../.env.backend
         terraform init \
           -backend-config="resource_group_name=$TF_VAR_state_resource_group_name" \
           -backend-config="storage_account_name=$TF_VAR_state_storage_account_name"

@@ -17,7 +17,3 @@ variable "state_resource_group_name" {
 variable "state_storage_account_name" {
   type = string
 }
-
-variable "state_container_name" {
-  type = string
-}

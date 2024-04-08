@@ -1,14 +1,3 @@
-provider "azurerm" {
-  subscription_id   = var.infra_subscription_id
-  tenant_id         = var.infra_tenant_id
-  features {
-    key_vault {
-      purge_soft_delete_on_destroy    = true
-      recover_soft_deleted_key_vaults = true
-    }
-  }
-}
-
 # TODO read the rg created by C for GeWoScout
 data "azurerm_resource_group" "rgruntime" {
   name = var.infra_resource_group_name
