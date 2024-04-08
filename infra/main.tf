@@ -1,27 +1,6 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.0.0"
-    }
-  }
-  backend "azurerm" {
-    use_azuread_auth = true
-  }
-  required_version = ">= 0.13"
-}
-
-variable "subscription_id" {
-  type = string
-}
-
-variable "tenant_id" {
-  type = string
-}
-
 provider "azurerm" {
-  subscription_id   = var.subscription_id
-  tenant_id         = var.tenant_id
+  subscription_id   = var.infra_subscription_id
+  tenant_id         = var.infra_tenant_id
   features {
     key_vault {
       purge_soft_delete_on_destroy    = true
@@ -32,7 +11,7 @@ provider "azurerm" {
 
 # TODO read the rg created by C for GeWoScout
 data "azurerm_resource_group" "rgruntime" {
-  name = "rg-service-gepip35"
+  name = var.infra_resource_group_name
 }
 
 // storage account contains the filesystem of our function
