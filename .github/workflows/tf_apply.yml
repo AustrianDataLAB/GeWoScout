@@ -24,14 +24,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # statefile environmental variables
-      TS_VAR_state_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_RESOURCE_GROUP_NAME_PROD || github.ref == github.ref && vars.STATE_RESOURCE_GROUP_NAME_DEV }}
-      TS_VAR_state_storage_account_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_STORAGE_ACCOUNT_NAME_PROD || github.ref == github.ref && vars.STATE_STORAGE_ACCOUNT_NAME_DEV }}
-      TS_VAR_state_cotainer_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_CONTAINER_NAME_PROD || github.ref == github.ref && vars.STATE_CONTAINER_NAME_DEV }}
+      TF_VAR_state_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_RESOURCE_GROUP_NAME_PROD || github.ref == github.ref && vars.STATE_RESOURCE_GROUP_NAME_DEV }}
+      TF_VAR_state_storage_account_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_STORAGE_ACCOUNT_NAME_PROD || github.ref == github.ref && vars.STATE_STORAGE_ACCOUNT_NAME_DEV }}
+      TF_VAR_state_cotainer_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_CONTAINER_NAME_PROD || github.ref == github.ref && vars.STATE_CONTAINER_NAME_DEV }}
 
       # infra environmental variables
-      TS_VAR_infra_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_RESOURCE_GROUP_NAME_PROD || github.ref == github.ref && vars.INFRA_RESOURCE_GROUP_NAME_DEV }}
-      TS_VAR_infra_subscription_id: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == github.ref && vars.INFRA_SUBSCRIPTION_ID_DEV }}
-      TS_VAR_infra_tenant_id: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_TENANT_ID_PROD || github.ref == github.ref && vars.INFRA_TENANT_ID_DEV }}
+      TF_VAR_infra_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_RESOURCE_GROUP_NAME_PROD || github.ref == github.ref && vars.INFRA_RESOURCE_GROUP_NAME_DEV }}
+      TF_VAR_infra_subscription_id: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == github.ref && vars.INFRA_SUBSCRIPTION_ID_DEV }}
+      TF_VAR_infra_tenant_id: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_TENANT_ID_PROD || github.ref == github.ref && vars.INFRA_TENANT_ID_DEV }}
 
       # automatic terraform variables
       ARM_CLIENT_ID: ${{ startsWith(github.ref, 'refs/tags/release') && secrets.ARM_CLIENT_ID_PROD || github.ref == github.ref && secrets.ARM_CLIENT_ID_DEV }}
@@ -53,13 +53,13 @@ jobs:
 
     - name: Verify the Environment
       run: |
-        echo TS_VAR_state_resource_group_name: ${{ env.TS_VAR_state_resource_group_name }}, $TS_VAR_state_resource_group_name
-        echo TS_VAR_state_storage_account_name: ${{ env.TS_VAR_state_storage_account_name }}
-        echo TS_VAR_state_cotainer_name: ${{ env.TS_VAR_state_cotainer_name }}
+        echo TF_VAR_state_resource_group_name: ${{ env.TF_VAR_state_resource_group_name }}, $TF_VAR_state_resource_group_name
+        echo TF_VAR_state_storage_account_name: ${{ env.TF_VAR_state_storage_account_name }}
+        echo TF_VAR_state_cotainer_name: ${{ env.TF_VAR_state_cotainer_name }}
   
-        echo TS_VAR_infra_resource_group_name: ${{ env.TS_VAR_infra_resource_group_name }}
-        echo TS_VAR_infra_subscription_id: ${{ env.TS_VAR_infra_subscription_id }}
-        echo TS_VAR_infra_tenant_id: ${{ env.TS_VAR_infra_tenant_id }}
+        echo TF_VAR_infra_resource_group_name: ${{ env.TF_VAR_infra_resource_group_name }}
+        echo TF_VAR_infra_subscription_id: ${{ env.TF_VAR_infra_subscription_id }}
+        echo TF_VAR_infra_tenant_id: ${{ env.TF_VAR_infra_tenant_id }}
   
         echo ARM_CLIENT_ID: ${{ env.ARM_CLIENT_ID }}
         echo ARM_CLIENT_SECRET: ${{ env.ARM_CLIENT_SECRET }}
