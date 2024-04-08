@@ -47,6 +47,10 @@ jobs:
 
     - name: Verify the Environment
       run: |
+        echo ${{ github.ref }}
+        echo ${{ vars.DEVELOPMENT_BRANCH }}
+        echo ${{ github.ref == vars.DEVELOPMENT_BRANCH }}
+        echo ${{ startsWith(github.ref, vars.DEVELOPMENT_BRANCH) }}
         echo TF_VAR_state_resource_group_name: ${{ env.TF_VAR_state_resource_group_name }}, $TF_VAR_state_resource_group_name
         echo TF_VAR_state_storage_account_name: ${{ env.TF_VAR_state_storage_account_name }}
   
