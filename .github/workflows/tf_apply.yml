@@ -26,7 +26,6 @@ jobs:
       # statefile environmental variables
       TF_VAR_state_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_RESOURCE_GROUP_NAME_PROD || github.ref == github.ref && vars.STATE_RESOURCE_GROUP_NAME_DEV }}
       TF_VAR_state_storage_account_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_STORAGE_ACCOUNT_NAME_PROD || github.ref == github.ref && vars.STATE_STORAGE_ACCOUNT_NAME_DEV }}
-      TF_VAR_state_cotainer_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_CONTAINER_NAME_PROD || github.ref == github.ref && vars.STATE_CONTAINER_NAME_DEV }}
 
       # infra environmental variables
       TF_VAR_infra_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_RESOURCE_GROUP_NAME_PROD || github.ref == github.ref && vars.INFRA_RESOURCE_GROUP_NAME_DEV }}
