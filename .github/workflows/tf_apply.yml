@@ -7,8 +7,12 @@ on:
         description: 'Set to 1 to destroy the terraform architecture'     
         required: false
         default: '0'
+      branch:
+        description: 'Provide the name of the branch to run the pipeline on'
+        required: false
+
   push:
-    branches: [ "main" ]
+    #branches: [ "main" ]
     paths: ["infra/**", ".github/**"]
 
 permissions:
@@ -20,20 +24,20 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # statefile environmental variables
-      TS_VAR_state_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_RESOURCE_GROUP_NAME_PROD || github.ref == 'refs/heads/"main"' && vars.STATE_RESOURCE_GROUP_NAME_DEV }}
-      TS_VAR_state_storage_account_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_STORAGE_ACCOUNT_NAME_PROD || github.ref == 'refs/heads/"main"' && vars.STATE_STORAGE_ACCOUNT_NAME_DEV }}
-      TS_VAR_state_cotainer_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_CONTAINER_NAME_PROD || github.ref == 'refs/heads/"main"' && vars.STATE_CONTAINER_NAME_DEV }}
+      TS_VAR_state_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_RESOURCE_GROUP_NAME_PROD || github.ref == github.ref && vars.STATE_RESOURCE_GROUP_NAME_DEV }}
+      TS_VAR_state_storage_account_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_STORAGE_ACCOUNT_NAME_PROD || github.ref == github.ref && vars.STATE_STORAGE_ACCOUNT_NAME_DEV }}
+      TS_VAR_state_cotainer_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.STATE_CONTAINER_NAME_PROD || github.ref == github.ref && vars.STATE_CONTAINER_NAME_DEV }}
 
       # infra environmental variables
-      TS_VAR_infra_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_RESOURCE_GROUP_NAME_PROD || github.ref == 'refs/heads/"main"' && vars.INFRA_RESOURCE_GROUP_NAME_DEV }}
-      TS_VAR_infra_subscription_id: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == 'refs/heads/"main"' && vars.INFRA_SUBSCRIPTION_ID_DEV }}
-      TS_VAR_infra_tenant_id: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_TENANT_ID_PROD || github.ref == 'refs/heads/"main"' && vars.INFRA_TENANT_ID_DEV }}
+      TS_VAR_infra_resource_group_name: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_RESOURCE_GROUP_NAME_PROD || github.ref == github.ref && vars.INFRA_RESOURCE_GROUP_NAME_DEV }}
+      TS_VAR_infra_subscription_id: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == github.ref && vars.INFRA_SUBSCRIPTION_ID_DEV }}
+      TS_VAR_infra_tenant_id: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_TENANT_ID_PROD || github.ref == github.ref && vars.INFRA_TENANT_ID_DEV }}
 
       # automatic terraform variables
-      ARM_CLIENT_ID: ${{ startsWith(github.ref, 'refs/tags/release') && secrets.ARM_CLIENT_ID_PROD || github.ref == 'refs/heads/"main"' && secrets.ARM_CLIENT_ID_DEV }}
-      ARM_CLIENT_SECRET: ${{ startsWith(github.ref, 'refs/tags/release') && secrets.ARM_CLIENT_SECRET_PROD || github.ref == 'refs/heads/"main"' && secrets.ARM_CLIENT_SECRET_DEV }}
-      ARM_SUBSCRIPTION_ID: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == 'refs/heads/"main"' && vars.INFRA_SUBSCRIPTION_ID_DEV }}
-      ARM_TENANT_ID: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_TENANT_ID_PROD || github.ref == 'refs/heads/"main"' && vars.INFRA_TENANT_ID_DEV }}
+      ARM_CLIENT_ID: ${{ startsWith(github.ref, 'refs/tags/release') && secrets.ARM_CLIENT_ID_PROD || github.ref == github.ref && secrets.ARM_CLIENT_ID_DEV }}
+      ARM_CLIENT_SECRET: ${{ startsWith(github.ref, 'refs/tags/release') && secrets.ARM_CLIENT_SECRET_PROD || github.ref == github.ref && secrets.ARM_CLIENT_SECRET_DEV }}
+      ARM_SUBSCRIPTION_ID: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == github.ref && vars.INFRA_SUBSCRIPTION_ID_DEV }}
+      ARM_TENANT_ID: ${{ startsWith(github.ref, 'refs/tags/release') && vars.INFRA_TENANT_ID_PROD || github.ref == github.ref && vars.INFRA_TENANT_ID_DEV }}
       TF_VERSION: 1.8.0
 
     defaults:
@@ -44,6 +48,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.inputs.destroy && github.event.inputs.destroy || github.ref }}
 
     - name: Verify the Environment
       run: |
@@ -60,6 +66,7 @@ jobs:
         echo ARM_SUBSCRIPTION_ID: ${{ env.ARM_SUBSCRIPTION_ID }}
         echo ARM_TENANT_ID: ${{ env.ARM_TENANT_ID }}
         echo TF_VERSION: ${{ env.TF_VERSION }}
+        echo ${{  }}
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
