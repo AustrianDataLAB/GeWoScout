@@ -18,4 +18,4 @@ jobs:
         image: my-new-image
         tags: v1 ${{ github.sha }}
         containerfiles: |
-          ./Dockerfile
+          ./src/Dockerfile
