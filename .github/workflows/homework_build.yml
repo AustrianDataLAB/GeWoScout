@@ -19,3 +19,16 @@ jobs:
         tags: v1 ${{ github.sha }}
         containerfiles: |
           ./src/Dockerfile
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@0.18.0
+      with:
+        image-ref: 'my-new-image:v1'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
