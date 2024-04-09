@@ -5,6 +5,9 @@ jobs:
   build:
     name: Build image
     runs-on: ubuntu-latest
+    defaults:
+        run:
+          working-directory: ./src
 
     steps:
     - uses: actions/checkout@v4
@@ -15,4 +18,4 @@ jobs:
         image: my-new-image
         tags: v1 ${{ github.sha }}
         containerfiles: |
-          ./src/Dockerfile
+          ./Dockerfile
