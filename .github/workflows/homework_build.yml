@@ -17,6 +17,7 @@ jobs:
       with:
         image: my-new-image
         tags: v1 ${{ github.sha }}
+        context: ./src
         containerfiles: |
           ./src/Dockerfile
     
