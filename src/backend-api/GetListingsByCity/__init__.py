@@ -158,7 +158,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             )
 
         for result in results:
-            for key in ["_rid", "_self", "_etag", "_attachments", "_ts"]:
+            for key in ["_rid", "_self", "_etag", "_attachments", "_ts", "partitionKey"]:
                 if key in result:
                     del result[key]
 

@@ -18,7 +18,7 @@ def main(req: func.HttpRequest, existingDoc: func.DocumentList) -> func.HttpResp
     data = existingDoc.data[0].to_dict()
 
     # Remove CosmosDB metadata
-    for key in ["_rid", "_self", "_ts", "_etag"]:
+    for key in ["_rid", "_self", "_ts", "_etag", "partitionKey"]:
         data.pop(key, None)
 
     return func.HttpResponse(json.dumps(data), status_code=200, mimetype="application/json")
