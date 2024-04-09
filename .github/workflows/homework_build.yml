@@ -13,11 +13,7 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Build
-      uses: docker/build-push-action@v5
-      with:
-        context: ./src
-        push: false
-        tags: my-new-image:latest
+      run: docker build --platform linux/amd64 -t my-new-image:latest ./src
 
     - name: List Docker images
       run: docker image ls
