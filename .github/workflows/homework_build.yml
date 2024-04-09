@@ -12,19 +12,22 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Buildah Action
-      uses: redhat-actions/buildah-build@v2
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build
+      uses: docker/build-push-action@v5
       with:
-        image: my-new-image
-        tags: v1 ${{ github.sha }}
-        context: ./src
-        containerfiles: |
-          ./src/Dockerfile
+        push: false
+        tags: my-new-image:latest
+
+    - name: List Docker images
+      run: docker image ls
     
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@0.18.0
       with:
-        image-ref: 'my-new-image:v1'
+        image-ref: 'my-new-image:latest'
         format: 'sarif'
         output: 'trivy-results.sarif'
     
