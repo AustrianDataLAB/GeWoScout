@@ -1,7 +1,5 @@
 # GeWoScout
 
-Julia
-
 ## TL;DR
 This is an application which helps people find their dream Genossenschaftswohnung in Vienna. It is a service which consolidates the existing offerings of 10 biggest Genossenschaften in Vienna and allows you to enlist for your chosen appartment in no time!
 
