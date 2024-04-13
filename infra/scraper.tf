@@ -9,7 +9,7 @@ resource "azurerm_service_plan" "service_plan" {
 
 # Azure Storage Account for the Function App
 resource "azurerm_storage_account" "storage_func" {
-  name                     = "dev-funcstorage-gewoscout"
+  name                     = "devfuncstoragegewoscout"
   resource_group_name      = data.azurerm_resource_group.rg.name
   location                 = data.azurerm_resource_group.rg.location
   account_tier             = "Standard"
