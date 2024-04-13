@@ -18,21 +18,19 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 )
 
+// Represents a listing as it is queried from various Genossenschaft pages.
 type Listing struct {
 	Id string `json:"id"`
 }
 
+// Holds any form of error (either from Azure or some internal error)
 type Error struct {
 	StatusCode int    `json:"status_code"`
 	Message    string `json:"message"`
 }
 
-func getAzError(err error) *azcore.ResponseError {
-	var responseErr *azcore.ResponseError
-	errors.As(err, &responseErr)
-	return responseErr
-}
-
+// Helper function for setting up the db connection to a certain endpoint,
+// database and container.
 func getContainer() (*azcosmos.ContainerClient, error) {
 	endpoint, ok := os.LookupEnv("DB_URI")
 	if !ok {
@@ -72,6 +70,9 @@ func getContainer() (*azcosmos.ContainerClient, error) {
 	return container, nil
 }
 
+// Handler function for /listings, which returns any listings within the
+// partition defined by the city path param, which is guaranteed to exist at
+// this point.
 func getListings(w http.ResponseWriter, r *http.Request) {
 	city := chi.URLParam(r, "city")
 
@@ -112,6 +113,8 @@ func getListings(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, string(d))
 }
 
+// Handler function for /listings/{listingId}, which fetches a specific
+// listing within the partition defined by the city key.
 func getListingsById(w http.ResponseWriter, r *http.Request) {
 	city := chi.URLParam(r, "city")
 	listingId := chi.URLParam(r, "listingId")
@@ -134,7 +137,6 @@ func getListingsById(w http.ResponseWriter, r *http.Request) {
 				Message:    fmt.Sprintf("Listing with id %s could not be found", listingId),
 				StatusCode: http.StatusNotFound,
 			})
-			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 
