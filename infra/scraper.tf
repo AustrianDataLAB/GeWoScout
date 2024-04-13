@@ -53,3 +53,8 @@ resource "azurerm_linux_function_app" "func_scraper" {
 }
 
 // todo add application insights
+// todo just for debugging - remove later
+output "function_app_url" {
+  description = "The URL of the deployed function app"
+  value       = "https://${azurerm_linux_function_app.func_scraper.default_hostname}"
+}
