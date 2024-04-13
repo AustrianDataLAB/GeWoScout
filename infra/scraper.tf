@@ -25,16 +25,16 @@ data "archive_file" "scraper_zip" {
 
 # Azure Function App
 resource "azurerm_linux_function_app" "func_scraper" {
-  name                       = "dev-funcapp-gewoscout"
-  resource_group_name        = data.azurerm_resource_group.rg.name
-  location                   = data.azurerm_resource_group.rg.location
+  name                = "dev-funcapp-gewoscout"
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
 
   storage_account_name       = azurerm_storage_account.storage_func.name
   storage_account_access_key = azurerm_storage_account.storage_func.primary_access_key
   service_plan_id            = azurerm_service_plan.service_plan.id
 
   // TODO remove for scraping function
-  https_only                 = true
+  https_only = true
 
   site_config {
     application_stack {
