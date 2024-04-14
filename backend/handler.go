@@ -109,8 +109,7 @@ func getListings(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	d, _ := json.Marshal(listings)
-	fmt.Fprintln(w, string(d))
+	render.JSON(w, r, listings)
 }
 
 // Handler function for /listings/{listingId}, which fetches a specific
@@ -166,7 +165,11 @@ func getListingsById(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	port := "8080"
+	port, exists := os.LookupEnv("FUNCTIONS_CUSTOMHANDLER_PORT")
+	if !exists {
+		port = "8080"
+	}
+
 	log.Printf("About to listen on %s. Go to http://127.0.0.1:%s/", port, port)
 
 	r := chi.NewRouter()
@@ -174,8 +177,8 @@ func main() {
 	r.Use(middleware.URLFormat)
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
-	r.Get("/{city}/listings", getListings)
-	r.Get("/{city}/listings/{listingId}", getListingsById)
+	r.Get("/api/listings/{city}", getListings)
+	r.Get("/api/listings/{city}/{listingId}", getListingsById)
 
 	http.ListenAndServe(":"+port, r)
 }
