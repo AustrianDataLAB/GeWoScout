@@ -1,4 +1,7 @@
 **/*/bin
 **/*/.vscode
 
+.idea/*
+.vscode/*
+
 **/*/local.settings.json
