@@ -1,0 +1,14 @@
+{
+  "bindings": [
+    {
+      "type": "cosmosDBTrigger",
+      "name": "documents",
+      "direction": "in",
+      "leaseContainerName": "leases",
+      "connection": "CosmosDbConnection",
+      "databaseName": "gewoscout",
+      "containerName": "listings",
+      "createLeaseContainerIfNotExists": true
+    }
+  ]
+}
