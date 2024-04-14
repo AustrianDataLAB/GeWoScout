@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -17,6 +18,21 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 )
+
+type ReturnValue struct {
+	Data string
+}
+
+type InvokeResponse struct {
+	Outputs     map[string]interface{}
+	Logs        []string
+	ReturnValue interface{}
+}
+
+type InvokeRequest struct {
+	Data     map[string]interface{}
+	Metadata map[string]interface{}
+}
 
 // Represents a listing as it is queried from various Genossenschaft pages.
 type Listing struct {
@@ -27,6 +43,113 @@ type Listing struct {
 type Error struct {
 	StatusCode int    `json:"status_code"`
 	Message    string `json:"message"`
+}
+
+func queueTriggerHandler(w http.ResponseWriter, r *http.Request) {
+	var invokeReq InvokeRequest
+
+	dec := json.NewDecoder(r.Body)
+	if err := dec.Decode(&invokeReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// TODO: implement something
+	md, _ := json.Marshal(invokeReq.Metadata)
+	d, _ := json.Marshal(invokeReq.Data)
+	log.Printf("Received metadata: %s\n", md)
+	log.Printf("Received data: %s\n", d)
+
+	invokeResponse := InvokeResponse{Logs: []string{}, ReturnValue: nil}
+
+	resp, err := json.Marshal(invokeResponse)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(resp)
+}
+
+type CosmosData struct {
+	Documents string `json:"documents"`
+}
+
+type CosmosMetadataSys struct {
+	MethodName string `json:"MethodName"`
+	UtcNow     string `json:"UtcNow"`
+	RandGuid   string `json:"RandGuid"`
+}
+
+type CosmosMetadata struct {
+	Sys CosmosMetadataSys `json:"sys"`
+}
+
+type CosmosTrigger struct {
+	Data     CosmosData     `json:"Data"`
+	Metadata CosmosMetadata `json:"Metadata"`
+}
+
+func cosmosUpdateHandler(w http.ResponseWriter, r *http.Request) {
+	t := time.Now()
+	fmt.Println(t.Month())
+	fmt.Println(t.Day())
+	fmt.Println(t.Year())
+	fmt.Println(r.Header)
+	ua := r.Header.Get("User-Agent")
+	fmt.Printf("user agent is: %s \n", ua)
+	invocationid := r.Header.Get("X-Azure-Functions-InvocationId")
+	fmt.Printf("invocationid is: %s \n", invocationid)
+
+	queryParams := r.URL.Query()
+
+	for k, v := range queryParams {
+		fmt.Println("k:", k, "v:", v)
+	}
+
+	body := make([]byte, r.ContentLength)
+	r.Body.Read(body)
+	fmt.Println("Body:", string(body))
+
+	var cosmosTrigger CosmosTrigger
+	err := json.Unmarshal(body, &cosmosTrigger)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON trigger: ", err)
+	}
+
+	fmt.Println("CosmosTrigger:", cosmosTrigger)
+
+	fmt.Println("Cosmos Trigger:")
+	fmt.Println("Metadata", cosmosTrigger.Metadata.Sys.MethodName, cosmosTrigger.Metadata.Sys.UtcNow, cosmosTrigger.Metadata.Sys.RandGuid)
+	fmt.Println("Data", cosmosTrigger.Data.Documents)
+
+	var dataStr string
+	err = json.Unmarshal([]byte(cosmosTrigger.Data.Documents), &dataStr)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON string: ", err)
+	}
+
+	// `MyCosmosDocument` contains an escaped JSON string, parse it too.
+	var documents []map[string]interface{} // Using a map for flexible structure handling
+	err = json.Unmarshal([]byte(dataStr), &documents)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON documents: ", err)
+	}
+
+	fmt.Printf("Parsed Documents: %+v\n", documents)
+
+	returnValue := ReturnValue{Data: "Hello from Go!"}
+	invokeResponse := InvokeResponse{Logs: []string{"test log1", "test log2"}, ReturnValue: returnValue}
+
+	js, err := json.Marshal(invokeResponse)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
 }
 
 // Helper function for setting up the db connection to a certain endpoint,
@@ -177,6 +300,8 @@ func main() {
 	r.Use(middleware.URLFormat)
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
+	r.Get("/QueueTrigger", queueTriggerHandler)
+	r.Get("/CosmosTrigger", cosmosUpdateHandler)
 	r.Get("/api/listings/{city}", getListings)
 	r.Get("/api/listings/{city}/{listingId}", getListingsById)
 
