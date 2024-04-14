@@ -139,7 +139,7 @@ func cosmosUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Parsed Documents: %+v\n", documents)
 
-	returnValue := ReturnValue{Data: "Hello from Go!"}
+	returnValue := ReturnValue{Data: documents[0]["id"].(string)}
 	invokeResponse := InvokeResponse{Logs: []string{"test log1", "test log2"}, ReturnValue: returnValue}
 
 	js, err := json.Marshal(invokeResponse)
@@ -287,6 +287,23 @@ func getListingsById(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func SetupRouter() *chi.Mux {
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Use(middleware.URLFormat)
+	r.Use(render.SetContentType(render.ContentTypeJSON))
+
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello, world!"))
+	})
+	r.Get("/QueueTrigger", queueTriggerHandler)
+	r.Get("/CosmosTrigger", cosmosUpdateHandler)
+	r.Get("/api/listings/{city}", getListings)
+	r.Get("/api/listings/{city}/{listingId}", getListingsById)
+
+	return r
+}
+
 func main() {
 	port, exists := os.LookupEnv("FUNCTIONS_CUSTOMHANDLER_PORT")
 	if !exists {
@@ -295,15 +312,7 @@ func main() {
 
 	log.Printf("About to listen on %s. Go to http://127.0.0.1:%s/", port, port)
 
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	r.Use(middleware.URLFormat)
-	r.Use(render.SetContentType(render.ContentTypeJSON))
-
-	r.Get("/QueueTrigger", queueTriggerHandler)
-	r.Get("/CosmosTrigger", cosmosUpdateHandler)
-	r.Get("/api/listings/{city}", getListings)
-	r.Get("/api/listings/{city}/{listingId}", getListingsById)
+	r := SetupRouter()
 
 	http.ListenAndServe(":"+port, r)
 }
