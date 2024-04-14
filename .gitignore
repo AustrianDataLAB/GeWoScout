@@ -1,2 +1,5 @@
 **/*/bin
 **/*/.vscode
+
+.idea/*
+.vscode/*
