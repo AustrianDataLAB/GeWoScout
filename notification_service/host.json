@@ -14,7 +14,7 @@
   },
   "customHandler": {
     "description": {
-      "defaultExecutablePath": "backend/bin/handler",
+      "defaultExecutablePath": "bin/handler",
       "workingDirectory": "",
       "arguments": []
     },
