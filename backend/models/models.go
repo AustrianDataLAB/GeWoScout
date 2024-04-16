@@ -2,7 +2,7 @@ package models
 
 type Listing struct {
 	ID                 string `json:"id"`
-	PartitionKey       string `json:"partitionKey"`
+	PartitionKey       string `json:"_partitionKey"`
 	Title              string `json:"title"`
 	HousingCooperative string `json:"housingCooperative"`
 	ProjectID          string `json:"projectId"`
