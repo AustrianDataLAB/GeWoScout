@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,6 +19,61 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 )
+
+type BindingResponse struct {
+	Res Listing `json:"res"`
+}
+
+type Listing struct {
+	ID                 string `json:"id"`
+	PartitionKey       string `json:"partitionKey"`
+	Title              string `json:"title"`
+	HousingCooperative string `json:"housingCooperative"`
+	ProjectID          string `json:"projectId"`
+	ListingID          string `json:"listingId"`
+	Country            string `json:"country"`
+	City               string `json:"city"`
+	PostalCode         string `json:"postalCode"`
+	Address            string `json:"address"`
+	RoomCount          int    `json:"roomCount"`
+	SquareMeters       int    `json:"squareMeters"`
+	AvailabilityDate   string `json:"availabilityDate"`
+	YearBuilt          int    `json:"yearBuilt"`
+	HwgEnergyClass     string `json:"hwgEnergyClass"`
+	FgeeEnergyClass    string `json:"fgeeEnergyClass"`
+	ListingType        string `json:"listingType"`
+	RentPricePerMonth  int    `json:"rentPricePerMonth"`
+	CooperativeShare   int    `json:"cooperativeShare"`
+	SalePrice          *int   `json:"salePrice,omitempty"`
+	AdditionalFees     *int   `json:"additionalFees,omitempty"`
+	DetailsURL         string `json:"detailsUrl"`
+	PreviewImageURL    string `json:"previewImageUrl"`
+	ScraperID          string `json:"scraperId"`
+	CreatedAt          string `json:"createdAt"`
+	LastModifiedAt     string `json:"lastModifiedAt"`
+}
+
+type Metadata struct {
+	City  string            `json:"city"`
+	ID    string            `json:"id"`
+	Query map[string]string `json:"Query"`
+}
+
+type Sys struct {
+	MethodName string    `json:"MethodName"`
+	UtcNow     time.Time `json:"UtcNow"`
+	RandGuid   string    `json:"RandGuid"`
+}
+
+type Data struct {
+	ExistingDoc string   `json:"existingDoc"`
+	Metadata    Metadata `json:"Metadata"`
+}
+
+type InjectedCosmosRequest struct {
+	Data     Data     `json:"Data"`
+	Metadata Metadata `json:"Metadata"`
+}
 
 type ReturnValue struct {
 	Data string
@@ -32,11 +88,6 @@ type InvokeResponse struct {
 type InvokeRequest struct {
 	Data     map[string]interface{}
 	Metadata map[string]interface{}
-}
-
-// Represents a listing as it is queried from various Genossenschaft pages.
-type Listing struct {
-	Id string `json:"id"`
 }
 
 // Holds any form of error (either from Azure or some internal error)
@@ -185,7 +236,7 @@ func getContainer() (*azcosmos.ContainerClient, error) {
 		return nil, err
 	}
 
-	container, err := client.NewContainer(dbName, "listings")
+	container, err := client.NewContainer(dbName, "ListingsByCity")
 	if err != nil {
 		log.Fatal("Failed to get container Listings")
 		return nil, err
@@ -236,56 +287,30 @@ func getListings(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, listings)
 }
 
-// Handler function for /listings/{listingId}, which fetches a specific
-// listing within the partition defined by the city key.
-func getListingsById(w http.ResponseWriter, r *http.Request) {
-	city := chi.URLParam(r, "city")
-	listingId := chi.URLParam(r, "listingId")
-
-	container, err := getContainer()
-	if err != nil {
-		render.JSON(w, r, Error{Message: err.Error(), StatusCode: http.StatusInternalServerError})
+func getListingById(w http.ResponseWriter, r *http.Request) {
+	injectedData := InjectedCosmosRequest{}
+	dec := json.NewDecoder(r.Body)
+	if err := dec.Decode(&injectedData); err != nil {
+		log.Printf("Error trying to unmarshal injected data: %s\n", err.Error())
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, Error{Message: err.Error(), StatusCode: http.StatusBadRequest})
 		return
 	}
 
-	partitionKey := azcosmos.NewPartitionKeyString(strings.ToLower(city))
-	response, err := container.ReadItem(context.Background(), partitionKey, listingId, nil)
-	if err != nil {
-		var azError *azcore.ResponseError
-		errors.As(err, &azError)
+	input, _ := strconv.Unquote(injectedData.Data.ExistingDoc)
 
-		if azError.StatusCode == http.StatusNotFound {
-			render.Status(r, http.StatusNotFound)
-			render.JSON(w, r, Error{
-				Message:    fmt.Sprintf("Listing with id %s could not be found", listingId),
-				StatusCode: http.StatusNotFound,
-			})
-			return
-		}
-
-		log.Printf("Failed to read item: %s\n", azError.ErrorCode)
-		render.JSON(w, r, Error{Message: err.Error(), StatusCode: http.StatusInternalServerError})
+	listing := Listing{}
+	if err := json.Unmarshal([]byte(input), &listing); err != nil {
+		log.Printf("Error trying to unmarshal injected listing: %s\n", err.Error())
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, Error{Message: err.Error(), StatusCode: http.StatusBadRequest})
 		return
 	}
 
-	if response.RawResponse.StatusCode == 200 {
-		listing := Listing{}
-		err := json.Unmarshal(response.Value, &listing)
-		if err != nil {
-			log.Printf("Failed to unmarshal result: %s\n", err.Error())
-			render.JSON(w, r, Error{Message: err.Error(), StatusCode: http.StatusInternalServerError})
-			return
-		}
-
-		render.JSON(w, r, listing)
-	} else {
-		log.Printf("Item could not successfully be fetched")
-		render.JSON(w, r, Error{
-			Message:    "Item could not successfully be fetched",
-			StatusCode: http.StatusInternalServerError,
-		})
-		return
-	}
+	outputs := make(map[string]interface{})
+	outputs["statusCode"] = http.StatusOK
+	invokeResponse := InvokeResponse{outputs, []string{}, listing}
+	render.JSON(w, r, invokeResponse)
 }
 
 func SetupRouter() *chi.Mux {
@@ -299,15 +324,13 @@ func SetupRouter() *chi.Mux {
 	})
 	r.Get("/QueueTrigger", queueTriggerHandler)
 	r.Get("/CosmosTrigger", cosmosUpdateHandler)
-	r.Get("/api/listings/{city}", getListings)
-	r.Get("/api/listings/{city}/{listingId}", getListingsById)
-
-	r.Post("/listingById", func(w http.ResponseWriter, r *http.Request) {
-		// Print Body
-		body := make([]byte, r.ContentLength)
-		r.Body.Read(body)
-		fmt.Println("Body:", string(body))
-	})
+	r.Get("/api/cities/{city}/listings", getListings)
+	// Mapping for /api/cities/{city}/listings/{id}
+	// The Azure Function defined for this route has an injection from CosmosDB,
+	// which means the original GET request is mapped to a POST request to this
+	// route and the result is subsequently returned for the original GET
+	// request.
+	r.Post("/listingById", getListingById)
 
 	return r
 }
