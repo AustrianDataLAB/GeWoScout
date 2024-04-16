@@ -13,11 +13,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/vue-gewoscout
     timeout-minutes: 2
     steps:
       - uses: actions/checkout@v4
       - name: Run Tests
-        run: docker-compose -f ./frontend/vue-gewoscout/docker-compose.yaml run test
+        run: docker-compose -f docker-compose.yaml run test
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
