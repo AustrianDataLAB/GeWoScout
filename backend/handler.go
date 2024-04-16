@@ -205,9 +205,10 @@ func getListings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := "SELECT * FROM c"
+	query := "SELECT * FROM c WHERE c._partitionKey = @city"
 	partitionKey := azcosmos.NewPartitionKeyString(strings.ToLower(city))
-	pager := container.NewQueryItemsPager(query, partitionKey, nil)
+	options := azcosmos.QueryOptions{QueryParameters: []azcosmos.QueryParameter{{Name: "@city", Value: city}}}
+	pager := container.NewQueryItemsPager(query, partitionKey, &options)
 
 	listings := []Listing{}
 
