@@ -16,8 +16,7 @@
       "name": "documents",
       "id": "{id}",
       "partitionKey": "{city}",
-      "connectionStringSetting": "CosmosDbConnection",
-      "connection": "CosmosDbConnection",
+      "connection": "COSMOS_DB_CONNECTION",
       "databaseName": "gewoscout-db",
       "containerName": "ListingsByCity"
     },

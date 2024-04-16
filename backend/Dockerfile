@@ -28,7 +28,6 @@ RUN apt-get update \
     && apt-get clean
 
 COPY host.json ./
-COPY test.settings.json ./local.settings.json
 
 COPY listings/function.json ./listings/
 COPY listingById/function.json ./listingById/
@@ -37,4 +36,4 @@ COPY --from=builder /bin/handler ./bin/
 
 EXPOSE 80
 
-ENTRYPOINT [ "func", "start", "--port", "80", "--verbose" ]
+ENTRYPOINT [ "func", "start", "--custom", "--port", "80", "--verbose" ]

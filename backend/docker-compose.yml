@@ -6,3 +6,5 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80:80"
+    environment:
+      - COSMOS_DB_CONNECTION=<YOUR_CONNECTION_STRING>

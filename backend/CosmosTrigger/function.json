@@ -5,7 +5,7 @@
       "name": "documents",
       "direction": "in",
       "leaseContainerName": "leases",
-      "connection": "CosmosDbConnection",
+      "connection": "COSMOS_DB_CONNECTION",
       "databaseName": "gewoscout-db",
       "containerName": "ListingsByCity",
       "createLeaseContainerIfNotExists": true
