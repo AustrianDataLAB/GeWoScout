@@ -67,7 +67,6 @@ func GetListingById(w http.ResponseWriter, r *http.Request) {
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&injectedData); err != nil {
 		log.Printf("Error trying to unmarshal injected data: %s\n", err.Error())
-		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r,
 			models.InvokeResponse{
 				Outputs: map[string]interface{}{
@@ -81,10 +80,9 @@ func GetListingById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if injectedData.Data.Documents == "null" {
-		render.Status(r, http.StatusNotFound)
 		render.JSON(w, r, models.InvokeResponse{
 			Outputs: map[string]interface{}{
-				"status_code": http.StatusNotFound,
+				"statusCode": http.StatusNotFound,
 			},
 			Logs: []string{},
 			ReturnValue: models.Error{
@@ -100,7 +98,6 @@ func GetListingById(w http.ResponseWriter, r *http.Request) {
 	listing := models.Listing{}
 	if err := json.Unmarshal([]byte(input), &listing); err != nil {
 		log.Printf("Error trying to unmarshal injected listing: %s\n", err.Error())
-		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r,
 			models.InvokeResponse{
 				Outputs: map[string]interface{}{
