@@ -1,0 +1,7 @@
+FROM node:20-alpine AS tester
+WORKDIR /app
+
+COPY package.json .
+RUN npm install --save-dev vitest && npm install
+
+COPY . .
