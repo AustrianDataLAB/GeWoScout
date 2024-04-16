@@ -5,3 +5,5 @@ COPY package.json .
 RUN npm install --save-dev vitest && npm install
 
 COPY . .
+
+RUN npx vitest --reporter=json --outputFile=/app/test-results/test-output.json
