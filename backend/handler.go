@@ -20,10 +20,6 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 )
 
-type BindingResponse struct {
-	Res Listing `json:"res"`
-}
-
 type Listing struct {
 	ID                 string `json:"id"`
 	PartitionKey       string `json:"partitionKey"`
@@ -54,15 +50,8 @@ type Listing struct {
 }
 
 type Metadata struct {
-	City  string            `json:"city"`
-	ID    string            `json:"id"`
-	Query map[string]string `json:"Query"`
-}
-
-type Sys struct {
-	MethodName string    `json:"MethodName"`
-	UtcNow     time.Time `json:"UtcNow"`
-	RandGuid   string    `json:"RandGuid"`
+	City string `json:"city"`
+	ID   string `json:"id"`
 }
 
 type Data struct {
@@ -70,7 +59,7 @@ type Data struct {
 	Metadata    Metadata `json:"Metadata"`
 }
 
-type InjectedCosmosRequest struct {
+type CosmosBindingInput struct {
 	Data     Data     `json:"Data"`
 	Metadata Metadata `json:"Metadata"`
 }
@@ -85,11 +74,6 @@ type InvokeResponse struct {
 	ReturnValue interface{}
 }
 
-type InvokeRequest struct {
-	Data     map[string]interface{}
-	Metadata map[string]interface{}
-}
-
 // Holds any form of error (either from Azure or some internal error)
 type Error struct {
 	StatusCode int    `json:"status_code"`
@@ -97,30 +81,22 @@ type Error struct {
 }
 
 func queueTriggerHandler(w http.ResponseWriter, r *http.Request) {
-	var invokeReq InvokeRequest
+	var injectedData CosmosBindingInput
 
 	dec := json.NewDecoder(r.Body)
-	if err := dec.Decode(&invokeReq); err != nil {
+	if err := dec.Decode(&injectedData); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// TODO: implement something
-	md, _ := json.Marshal(invokeReq.Metadata)
-	d, _ := json.Marshal(invokeReq.Data)
+	md, _ := json.Marshal(injectedData.Metadata)
+	d, _ := json.Marshal(injectedData.Data)
 	log.Printf("Received metadata: %s\n", md)
 	log.Printf("Received data: %s\n", d)
 
 	invokeResponse := InvokeResponse{Logs: []string{}, ReturnValue: nil}
-
-	resp, err := json.Marshal(invokeResponse)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(resp)
+	render.JSON(w, r, invokeResponse)
 }
 
 type CosmosData struct {
@@ -288,7 +264,7 @@ func getListings(w http.ResponseWriter, r *http.Request) {
 }
 
 func getListingById(w http.ResponseWriter, r *http.Request) {
-	injectedData := InjectedCosmosRequest{}
+	injectedData := CosmosBindingInput{}
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&injectedData); err != nil {
 		log.Printf("Error trying to unmarshal injected data: %s\n", err.Error())
@@ -313,7 +289,7 @@ func getListingById(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, invokeResponse)
 }
 
-func SetupRouter() *chi.Mux {
+func setupRouter() *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.URLFormat)
@@ -342,8 +318,6 @@ func main() {
 	}
 
 	log.Printf("About to listen on %s. Go to http://127.0.0.1:%s/", port, port)
-
-	r := SetupRouter()
-
+	r := setupRouter()
 	http.ListenAndServe(":"+port, r)
 }
