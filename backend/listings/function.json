@@ -6,9 +6,9 @@
       "direction": "in",
       "name": "req",
       "methods": [
-        "get",
+        "get"
       ],
-      "route": "listings/{city}"
+      "route": "cities/{city}/listings"
     },
     {
       "type": "http",
