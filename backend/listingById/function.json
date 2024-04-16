@@ -1,0 +1,29 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get"
+      ],
+      "route": "cities/{city}/listings/{id}"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "in",
+      "name": "documents",
+      "id": "{id}",
+      "partitionKey": "{city}",
+      "connection": "COSMOS_DB_CONNECTION",
+      "databaseName": "gewoscout-db",
+      "containerName": "ListingsByCity"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "$return"
+    }
+  ]
+}
