@@ -27,7 +27,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            test-results\*.json
+            test-results/*.json
       - name: TearDown
         run: docker-compose down --remove-orphans
 
