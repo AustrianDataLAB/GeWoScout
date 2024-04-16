@@ -302,6 +302,13 @@ func SetupRouter() *chi.Mux {
 	r.Get("/api/listings/{city}", getListings)
 	r.Get("/api/listings/{city}/{listingId}", getListingsById)
 
+	r.Post("/listingById", func(w http.ResponseWriter, r *http.Request) {
+		// Print Body
+		body := make([]byte, r.ContentLength)
+		r.Body.Read(body)
+		fmt.Println("Body:", string(body))
+	})
+
 	return r
 }
 
