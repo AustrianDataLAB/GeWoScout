@@ -7,6 +7,6 @@ services:
         dockerfile: Dockerfile.test
       volumes:
         - ./test-results:/app/test-results
-      command: ["npx", "vitest", "--reporter=json", "--outputFile=./test-results/test-output.json"]
+      command: ["npx", "vitest", "--reporter=junit", "--outputFile=./test-results/test-output.xml"]
 
        
