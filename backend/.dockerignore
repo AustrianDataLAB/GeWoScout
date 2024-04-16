@@ -1,0 +1,5 @@
+bin
+local.settings.json
+docker-compose.yml
+Makefile
+*_test.go
