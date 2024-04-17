@@ -1,12 +1,36 @@
-import pytest
-from azure.cosmos import PartitionKey, CosmosClient, exceptions
+import logging
 
-from .constants import CONNECTION_STRING, LISTINGS_FIXTURE
+import pytest
+import urllib3
+from azure.cosmos import PartitionKey, CosmosClient, exceptions
+from azure.cosmos.documents import ConnectionPolicy
+
+from .constants import LISTINGS_FIXTURE
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 @pytest.fixture(scope="module")
 def cosmos_db_client():
-    client = CosmosClient.from_connection_string(CONNECTION_STRING)
+    # client = CosmosClient.from_connection_string(CONNECTION_STRING)
+    connection_policy = ConnectionPolicy()
+    connection_policy.RequestTimeout = 10
+    connection_policy.ConnectionMode = 1
+    connection_policy.DisableSSLVerification = True
+    connection_policy.EnableEndpointDiscovery = True
+    # connection_policy.PreferredLocations = ["https://localhost:8081"]
+
+    client = CosmosClient(
+        url="https://localhost:8081/",
+        credential="C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
+        connection_policy=connection_policy,
+    )
+
+    print(client.list_databases())
+    # client.client_connection.ReadEndpoint = client.client_connection.url_connection
+    # client.client_connection.WriteEndpoint = client.client_connection.url_connection
     return client
 
 

@@ -122,7 +122,8 @@ jobs:
 
       - name: Start func
         run: start /B func start --port 8000
-        
+        shell: cmd
+
         #$funcPath = (Get-Command func).Source
         #Start-Process -NoNewWindow -FilePath $funcPath -ArgumentList "start", "--port 8000" -RedirectStandardOutput "func.log"
 
@@ -133,11 +134,16 @@ jobs:
       - name: Run integration tests
         run: cd test; pytest
     
+      - name: Cleanup
+        if: always()
+        run: taskkill /IM func.exe /F
+        shell: cmd
+
       - name: Output func logs
+        if: always()
         run: |
           Get-Content "func.log" -Raw | Write-Output
-  
-
+      
       # Setup Docker
       #- name: Set up Docker Buildx
       #  uses: docker/setup-buildx-action@v2
