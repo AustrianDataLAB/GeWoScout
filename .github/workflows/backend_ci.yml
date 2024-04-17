@@ -64,18 +64,26 @@ jobs:
       #  with:
       #    app-name: 'backend'
 
+      #- name: Install Azure Functions Core Tools
+      #  run: |
+      #    # Define the URL and download path
+      #    $url = "https://go.microsoft.com/fwlink/?linkid=2174087"
+      #    $output = "downloaded_installer.msi"###
+
+      #    # Download the MSI file
+      #    Invoke-WebRequest -Uri $url -OutFile $output#
+
+      #    # Install the MSI file silently
+      #    Start-Process msiexec.exe -ArgumentList '/i', $output, '/qn', '/norestart' -NoNewWindow -Wait
+      #  shell: pwsh
+
+      - name: Install npm
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
       - name: Install Azure Functions Core Tools
-        run: |
-          # Define the URL and download path
-          $url = "https://go.microsoft.com/fwlink/?linkid=2174087"
-          $output = "downloaded_installer.msi"
-
-          # Download the MSI file
-          Invoke-WebRequest -Uri $url -OutFile $output
-
-          # Install the MSI file silently
-          Start-Process msiexec.exe -ArgumentList '/i', $output, '/qn', '/norestart' -NoNewWindow -Wait
-        shell: pwsh
+        run: npm i -g azure-functions-core-tools@4 --unsafe-perm true
 
       - name: Print the version of Azure Functions Core Tools
         run: func --version
