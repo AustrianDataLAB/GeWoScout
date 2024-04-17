@@ -64,6 +64,7 @@ jobs:
       
       - name: Get Cosmos DB Emulator status
         run: >-
+          Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
           Get-CosmosDbEmulatorStatus
       
       - name: Sleep
@@ -71,6 +72,7 @@ jobs:
       
       - name: Get Cosmos DB Emulator status
         run: >-
+          Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
           Get-CosmosDbEmulatorStatus
 
       # Run the integration tests
