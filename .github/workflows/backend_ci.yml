@@ -51,6 +51,11 @@ jobs:
           Write-Host "Launching Cosmos DB Emulator"
           Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
           Start-CosmosDbEmulator
+          Get-CosmosDbEmulatorStatus
+          Start-Sleep -s 10
+          Get-CosmosDbEmulatorStatus
+          Start-Sleep -s 10
+          Get-CosmosDbEmulatorStatus
 
       # Setup python
       - name: Set up Python
@@ -62,19 +67,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       
-      - name: Get Cosmos DB Emulator status
-        run: >-
-          Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
-          Get-CosmosDbEmulatorStatus
-      
-      - name: Sleep
-        run: Start-Sleep -s 10
-      
-      - name: Get Cosmos DB Emulator status
-        run: >-
-          Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
-          Get-CosmosDbEmulatorStatus
-
       # Run the integration tests
       - name: Run integration tests
         run: pytest test_base.py
