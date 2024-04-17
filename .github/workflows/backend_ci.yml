@@ -121,14 +121,26 @@ jobs:
         run: Rename-Item -Path test.settings.json -NewName local.settings.json
 
       - name: Start func
-        run: start /B func start --port 8000 > func.log
-        shell: cmd
+        run: |
+          $ProcessInfo = New-Object System.Diagnostics.ProcessStartInfo
+          $ProcessInfo.FileName = "func"
+          $ProcessInfo.RedirectStandardError = $true
+          $ProcessInfo.RedirectStandardOutput = $true
+          $ProcessInfo.UseShellExecute = $false
+          $ProcessInfo.Arguments = "start --port 8000"
+          $Process = New-Object System.Diagnostics.Process
+          $Process.StartInfo = $ProcessInfo
+          $Process.Start() | Out-Null
+          $Process.Id > func.pid
+          Start-Sleep -Seconds 30  # Allows some time for the function to initialize
+        shell: pwsh
+    
 
         #$funcPath = (Get-Command func).Source
         #Start-Process -NoNewWindow -FilePath $funcPath -ArgumentList "start", "--port 8000" -RedirectStandardOutput "func.log"
 
-      - name: Delay before running tests
-        run: Start-Sleep -Seconds 30
+      #- name: Delay before running tests
+      #  run: Start-Sleep -Seconds 30
 
       - name: List tasks
         run: tasklist
@@ -144,13 +156,19 @@ jobs:
     
       - name: Cleanup
         if: always()
-        run: taskkill /IM func.exe /F
-        shell: cmd
+        run: |
+          if (Test-Path func.pid) {
+            $pid = Get-Content func.pid
+            Stop-Process -Id $pid -Force
+          } else {
+            Write-Output "No PID file found."
+          }
+        shell: pwsh
 
       - name: Output func logs
         if: always()
-        run: |
-          Get-Content "func.log" -Raw | Write-Output
+        run: Get-Content "func.log" -Raw | Write-Output
+      
       
       # Setup Docker
       #- name: Set up Docker Buildx
