@@ -36,7 +36,8 @@ jobs:
   
   integration-test:
     runs-on: ubuntu-latest
-    needs: build
+    # TODO enable needs later
+    #needs: build
     defaults:
       run:
         working-directory: backend/test

@@ -3,6 +3,7 @@ services:
     build:
       context: ..
       dockerfile: Dockerfile
+    restart: unless-stopped
     ports:
       - "80:80"
     environment:
@@ -10,6 +11,7 @@ services:
 
   cosmos:
     image: "mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator"
+    restart: unless-stopped
     ports:
       - "8081:8081"
       - "10251:10251"
