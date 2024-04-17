@@ -122,7 +122,7 @@ jobs:
 
       - name: Start func
         run: |
-          Start-Process -NoNewWindow -FilePath "func" -ArgumentList "start", "--port 8000" -RedirectStandardOutput "func.log" -RedirectStandardError "func.log"
+          Start-Process -NoNewWindow -FilePath "func" -ArgumentList "start", "--port 8000" -RedirectStandardOutput "func.log"
 
       - name: Delay before running tests
         run: Start-Sleep -Seconds 30
