@@ -121,7 +121,7 @@ jobs:
         run: Rename-Item -Path test.settings.json -NewName local.settings.json
 
       - name: Start func
-        run: start /B func start --port 8000
+        run: start /B func start --port 8000 > func.log
         shell: cmd
 
         #$funcPath = (Get-Command func).Source
@@ -130,9 +130,17 @@ jobs:
       - name: Delay before running tests
         run: Start-Sleep -Seconds 30
 
+      - name: List tasks
+        run: tasklist
+        shell: cmd
+
       # Run the integration tests
       - name: Run integration tests
         run: cd test; pytest
+      
+      - name: List tasks
+        run: tasklist
+        shell: cmd
     
       - name: Cleanup
         if: always()
