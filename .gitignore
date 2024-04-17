@@ -5,3 +5,8 @@
 /**/.vscode/*
 
 **/*/local.settings.json
+
+.env
+*.zip
+/infra/.terraform/
+/infra/.terraform.lock.hcl
