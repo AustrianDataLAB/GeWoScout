@@ -49,6 +49,12 @@ jobs:
       - name: Install winget
         uses: Cyberboss/install-winget@v1
 
+      - name: Configure winget settings
+        run: |
+          echo '{ "sourceAgreements": [{ "sourceIdentifier": "msstore", "accepted": true }], "locale": "en-US" }' > $env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\settings.json
+        shell: pwsh
+      
+
       # Install Function Core Tools
       - name: Install Azure Functions Core Tools
         run: winget install Microsoft.AzureFunctionsCoreTools --accept-source-agreements
