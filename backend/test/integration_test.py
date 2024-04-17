@@ -7,6 +7,9 @@ from azure.cosmos import CosmosClient, PartitionKey, exceptions
 
 from secrets import CONNECTION_STRING
 
+with open('listings_fixture.json', 'r') as file:
+    LISTINGS_FIXTURE = json.load(file)
+
 
 @pytest.fixture(scope="module")
 def cosmos_db_client():
@@ -34,11 +37,7 @@ def cosmos_db_setup(cosmos_db_client):
     except exceptions.CosmosHttpResponseError:
         container = database.get_container_client(container_name)
 
-    # Load and insert data
-    with open('listings_fixture.json', 'r') as file:
-        listings_data = json.load(file)
-
-    for listing in listings_data:
+    for listing in LISTINGS_FIXTURE:
         container.upsert_item(listing)
 
     # Provide the database and container to the test function
@@ -78,6 +77,7 @@ API_BASE_URL = "http://localhost:8000/api/"
 ])
 def test_get_all_listings_for_city(city, expected_listings_count):
     endpoint_url = f"{API_BASE_URL}cities/{city}/listings"
+    expected_ids = [listing["id"] for listing in LISTINGS_FIXTURE if listing['_partitionKey'] == city]
 
     # Send a GET request to the endpoint
     response = requests.get(endpoint_url)
@@ -88,15 +88,23 @@ def test_get_all_listings_for_city(city, expected_listings_count):
     assert response.headers['Content-Type'] == 'application/json', "API did not return JSON"
 
     # Parse JSON response
-    listings = response.json()
-    assert isinstance(listings, list), "Response format is not a list"
+    response_json = response.json()
+    assert isinstance(response_json, dict), "Response format is not a dictionary"
+
+    assert "results" in response_json, "Response does not contain 'results' key"
+    listings = response_json["results"]
 
     # Assuming you know the exact number of listings the fixture should have for Vienna
     assert len(listings) == expected_listings_count, f"Expected {expected_listings_count} listings, got {len(listings)}"
+    ids = [listing["id"] for listing in listings]
+    assert ids == expected_ids, "Listing IDs do not match"
 
     # Additional checks could include verifying that all listings are for Vienna
     for listing in listings:
         assert listing.get('_partitionKey') == city, "Listing city mismatch"
+
+    assert "continuationToken" in response_json, "Response does not contain 'continuationToken' key"
+    assert response_json["continuationToken"] is None, "Expected continuation token to be None"
 
 
 @pytest.mark.usefixtures("cosmos_db_setup")
@@ -116,6 +124,12 @@ def test_get_listings_using_continuation_token():
     results_1 = response1_json["results"]
 
     assert len(results_1) == 3, "Expected 3 listings in the first page"
+    ids_1 = [listing["id"] for listing in results_1]
+    assert ids_1 == [
+        "FutureLivingGenossenschaft_FLG2024_12345ABC",
+        "UrbanLiving_ULProj001_ULFlat001",
+        "UrbanLiving_ULProj002_ULFlat004"
+    ], "Wrong listing IDs in the first page"
 
     assert "continuationToken" in response1_json, "Response does not contain 'continuationToken' key"
     continuation_token = response1_json["continuationToken"]
@@ -133,6 +147,12 @@ def test_get_listings_using_continuation_token():
     results_2 = response2_json["results"]
 
     assert len(results_2) == 3, "Expected 3 listings in the second page"
+    ids_2 = [listing["id"] for listing in results_2]
+    assert ids_2 == [
+        "CityHomes_CHProj204_CHFlat059",
+        "CityHomes_CHProj205_CHFlat062",
+        "GreenLiving_GLProj987_GLFlat321"
+    ], "Wrong listing IDs in the second page"
 
     assert "continuationToken" in response2_json, "Response does not contain 'continuationToken' key"
     continuation_token = response2_json["continuationToken"]
@@ -150,6 +170,10 @@ def test_get_listings_using_continuation_token():
     results_3 = response3_json["results"]
 
     assert len(results_3) == 1, "Expected 1 listing in the third page"
+    ids_3 = [listing["id"] for listing in results_3]
+    assert ids_3 == [
+        "ArtHabitat_AHProj053_AHFlat678"
+    ], "Wrong listing IDs in the third page"
 
     assert "continuationToken" in response3_json, "Response does not contain 'continuationToken' key"
     continuation_token = response3_json["continuationToken"]
