@@ -146,6 +146,7 @@ jobs:
           $Process.Start() | Out-Null
           $Process.Id > func.pid
           Start-Sleep -Seconds 30  # Allows some time for the function to initialize
+          cd test; pytest
         shell: pwsh
     
 
@@ -155,17 +156,17 @@ jobs:
       #- name: Delay before running tests
       #  run: Start-Sleep -Seconds 30
 
-      - name: List tasks
-        run: tasklist
-        shell: cmd
+      #- name: List tasks
+      #  run: tasklist
+      #  shell: cmd
 
       # Run the integration tests
-      - name: Run integration tests
-        run: cd test; pytest
+      #- name: Run integration tests
+      #  run: cd test; pytest
       
-      - name: List tasks
-        run: tasklist
-        shell: cmd
+      #- name: List tasks
+      #  run: tasklist
+      #  shell: cmd
     
       - name: Cleanup
         if: always()
