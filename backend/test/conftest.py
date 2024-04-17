@@ -37,4 +37,8 @@ def cosmos_db_setup(cosmos_db_client):
     yield database, container
 
     # Cleanup: delete database
-    cosmos_db_client.delete_database(database_name)
+    # cosmos_db_client.delete_database(database_name)
+
+    # Cleanup: remove all items from the container
+    for item in container.read_all_items():
+        container.delete_item(item['id'], partition_key=item['_partitionKey'])
