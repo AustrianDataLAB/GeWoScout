@@ -59,8 +59,8 @@ resource "azurerm_linux_function_app" "fa_scraper" {
     application_stack {
       python_version = 3.11
     }
-    application_insights_connection_string = azurerm_application_insights.ai.connection_string 
-    application_insights_key = azurerm_application_insights.ai.instrumentation_key 
+    application_insights_connection_string = azurerm_application_insights.ai.connection_string
+    application_insights_key               = azurerm_application_insights.ai.instrumentation_key
   }
 
   app_settings = {
