@@ -130,8 +130,9 @@ jobs:
       
       - name: Start func
         run: |
+          $funcpath = Get-Command func | Select-Object -ExpandProperty Source
           $ProcessInfo = New-Object System.Diagnostics.ProcessStartInfo
-          $ProcessInfo.FileName = "func"
+          $ProcessInfo.FileName = $funcpath
           $ProcessInfo.RedirectStandardError = $true
           $ProcessInfo.RedirectStandardOutput = $true
           $ProcessInfo.UseShellExecute = $false
