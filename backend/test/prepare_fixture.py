@@ -1,6 +1,6 @@
 from azure.cosmos import CosmosClient, PartitionKey
 
-from .constants import CONNECTION_STRING
+from constants import CONNECTION_STRING
 
 if __name__ == "__main__":
     client = CosmosClient.from_connection_string(CONNECTION_STRING)
