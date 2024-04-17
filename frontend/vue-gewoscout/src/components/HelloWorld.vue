@@ -13,6 +13,9 @@ defineProps<{
       <a href="https://vuejs.org/" target="_blank" rel="noopener">Vue 3</a>.
     </h3>
   </div>
+  <div>
+    <vueButton class="mt-3" label="Test"></vueButton>
+  </div>
 </template>
 
 <style scoped>
