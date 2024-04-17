@@ -84,12 +84,17 @@ jobs:
         run: |
           curl -k https://localhost:8081/_explorer/emulator.pem > ~/emulatorcert.crt
           cat ~/emulatorcert.crt
-          cp ~/emulatorcert.crt /usr/local/share/ca-certificates/
-          update-ca-certificates
+          sudo cp ~/emulatorcert.crt /usr/local/share/ca-certificates/
+          sudo update-ca-certificates
 
       # Run the integration tests
       - name: Run integration tests
         run: pytest
+      
+      # Print Docker Compose logs
+      - name: Print Docker Compose logs
+        if: always()
+        run: docker-compose logs
 
       # Stop the Docker Compose services
       - name: Stop Docker Compose services
