@@ -101,8 +101,11 @@ jobs:
         run: pip install -r test/requirements.txt
       
       # Run the integration tests
-      - name: Run integration tests
+      - name: Run sanity check
         run: cd test; pytest test_base.py
+
+      - name: Prepare db/container for test
+        run: cd test; python prepare_fixture.py
       
       # Install go 1.22
       - name: Install Go 1.22
