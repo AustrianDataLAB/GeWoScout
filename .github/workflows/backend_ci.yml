@@ -121,12 +121,20 @@ jobs:
         run: Rename-Item -Path test.settings.json -NewName local.settings.json
 
       - name: Start func
-        run: func start --port 8000
+        run: |
+          Start-Process -NoNewWindow -FilePath "func" -ArgumentList "start", "--port 8000" -RedirectStandardOutput "func.log" -RedirectStandardError "func.log"
+
+      - name: Delay before running tests
+        run: Start-Sleep -Seconds 30
 
       # Run the integration tests
       - name: Run integration tests
         run: cd test; pytest
     
+      - name: Output func logs
+        run: |
+          Get-Content "func.log" -Raw | Write-Output
+  
 
       # Setup Docker
       #- name: Set up Docker Buildx
