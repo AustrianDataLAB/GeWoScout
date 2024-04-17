@@ -128,15 +128,19 @@ jobs:
         run: echo $env:PATH
         shell: pwsh
       
+      - name: Set Execution Policy
+        run: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Unrestricted
+        shell: pwsh
+      
       - name: Start func
         run: |
-          $funcpath = Get-Command func | Select-Object -ExpandProperty Source
+          $funcScriptPath = Get-Command func | Select-Object -ExpandProperty Source
           $ProcessInfo = New-Object System.Diagnostics.ProcessStartInfo
-          $ProcessInfo.FileName = $funcpath
+          $ProcessInfo.FileName = "pwsh"
           $ProcessInfo.RedirectStandardError = $true
           $ProcessInfo.RedirectStandardOutput = $true
           $ProcessInfo.UseShellExecute = $false
-          $ProcessInfo.Arguments = "start --port 8000"
+          $ProcessInfo.Arguments = "-File `"$funcScriptPath`" start --port 8000"
           $Process = New-Object System.Diagnostics.Process
           $Process.StartInfo = $ProcessInfo
           $Process.Start() | Out-Null
