@@ -35,7 +35,8 @@ jobs:
         run: go test
   
   integration-test:
-    runs-on: ubuntu-latest
+    #runs-on: ubuntu-latest
+    runs-on: windows-latest
     # TODO enable needs later
     #needs: build
     defaults:
@@ -45,31 +46,45 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Start Azure Cosmos DB emulator
+        run: >-
+          Write-Host "Launching Cosmos DB Emulator"
+          Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
+          Start-CosmosDbEmulator
+
       # Setup Docker
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+
+      - name: Docker build
+        run: docker build -t backend:test ..
+      
+      - name: Docker run
+        run: docker run -d --network host -e COSMOS_DB_CONNECTION="AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==;" --name backend backend:test
       
       # Setup Docker Compose TODO make it nicer
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get install -y docker-compose
-          docker-compose --version
+      #- name: Install Docker Compose
+      #  run: |
+      #    sudo apt-get install -y docker-compose
+      #    docker-compose --version
       
       # Build the Docker Compose services
-      - name: Build Docker Compose services
-        run: docker-compose build
+      #- name: Build Docker Compose services
+      #  run: docker-compose build
       
       # Run the Docker Compose services
-      - name: Run Docker Compose services
-        run: docker-compose up -d
+      #- name: Run Docker Compose services
+      #  run: docker-compose up -d
+
+
       
       # Wait for 20s
-      - name: Wait for services to start
-        run: sleep 20
+      #- name: Wait for services to start
+      #  run: sleep 20
       
       # Print Docker Compose logs
-      - name: Print Docker Compose logs
-        run: docker-compose logs
+      #- name: Print Docker Compose logs
+      #  run: docker-compose logs
       
       # Setup python
       - name: Set up Python
@@ -81,25 +96,27 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Import emulator's TLS/SSL certificate
-        run: |
-          curl -k https://localhost:8081/_explorer/emulator.pem > ~/emulatorcert.crt
-          cat ~/emulatorcert.crt
-          sudo cp ~/emulatorcert.crt /usr/local/share/ca-certificates/
-          sudo update-ca-certificates
+      #- name: Import emulator's TLS/SSL certificate
+      #  run: |
+      #    curl -k https://localhost:8081/_explorer/emulator.pem > ~/emulatorcert.crt
+      #    cat ~/emulatorcert.crt
+      #    sudo cp ~/emulatorcert.crt /usr/local/share/ca-certificates/
+      #    sudo update-ca-certificates
 
       # Run the integration tests
       - name: Run integration tests
         run: pytest
       
       # Print Docker Compose logs
-      - name: Print Docker Compose logs
+      - name: Print Docker logs
         if: always()
-        run: docker-compose logs
+        run: docker logs backend
 
       # Stop the Docker Compose services
-      - name: Stop Docker Compose services
-        run: docker-compose down
+      #- name: Stop Docker Compose services
+      #  run: docker-compose down
+      
+      
 
 
     
