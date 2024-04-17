@@ -112,21 +112,25 @@ jobs:
 
       # Build handler
       - name: Build handler
-        run: go build -o bin/handler ./cmd/handler
+        run: mkdir bin; go build -o bin/handler ./cmd/handler
       
       - name: Start func
         run: func start --port 8000
 
+      # Run the integration tests
+      - name: Run integration tests
+        run: cd test; pytest
+    
 
       # Setup Docker
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      #- name: Set up Docker Buildx
+      #  uses: docker/setup-buildx-action@v2
 
-      - name: Docker build
-        run: docker build -t backend:test ..
+      #- name: Docker build
+      #  run: docker build -t backend:test ..
       
-      - name: Docker run
-        run: docker run -d --network host -e COSMOS_DB_CONNECTION="AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==;" --name backend backend:test
+      #- name: Docker run
+      #  run: docker run -d --network host -e COSMOS_DB_CONNECTION="AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==;" --name backend backend:test
       
       # Setup Docker Compose TODO make it nicer
       #- name: Install Docker Compose
@@ -153,10 +157,10 @@ jobs:
       #  run: docker-compose logs
       
       # Setup python
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.11'
+      #- name: Set up Python
+      #  uses: actions/setup-python@v2
+     #   with:
+      #    python-version: '3.11'
       
 
       #- name: Import emulator's TLS/SSL certificate
@@ -165,15 +169,11 @@ jobs:
       #    cat ~/emulatorcert.crt
       #    sudo cp ~/emulatorcert.crt /usr/local/share/ca-certificates/
       #    sudo update-ca-certificates
-
-      # Run the integration tests
-      - name: Run integration tests
-        run: pytest
       
       # Print Docker Compose logs
-      - name: Print Docker logs
-        if: always()
-        run: docker logs backend
+      #- name: Print Docker logs
+      #  if: always()
+      #  run: docker logs backend
 
       # Stop the Docker Compose services
       #- name: Stop Docker Compose services
