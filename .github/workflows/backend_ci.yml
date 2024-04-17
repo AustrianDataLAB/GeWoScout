@@ -47,15 +47,24 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Start Azure Cosmos DB emulator
-        run: >-
+        run: |
           Write-Host "Launching Cosmos DB Emulator"
-          Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
-          Start-CosmosDbEmulator
-          Get-CosmosDbEmulatorStatus
-          Start-Sleep -s 10
-          Get-CosmosDbEmulatorStatus
-          Start-Sleep -s 10
-          Get-CosmosDbEmulatorStatus
+          Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator" Start-CosmosDbEmulator
+      
+      - name: Check Cosmos DB emulator status
+        run: Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator" Get-CosmosDbEmulatorStatus
+      
+      - name: Wait for Cosmos DB emulator to start
+        run: Start-Sleep -s 10
+
+      - name: Check Cosmos DB emulator status
+        run: Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator" Get-CosmosDbEmulatorStatus
+      
+      - name: Wait for Cosmos DB emulator to start
+        run: Start-Sleep -s 10
+
+      - name: Check Cosmos DB emulator status
+        run: Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator" Get-CosmosDbEmulatorStatus
 
       # Setup python
       - name: Set up Python
