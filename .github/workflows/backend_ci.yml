@@ -120,6 +120,14 @@ jobs:
       - name: Rename settings file
         run: Rename-Item -Path test.settings.json -NewName local.settings.json
 
+      - name: Where is func
+        run: Get-Command func | Select-Object -ExpandProperty Source
+        shell: pwsh
+      
+      - name: Print PATH
+        run: echo $env:PATH
+        shell: pwsh
+      
       - name: Start func
         run: |
           $ProcessInfo = New-Object System.Diagnostics.ProcessStartInfo
