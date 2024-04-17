@@ -52,6 +52,20 @@ jobs:
           Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
           Start-CosmosDbEmulator
 
+      # Setup python
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
+      
+      # Install dependencies
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      
+      # Run the integration tests
+      - name: Run integration tests
+        run: pytest test_base.py
+
       # Setup Docker
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -92,9 +106,6 @@ jobs:
         with:
           python-version: '3.11'
       
-      # Install dependencies
-      - name: Install dependencies
-        run: pip install -r requirements.txt
 
       #- name: Import emulator's TLS/SSL certificate
       #  run: |
