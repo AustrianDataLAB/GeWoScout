@@ -200,6 +200,7 @@ def test_get_listings_query_min_max_flat_size():
     assert [l["id"] for l in response_json["results"]] == expected_ids, "Listing IDs do not match"
 
 
+@pytest.mark.usefixtures("cosmos_db_setup")
 def test_get_listings_with_invalid_city_returns_error():
     endpoint_url = f"{API_BASE_URL}cities/%20/listings"
 
@@ -235,6 +236,7 @@ def test_get_listings_invalid_page_size_returns_error(page_size):
     assert response.status_code == 400, "API did not return a 400 status code"
 
 
+@pytest.mark.usefixtures("cosmos_db_setup")
 @pytest.mark.parametrize("size_query", [
     "minSize=invalid",
     "minSize=-1",
@@ -242,6 +244,7 @@ def test_get_listings_invalid_page_size_returns_error(page_size):
     "maxSize=0",
     "maxSize=invalid",
     "minSize=100&maxSize=50",
+    "minSize=51&maxSize=50",
 ])
 def test_get_listings_invalid_size_query_returns_error(size_query):
     endpoint_url = f"{API_BASE_URL}cities/vienna/listings?{size_query}"
