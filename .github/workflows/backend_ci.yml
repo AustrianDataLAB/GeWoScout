@@ -39,7 +39,7 @@ jobs:
     defaults:
       run:
         working-directory: backend/test
-        
+
     steps:
       - uses: actions/checkout@v4
 
@@ -78,6 +78,13 @@ jobs:
       # Install dependencies
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Import emulator's TLS/SSL certificate
+        run: |
+          curl -k https://localhost:8081/_explorer/emulator.pem > ~/emulatorcert.crt
+          cat ~/emulatorcert.crt
+          cp ~/emulatorcert.crt /usr/local/share/ca-certificates/
+          update-ca-certificates
 
       # Run the integration tests
       - name: Run integration tests
