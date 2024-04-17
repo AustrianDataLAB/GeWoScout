@@ -62,6 +62,17 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       
+      - name: Get Cosmos DB Emulator status
+        run: >-
+          Get-CosmosDbEmulatorStatus
+      
+      - name: Sleep
+        run: Start-Sleep -s 10
+      
+      - name: Get Cosmos DB Emulator status
+        run: >-
+          Get-CosmosDbEmulatorStatus
+
       # Run the integration tests
       - name: Run integration tests
         run: pytest test_base.py
