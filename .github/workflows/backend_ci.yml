@@ -59,10 +59,23 @@ jobs:
       #- name: Install Azure Functions Core Tools
       #  run: winget install Microsoft.AzureFunctionsCoreTools --disable-interactivity --accept-source-agreements
 
-      - name: Azure Functions Action
-        uses: Azure/functions-action@v1.5.1
-        with:
-          app-name: 'backend'
+      #- name: Azure Functions Action
+      #  uses: Azure/functions-action@v1.5.1
+      #  with:
+      #    app-name: 'backend'
+
+      - name: Install Azure Functions Core Tools
+        run: |
+          # Define the URL and download path
+          $url = "https://go.microsoft.com/fwlink/?linkid=2174087"
+          $output = "downloaded_installer.msi"
+
+          # Download the MSI file
+          Invoke-WebRequest -Uri $url -OutFile $output
+
+          # Install the MSI file silently
+          Start-Process msiexec.exe -ArgumentList '/i', $output, '/qn', '/norestart' -NoNewWindow -Wait
+        shell: pwsh
 
       - name: Print the version of Azure Functions Core Tools
         run: func --version
