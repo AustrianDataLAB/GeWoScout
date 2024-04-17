@@ -2,8 +2,9 @@ name: Backend CI
 
 on:
   push:
-    paths:
-      - 'backend/**'
+    # TODO enable later again
+    #paths:
+    #  - 'backend/**'
   pull_request:
     paths:
       - 'backend/**'
