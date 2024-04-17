@@ -75,7 +75,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         logging.info(f"Getting listings for city {partition_key} with page size {page_size}")
 
-        query = "SELECT * FROM c WHERE c.partitionKey = @partitionKey"
+        query = "SELECT * FROM c WHERE c._partitionKey = @partitionKey"
         parameters = [
             { "name": "@partitionKey", "value": partition_key }
         ]
