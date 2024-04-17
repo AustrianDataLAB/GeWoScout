@@ -121,9 +121,10 @@ jobs:
         run: Rename-Item -Path test.settings.json -NewName local.settings.json
 
       - name: Start func
-        run: |
-          $funcPath = (Get-Command func).Source
-          Start-Process -NoNewWindow -FilePath $funcPath -ArgumentList "start", "--port 8000" -RedirectStandardOutput "func.log"
+        run: start /B func start --port 8000
+        
+        #$funcPath = (Get-Command func).Source
+        #Start-Process -NoNewWindow -FilePath $funcPath -ArgumentList "start", "--port 8000" -RedirectStandardOutput "func.log"
 
       - name: Delay before running tests
         run: Start-Sleep -Seconds 30
