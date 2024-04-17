@@ -114,6 +114,9 @@ jobs:
       - name: Build handler
         run: mkdir bin; go build -o bin/handler .
       
+      - name: Rename settings file
+        run: Rename-Item -Path test.settings.json -NewName local.settings.json
+
       - name: Start func
         run: func start --port 8000
 
