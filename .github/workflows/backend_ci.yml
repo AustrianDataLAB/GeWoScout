@@ -57,7 +57,7 @@ jobs:
 
       # Install Function Core Tools
       - name: Install Azure Functions Core Tools
-        run: winget install Microsoft.AzureFunctionsCoreTools --accept-source-agreements
+        run: winget install Microsoft.AzureFunctionsCoreTools --disable-interactivity --accept-source-agreements
 
       - name: Print the version of Azure Functions Core Tools
         run: func --version
