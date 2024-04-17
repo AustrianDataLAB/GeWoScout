@@ -112,7 +112,7 @@ jobs:
 
       # Build handler
       - name: Build handler
-        run: mkdir bin; go build -o bin/handler ./cmd/handler
+        run: mkdir bin; go build -o bin/handler .
       
       - name: Start func
         run: func start --port 8000
