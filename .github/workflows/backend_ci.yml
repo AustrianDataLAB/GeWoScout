@@ -46,6 +46,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Docker Version
+        run: docker --version
+      
+      - name: Docker build
+        run: docker build -t backend:test .
+
       #- name: Install winget
       #  uses: Cyberboss/install-winget@v1##
 
