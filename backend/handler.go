@@ -20,7 +20,10 @@ func setupRouter() *chi.Mux {
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello, world!"))
+		w.Write([]byte("Alive"))
+	})
+	r.Get("/api/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Alive"))
 	})
 	r.Get("/QueueTrigger", queue.QueueTriggerHandler)
 	r.Get("/CosmosTrigger", notification.CosmosUpdateHandler)
