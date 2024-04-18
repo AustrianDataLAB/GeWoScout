@@ -16,15 +16,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Go ${{ matrix.go-version }}
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
           cache-dependency-path: "backend/go.sum"
+
       - name: Install dependencies
         run: go get .
+
       - name: Build
         run: go build -v ./...
+        
       - name: Test with the Go CLI
         run: go test
   
@@ -42,11 +46,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
       
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
       
       - name: Set up Go 1.22
         uses: actions/setup-go@v5
