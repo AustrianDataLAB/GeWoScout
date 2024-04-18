@@ -7,7 +7,7 @@ RUN go mod download
 
 COPY . .
 
-RUN /bin/sh -c 'CGO_ENABLED=0 GOOS=linux go build -o /bin/handler .'
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/handler .
 
 
 FROM debian:11-slim
