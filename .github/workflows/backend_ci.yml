@@ -73,4 +73,14 @@ jobs:
         run: cd test; python prepare_fixture.py
 
       - name: Run integration tests
-        run: cd test; pytest
+        run: cd test; pytest --junit-xml=test-results.xml
+
+      - name: Upload test results
+        if: always()
+        uses: pmeier/pytest-results-action@main
+        with:
+          path: test/test-results.xml
+          title: Integration Test Results
+          summary: true
+          display-options: fEX
+          fail-on-empty: true
