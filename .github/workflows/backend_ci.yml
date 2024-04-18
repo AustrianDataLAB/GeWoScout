@@ -80,6 +80,7 @@ jobs:
         run: cd test; pytest --junit-xml=test-results.xml
 
       - name: debug
+        if: always()
         run: |
           dir
           dir test
