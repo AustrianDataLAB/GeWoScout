@@ -23,13 +23,10 @@ jobs:
           go-version: ${{ matrix.go-version }}
           cache-dependency-path: "backend/go.sum"
 
-      - name: Install dependencies
-        run: go get .
-
-      - name: Build
+      - name: Go Build
         run: go build -v ./...
-        
-      - name: Test with the Go CLI
+
+      - name: Go Test
         run: go test
   
   integration-test:
@@ -46,7 +43,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
       
       - name: Set up Python
         uses: actions/setup-python@v5
