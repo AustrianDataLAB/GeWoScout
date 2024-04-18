@@ -59,7 +59,12 @@ func GetListings(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	render.JSON(w, r, listings)
+	result := make(map[string]interface{})
+
+	result["results"] = listings
+	result["continuationToken"] = nil // TODO get ct here
+
+	render.JSON(w, r, result)
 }
 
 func GetListingById(w http.ResponseWriter, r *http.Request) {
