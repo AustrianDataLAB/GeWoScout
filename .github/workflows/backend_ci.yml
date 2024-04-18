@@ -46,13 +46,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Docker Setup Buildx      
-        uses: docker/setup-buildx-action@v3
+      #- name: Docker Setup Buildx      
+      #  uses: docker/setup-buildx-action@v3
 
-      - name: Docker build
-        run: |
-          docker --version
-          docker build -t backend:test .
+      #- name: Docker build
+      #  run: |
+      #    docker --version
+      #    docker build -t backend:test .
 
       #- name: Install winget
       #  uses: Cyberboss/install-winget@v1##
@@ -106,46 +106,38 @@ jobs:
       # Install dependencies
       - name: Install dependencies
         run: pip install -r test/requirements.txt
+            
+      #- name: Run Backend
+      #  run: docker run -d --network host -e COSMOS_DB_CONNECTION="AccountEndpoint=https://cosmos:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==;" --name backend backend:test
+            
       
-      # Run the integration tests
-      - name: Run sanity check
-        run: cd test; pytest test_base.py
+
+      #- name: Docker logs
+      #  run: docker logs backend
+      #  if: always()#
+
+      #- name: Stop Backend
+      #  run: docker stop backend
+      #  if: always()
+
+      # Install go 1.22
+      - name: Install Go 1.22
+        uses: actions/setup-go@v2
+        with: 
+          go-version: 1.22
+
+      # Prepare handler and rename settings file
+      - name: Build handler
+        run: |
+          mkdir bin
+          go build -o bin/handler .
+          Rename-Item -Path test.settings.json -NewName local.settings.json
 
       - name: Prepare db/container for test
         run: cd test; python prepare_fixture.py
-      
-      - name: Run Backend
-        run: docker run -d --network host -e COSMOS_DB_CONNECTION="AccountEndpoint=https://cosmos:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==;" --name backend backend:test
-      
-      - name: Wait for services to start
-        run: sleep 20
 
-      - name: Docker logs
-        run: docker logs backend
-      
       - name: Run integration tests
         run: cd test; pytest
-
-      - name: Docker logs
-        run: docker logs backend
-        if: always()
-
-      - name: Stop Backend
-        run: docker stop backend
-        if: always()
-
-      # Install go 1.22
-      #- name: Install Go 1.22
-      #  uses: actions/setup-go@v2
-      #  with: 
-      #    go-version: 1.22
-
-      # Build handler
-      #- name: Build handler
-      #  run: mkdir bin; go build -o bin/handler .
-      
-      #- name: Rename settings file
-      #  run: Rename-Item -Path test.settings.json -NewName local.settings.json
 
       #- name: Where is func
       #  run: Get-Command func | Select-Object -ExpandProperty Source
