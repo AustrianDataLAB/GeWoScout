@@ -62,7 +62,7 @@ jobs:
           func --version
 
       - name: Start Cosmos Emulator
-        uses: southpolesteve/cosmos-emulator-github-action@v1
+        uses: janpio/cosmos-emulator-github-action@main
 
       - name: Install python dependencies
         run: pip install -r test/requirements.txt
