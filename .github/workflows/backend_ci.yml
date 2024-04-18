@@ -84,3 +84,5 @@ jobs:
         uses: mikepenz/action-junit-report@v4
         with:
           report_paths: '**/test-results.xml'
+          check_name: 'Integration Test Report'
+          check_title_template: 'Integration Test Report'
