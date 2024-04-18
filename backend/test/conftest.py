@@ -1,3 +1,4 @@
+import os
 import subprocess
 import time
 
@@ -55,7 +56,12 @@ def cosmos_db_setup(cosmos_db_client):
 def setup_backend_server():
     # Start the server in the background
     print("Starting the server...")
-    proc = subprocess.Popen(["func", "start", "--port", "8000"], cwd="../")
+
+    file_dir = os.path.dirname(os.path.realpath(__file__))
+    parent_dir = os.path.dirname(file_dir)
+    print("Working directory: ", parent_dir)
+
+    proc = subprocess.Popen(["func", "start", "--port", "8000"], shell=True, cwd=parent_dir)
 
     try:
         # Wait for the server to be up by checking the health endpoint

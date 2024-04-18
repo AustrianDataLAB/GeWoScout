@@ -1,6 +1,9 @@
+import urllib3
 from azure.cosmos import CosmosClient, PartitionKey
 
 from constants import CONNECTION_STRING
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 if __name__ == "__main__":
     client = CosmosClient.from_connection_string(CONNECTION_STRING)
