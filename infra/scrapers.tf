@@ -65,9 +65,14 @@ resource "azurerm_linux_function_app" "fa_scraper" {
 
   app_settings = {
     SCM_DO_BUILD_DURING_DEPLOYMENT = true
-    # QUEUE_NAME = azurerm_storage_queue.queue_scraper_backend.name
-    # CONNECTION_SETTING = azurerm_storage_account.sa_scraper.primary_connection_string
+    QUEUE_NAME = azurerm_storage_queue.queue_scraper_backend.name
   }
 
   zip_deploy_file = data.archive_file.scraper_zip.output_path
+}
+
+# Storage Queue - connects scrapers with backend
+resource "azurerm_storage_queue" "queue_scraper_backend" {
+  name                 = "storagequeue-gewoscout"
+  storage_account_name = azurerm_storage_account.sa_scraper.name
 }
