@@ -1,0 +1,25 @@
+name: Scrapers CI
+
+on:
+  push:
+    paths:
+    - 'scrapers/**'
+    - '.github/workflows/scrapers_ci.yml'
+  pull_request:
+    paths:
+    - 'scrapers/**'
+    - '.github/workflows/scrapers_ci.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: scrapers
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - name: pip install
+        run: pip install -r requirements.txt
+      - name: run pytest
+        run: pytest

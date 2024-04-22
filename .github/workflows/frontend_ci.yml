@@ -30,6 +30,3 @@ jobs:
             frontend/vue-gewoscout/test-results/*.xml
       - name: TearDown docker compose
         run: docker-compose down --remove-orphans
-
-
-   
