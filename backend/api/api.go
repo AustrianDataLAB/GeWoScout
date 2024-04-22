@@ -27,7 +27,10 @@ func GetListings(w http.ResponseWriter, r *http.Request) {
 
 	container, err := cosmos.GetContainer()
 	if err != nil {
-		render.JSON(w, r, models.Error{Message: err.Error(), StatusCode: http.StatusInternalServerError})
+		render.JSON(w, r, models.NewInvokeResponse(
+			http.StatusInternalServerError,
+			models.Error{Message: err.Error(), StatusCode: http.StatusInternalServerError},
+		))
 		return
 	}
 
@@ -44,7 +47,11 @@ func GetListings(w http.ResponseWriter, r *http.Request) {
 			var azError *azcore.ResponseError
 			errors.As(err, &azError)
 			log.Printf("Failed to get next result page: %s\n", azError.ErrorCode)
-			render.JSON(w, r, models.Error{Message: err.Error(), StatusCode: http.StatusInternalServerError})
+
+			render.JSON(w, r, models.NewInvokeResponse(
+				http.StatusBadRequest,
+				models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
+			))
 			return
 		}
 
@@ -52,7 +59,11 @@ func GetListings(w http.ResponseWriter, r *http.Request) {
 			listing := models.Listing{}
 			if err := json.Unmarshal(bytes, &listing); err != nil {
 				log.Printf("An error occurred trying to parse the response json: %s", err.Error())
-				render.JSON(w, r, models.Error{Message: err.Error(), StatusCode: http.StatusInternalServerError})
+
+				render.JSON(w, r, models.NewInvokeResponse(
+					http.StatusBadRequest,
+					models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
+				))
 				return
 			}
 			listings = append(listings, listing)
@@ -64,7 +75,7 @@ func GetListings(w http.ResponseWriter, r *http.Request) {
 	result["results"] = listings
 	result["continuationToken"] = nil // TODO get ct here
 
-	render.JSON(w, r, result)
+	render.JSON(w, r, models.NewInvokeResponse(http.StatusOK, result))
 }
 
 func GetListingById(w http.ResponseWriter, r *http.Request) {
@@ -72,29 +83,17 @@ func GetListingById(w http.ResponseWriter, r *http.Request) {
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&injectedData); err != nil {
 		log.Printf("Error trying to unmarshal injected data: %s\n", err.Error())
-		render.JSON(w, r,
-			models.InvokeResponse{
-				Outputs: map[string]interface{}{
-					"statusCode": http.StatusBadRequest,
-				},
-				Logs:        []string{},
-				ReturnValue: models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
-			},
-		)
 		return
 	}
 
 	if injectedData.Data.Documents == "null" {
-		render.JSON(w, r, models.InvokeResponse{
-			Outputs: map[string]interface{}{
-				"statusCode": http.StatusNotFound,
-			},
-			Logs: []string{},
-			ReturnValue: models.Error{
+		render.JSON(w, r, models.NewInvokeResponse(
+			http.StatusNotFound,
+			models.Error{
 				Message:    fmt.Sprintf("Listing with id %s could not be found in city %s", injectedData.Metadata.ID, injectedData.Metadata.City),
 				StatusCode: http.StatusNotFound,
 			},
-		})
+		))
 		return
 	}
 
@@ -103,20 +102,16 @@ func GetListingById(w http.ResponseWriter, r *http.Request) {
 	listing := models.Listing{}
 	if err := json.Unmarshal([]byte(input), &listing); err != nil {
 		log.Printf("Error trying to unmarshal injected listing: %s\n", err.Error())
-		render.JSON(w, r,
-			models.InvokeResponse{
-				Outputs: map[string]interface{}{
-					"statusCode": http.StatusBadRequest,
-				},
-				Logs:        []string{},
-				ReturnValue: models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
+
+		render.JSON(w, r, models.NewInvokeResponse(
+			http.StatusBadRequest,
+			models.Error{
+				Message:    fmt.Sprintf("Listing with id %s could not be found in city %s", injectedData.Metadata.ID, injectedData.Metadata.City),
+				StatusCode: http.StatusBadRequest,
 			},
-		)
+		))
 		return
 	}
 
-	outputs := make(map[string]interface{})
-	outputs["statusCode"] = http.StatusOK
-	invokeResponse := models.InvokeResponse{Outputs: outputs, Logs: []string{}, ReturnValue: listing}
-	render.JSON(w, r, invokeResponse)
+	render.JSON(w, r, models.NewInvokeResponse(http.StatusOK, listing))
 }
