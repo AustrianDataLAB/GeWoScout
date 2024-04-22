@@ -15,7 +15,6 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
 
@@ -23,7 +22,14 @@ import (
 // partition defined by the city path param, which is guaranteed to exist at
 // this point.
 func GetListings(w http.ResponseWriter, r *http.Request) {
-	city := chi.URLParam(r, "city")
+	req, err := models.InvokeRequestFromBody(r.Body)
+	if err != nil {
+		render.JSON(w, r, models.NewInvokeResponse(
+			http.StatusBadRequest,
+			models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
+		))
+	}
+	city := req.Data.Req.Params["city"]
 
 	container, err := cosmos.GetContainer()
 	if err != nil {
