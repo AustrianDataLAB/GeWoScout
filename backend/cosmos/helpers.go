@@ -58,13 +58,19 @@ func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query 
 		queryParams = append(queryParams, azcosmos.QueryParameter{Name: "@minSize", Value: *query.MinSize})
 		queryParams = append(queryParams, azcosmos.QueryParameter{Name: "@maxSize", Value: *query.MaxSize})
 		sb.WriteString(" AND (c.squareMeters BETWEEN @minSize AND @maxSize)")
+	} else if query.MinSize != nil {
+		queryParams = append(queryParams, azcosmos.QueryParameter{Name: "@minSize", Value: *query.MinSize})
+		sb.WriteString(" AND c.squareMeters >= @minSize")
+	} else if query.MaxSize != nil {
+		queryParams = append(queryParams, azcosmos.QueryParameter{Name: "@maxSize", Value: *query.MaxSize})
+		sb.WriteString(" AND c.squareMeters <= @maxSize")
 	}
 
 	partitionKey := azcosmos.NewPartitionKeyString(strings.ToLower(city))
 
 	options := azcosmos.QueryOptions{
 		QueryParameters:   queryParams,
-		ContinuationToken: &query.ContinuationToken,
+		ContinuationToken: query.ContinuationToken,
 	}
 
 	if query.PageSize != nil {

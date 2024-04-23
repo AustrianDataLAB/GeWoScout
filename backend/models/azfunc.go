@@ -8,10 +8,18 @@ import (
 )
 
 type Query struct {
-	ContinuationToken string `json:"continuationToken"`
-	MinSize           *int   `json:"minSize,string"`
-	MaxSize           *int   `json:"maxSize,string"`
-	PageSize          *int   `json:"pageSize,string" validate:"gte=1,lte=30"`
+	ContinuationToken *string `json:"continuationToken"`
+	MinSize           *uint32 `json:"minSize,string" validation:"omitempty,gt=0"`
+	MaxSize           *uint32 `json:"maxSize,string" validate:"omitempty,gtfieldcustom=MinSize,gt=0"`
+	PageSize          *int    `json:"pageSize,string" validate:"omitempty,gt=0,lte=30"`
+}
+
+func gtFieldIgnoreNilValidator(fl validator.FieldLevel) bool {
+	otherField := fl.Parent().FieldByName(fl.Param())
+	if !otherField.IsNil() {
+		return otherField.Elem().Uint() <= fl.Field().Uint()
+	}
+	return true
 }
 
 type InvokeRequest struct {
@@ -37,8 +45,14 @@ func InvokeRequestFromBody(body io.ReadCloser) (ir InvokeRequest, err error) {
 	if err != nil {
 		return
 	}
+
 	err = json.Unmarshal(b, &ir)
+	if err != nil {
+		return
+	}
+
 	validate := validator.New(validator.WithRequiredStructEnabled())
+	validate.RegisterValidation("gtfieldcustom", gtFieldIgnoreNilValidator)
 	err = validate.Struct(ir)
 	return
 }
