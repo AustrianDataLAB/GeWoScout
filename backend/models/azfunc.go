@@ -3,13 +3,15 @@ package models
 import (
 	"encoding/json"
 	"io"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type Query struct {
 	ContinuationToken string `json:"continuationToken"`
-	MinSize           string `json:"minSize"`
-	MaxSize           string `json:"maxSize"`
-	PageSize          string `json:"pageSize"`
+	MinSize           *int   `json:"minSize,string"`
+	MaxSize           *int   `json:"maxSize,string"`
+	PageSize          *int   `json:"pageSize,string" validate:"gte=1,lte=30"`
 }
 
 type InvokeRequest struct {
@@ -36,6 +38,8 @@ func InvokeRequestFromBody(body io.ReadCloser) (ir InvokeRequest, err error) {
 		return
 	}
 	err = json.Unmarshal(b, &ir)
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	err = validate.Struct(ir)
 	return
 }
 

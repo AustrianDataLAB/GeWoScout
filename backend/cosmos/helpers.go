@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
@@ -55,11 +54,9 @@ func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query 
 		{Name: "@city", Value: city},
 	}
 
-	if query.MinSize != "" && query.MaxSize != "" {
-		minSizeI, _ := strconv.Atoi(query.MinSize)
-		maxSizeI, _ := strconv.Atoi(query.MaxSize)
-		queryParams = append(queryParams, azcosmos.QueryParameter{Name: "@minSize", Value: minSizeI})
-		queryParams = append(queryParams, azcosmos.QueryParameter{Name: "@maxSize", Value: maxSizeI})
+	if query.MinSize != nil && query.MaxSize != nil {
+		queryParams = append(queryParams, azcosmos.QueryParameter{Name: "@minSize", Value: *query.MinSize})
+		queryParams = append(queryParams, azcosmos.QueryParameter{Name: "@maxSize", Value: *query.MaxSize})
 		sb.WriteString(" AND (c.squareMeters BETWEEN @minSize AND @maxSize)")
 	}
 
@@ -70,9 +67,8 @@ func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query 
 		ContinuationToken: &query.ContinuationToken,
 	}
 
-	if query.PageSize != "" {
-		pageSizeI, _ := strconv.Atoi(query.PageSize)
-		options.PageSizeHint = int32(pageSizeI)
+	if query.PageSize != nil {
+		options.PageSizeHint = int32(*query.PageSize)
 	} else {
 		options.PageSizeHint = 10
 	}

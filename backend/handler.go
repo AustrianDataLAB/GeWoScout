@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "github.com/AustrianDataLAB/GeWoScout/backend/docs"
+	// _ "github.com/AustrianDataLAB/GeWoScout/backend/docs"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
