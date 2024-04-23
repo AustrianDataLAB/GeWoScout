@@ -8,9 +8,9 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY *.go ./
+COPY . ./
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o /docker-gs-ping
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o /api .
 
 # Run the tests in the container
 FROM build-stage AS run-test-stage
@@ -19,8 +19,8 @@ RUN go test -v ./...
 # Deploy the application binary into a lean image
 FROM scratch
 
-COPY --from=build-stage /docker-gs-ping /docker-gs-ping
+COPY --from=build-stage /api /api
 
 EXPOSE 8080
 
-ENTRYPOINT ["/docker-gs-ping"]
+ENTRYPOINT ["/api"]

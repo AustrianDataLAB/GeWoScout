@@ -1,41 +1,45 @@
 package main
 
 import (
+	"github.com/AustrianDataLAB/GeWoScout/demo/config"
+	"github.com/AustrianDataLAB/GeWoScout/demo/controller"
+	"github.com/AustrianDataLAB/GeWoScout/demo/model"
+	"log"
 	"net/http"
-	"os"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
-
+	// Create HTTP server
 	e := echo.New()
-
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
 	e.GET("/", func(c echo.Context) error {
-		return c.HTML(http.StatusOK, "Hello, Docker! <3")
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"hello": "world",
+		})
 	})
 
-	e.GET("/health", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, struct{ Status string }{Status: "OK"})
-	})
+	// Connect To Database
+	config.DatabaseInit()
+	gorm := config.DB()
 
-	httpPort := os.Getenv("PORT")
-	if httpPort == "" {
-		httpPort = "8080"
+	dbGorm, err := gorm.DB()
+	if err != nil {
+		panic(err)
 	}
 
-	e.Logger.Fatal(e.Start(":" + httpPort))
-}
+	dbGorm.Ping()
 
-// Simple implementation of an integer minimum
-// Adapted from: https://gobyexample.com/testing-and-benchmarking
-func IntMin(a, b int) int {
-	if a < b {
-		return a
+	// Example of using the database object
+	if err := gorm.AutoMigrate(&model.Book{}); err != nil {
+		log.Fatalf("Failed to migrate database: %v", err)
 	}
-	return b
+
+	bookRoute := e.Group("/book")
+	bookRoute.POST("/", controller.CreateBook)
+	bookRoute.GET("/:id", controller.GetBook)
+	bookRoute.PUT("/:id", controller.UpdateBook)
+	bookRoute.DELETE("/:id", controller.DeleteBook)
+
+	e.Logger.Fatal(e.Start(":8080"))
 }
