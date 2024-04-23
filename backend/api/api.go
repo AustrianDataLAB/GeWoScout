@@ -103,6 +103,19 @@ func GetListings(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, models.NewInvokeResponse(http.StatusOK, result))
 }
 
+// GetListingById Handler function for /listingById, which returns a listing by its id
+// and city. Neither the city nor the id are guaranteed to exist at this point.
+// @Summary Get a listing by its id
+// @Description Get a listing by its id
+// @Tags listings
+// @Accept json
+// @Produce json
+// @Param city path string true "The city for which to get the listing"
+// @Param id path string true "The id of the listing"
+// @Success 200 {object} models.Listing "Successfully found listing"
+// @Failure 404 {object} models.Error "Listing not found"
+// @Failure 400 {object} models.Error "Bad request"
+// @Router /cities/{city}/listings/{id} [get]
 func GetListingById(w http.ResponseWriter, r *http.Request) {
 	injectedData := models.CosmosBindingInput{}
 	dec := json.NewDecoder(r.Body)
