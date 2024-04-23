@@ -5,12 +5,19 @@ import (
 	"io"
 )
 
+type Query struct {
+	ContinuationToken string `json:"continuationToken"`
+	MinSize           string `json:"minSize"`
+	MaxSize           string `json:"maxSize"`
+	PageSize          string `json:"pageSize"`
+}
+
 type InvokeRequest struct {
 	Data struct {
 		Req struct {
 			Url        string
 			Method     string
-			Query      map[string]string
+			Query      Query
 			Headers    map[string]interface{}
 			Host       []string
 			UserAgent  []string `json:"User-Agent"`

@@ -4,7 +4,11 @@ import (
 	"errors"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 
+	"github.com/AustrianDataLAB/GeWoScout/backend/models"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 )
 
@@ -41,4 +45,37 @@ func GetContainer() (*azcosmos.ContainerClient, error) {
 		return nil, err
 	}
 	return container, nil
+}
+
+func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query *models.Query) *runtime.Pager[azcosmos.QueryItemsResponse] {
+	var sb strings.Builder
+	sb.WriteString("SELECT * FROM c WHERE c._partitionKey = @city")
+
+	queryParams := []azcosmos.QueryParameter{
+		{Name: "@city", Value: city},
+	}
+
+	if query.MinSize != "" && query.MaxSize != "" {
+		minSizeI, _ := strconv.Atoi(query.MinSize)
+		maxSizeI, _ := strconv.Atoi(query.MaxSize)
+		queryParams = append(queryParams, azcosmos.QueryParameter{Name: "@minSize", Value: minSizeI})
+		queryParams = append(queryParams, azcosmos.QueryParameter{Name: "@maxSize", Value: maxSizeI})
+		sb.WriteString(" AND (c.squareMeters BETWEEN @minSize AND @maxSize)")
+	}
+
+	partitionKey := azcosmos.NewPartitionKeyString(strings.ToLower(city))
+
+	options := azcosmos.QueryOptions{
+		QueryParameters:   queryParams,
+		ContinuationToken: &query.ContinuationToken,
+	}
+
+	if query.PageSize != "" {
+		pageSizeI, _ := strconv.Atoi(query.PageSize)
+		options.PageSizeHint = int32(pageSizeI)
+	} else {
+		options.PageSizeHint = 10
+	}
+
+	return container.NewQueryItemsPager(sb.String(), partitionKey, &options)
 }

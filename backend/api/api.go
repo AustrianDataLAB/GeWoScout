@@ -8,12 +8,10 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
-	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 
 	"github.com/go-chi/render"
 )
@@ -40,11 +38,7 @@ func GetListings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := "SELECT * FROM c WHERE c._partitionKey = @city"
-	partitionKey := azcosmos.NewPartitionKeyString(strings.ToLower(city))
-	options := azcosmos.QueryOptions{QueryParameters: []azcosmos.QueryParameter{{Name: "@city", Value: city}}}
-	pager := container.NewQueryItemsPager(query, partitionKey, &options)
-
+	pager := cosmos.GetQueryItemsPager(container, city, &req.Data.Req.Query)
 	listings := []models.Listing{}
 
 	for pager.More() {
@@ -79,7 +73,11 @@ func GetListings(w http.ResponseWriter, r *http.Request) {
 	result := make(map[string]interface{})
 
 	result["results"] = listings
-	result["continuationToken"] = nil // TODO get ct here
+	if req.Data.Req.Query.ContinuationToken != "" {
+		result["continuationToken"] = req.Data.Req.Query.ContinuationToken
+	} else {
+		result["continuationToken"] = nil
+	}
 
 	render.JSON(w, r, models.NewInvokeResponse(http.StatusOK, result))
 }
