@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "github.com/AustrianDataLAB/GeWoScout/backend/docs"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
 	"os"
@@ -45,6 +47,17 @@ func setupRouter() *chi.Mux {
 	return r
 }
 
+func setupSwagger(r *chi.Mux) {
+	r.Mount("/api/swagger", httpSwagger.WrapHandler)
+	r.Get("/api/swagger", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/api/swagger/index.html", http.StatusMovedPermanently)
+	})
+}
+
+// @title GeWoScout API
+// @version 1
+// @description This is the API for the GeWoScout project.
+// @BasePath /api
 func main() {
 	port, exists := os.LookupEnv("FUNCTIONS_CUSTOMHANDLER_PORT")
 	if !exists {
@@ -52,6 +65,9 @@ func main() {
 	}
 
 	log.Printf("About to listen on %s. Go to http://127.0.0.1:%s/", port, port)
+	// TODO don't do this in production??
 	r := setupRouter()
-	http.ListenAndServe(":"+port, r)
+	setupSwagger(r)
+
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }

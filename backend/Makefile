@@ -7,4 +7,7 @@ build-windows:
 run: build
 	func start
 
+swagger:
+	swag init -g handler.go
+
 all: build build-windows
