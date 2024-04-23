@@ -18,7 +18,7 @@ def test_get_listing(id_comb):
     response = requests.get(endpoint_url)
 
     assert response.status_code == 200, "API did not return a successful status code"
-    assert response.headers["Content-Type"] == "application/json", "API did not return JSON"
+    assert response.headers["Content-Type"] == "application/json; charset=utf-8", "API did not return JSON"
 
     response_data = response.json()
     assert response_data["id"] == listing_id

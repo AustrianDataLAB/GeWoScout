@@ -22,7 +22,7 @@ def test_get_all_listings_for_city(city, expected_listings_count):
     # Check if the request was successful
     assert response.status_code == 200, "API did not return a successful status code"
     # Check that content type is JSON
-    assert response.headers['Content-Type'] == 'application/json', "API did not return JSON"
+    assert response.headers['Content-Type'] == 'application/json; charset=utf-8', "API did not return JSON"
 
     # Parse JSON response
     response_json = response.json()
@@ -52,7 +52,7 @@ def test_get_listings_using_continuation_token():
     response1 = requests.get(endpoint_url)
 
     assert response1.status_code == 200, "API did not return a successful status code"
-    assert response1.headers['Content-Type'] == 'application/json', "API did not return JSON"
+    assert response1.headers['Content-Type'] == 'application/json; charset=utf-8', "API did not return JSON"
 
     response1_json = response1.json()
     assert isinstance(response1_json, dict), "Response format is not a dictionary"
@@ -75,7 +75,7 @@ def test_get_listings_using_continuation_token():
     response2 = requests.get(f"{endpoint_url}&continuationToken={urllib.parse.quote(continuation_token)}")
 
     assert response2.status_code == 200, "API did not return a successful status code"
-    assert response2.headers['Content-Type'] == 'application/json', "API did not return JSON"
+    assert response2.headers['Content-Type'] == 'application/json; charset=utf-8', "API did not return JSON"
 
     response2_json = response2.json()
     assert isinstance(response2_json, dict), "Response format is not a dictionary"
@@ -98,7 +98,7 @@ def test_get_listings_using_continuation_token():
     response3 = requests.get(f"{endpoint_url}&continuationToken={urllib.parse.quote(continuation_token)}")
 
     assert response3.status_code == 200, "API did not return a successful status code"
-    assert response3.headers['Content-Type'] == 'application/json', "API did not return JSON"
+    assert response3.headers['Content-Type'] == 'application/json; charset=utf-8', "API did not return JSON"
 
     response3_json = response3.json()
     assert isinstance(response3_json, dict), "Response format is not a dictionary"
@@ -124,7 +124,7 @@ def test_get_listings_for_nonexistent_city():
     response = requests.get(endpoint_url)
 
     assert response.status_code == 200, "API did not return a successful status code"
-    assert response.headers['Content-Type'] == 'application/json', "API did not return JSON"
+    assert response.headers['Content-Type'] == 'application/json; charset=utf-8', "API did not return JSON"
 
     response_json = response.json()
     assert isinstance(response_json, dict), "Response format is not a dictionary"
