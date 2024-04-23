@@ -16,9 +16,20 @@ import (
 	"github.com/go-chi/render"
 )
 
-// Handler function for /listings, which returns any listings within the
+// GetListings Handler function for /listings, which returns any listings within the
 // partition defined by the city path param, which is guaranteed to exist at
 // this point.
+// @Summary Get listings for a city
+// @Description Get listings for a city
+// @Tags listings
+// @Accept json
+// @Produce json
+// @Param city path string true "The city for which to get listings"
+// @Param continuationToken query string false "The continuation token for pagination"
+// @Success 200 {object} models.GetListingsResponse
+// @Failure 400 {object} models.Error
+// @Failure 500 {object} models.Error
+// @Router /cities/{city}/listings [get]
 func GetListings(w http.ResponseWriter, r *http.Request) {
 	req, err := models.InvokeRequestFromBody(r.Body)
 	if err != nil {
@@ -70,13 +81,9 @@ func GetListings(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	result := make(map[string]interface{})
-
-	result["results"] = listings
-	if req.Data.Req.Query.ContinuationToken != "" {
-		result["continuationToken"] = req.Data.Req.Query.ContinuationToken
-	} else {
-		result["continuationToken"] = nil
+	result := models.GetListingsResponse{
+		Results:           []models.Listing{},
+		ContinuationToken: req.Data.Req.Query.ContinuationToken,
 	}
 
 	render.JSON(w, r, models.NewInvokeResponse(http.StatusOK, result))
