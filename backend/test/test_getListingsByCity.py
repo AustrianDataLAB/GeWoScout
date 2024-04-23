@@ -212,7 +212,7 @@ def test_get_listings_with_invalid_city_returns_error():
 @pytest.mark.usefixtures("cosmos_db_setup")
 @pytest.mark.parametrize("continuation_token", [
     "invalid",
-    "%2BRID%3A~9TZrALpFOV8DAAAAAAAAAA%3D%3D%23RT%3A1%23TRC%3A2%23ISV%3A2%23IEO%3A65567%23QCF%3A8%23FPC%3AAgEAAFFFAAHA%2BAI%3D",
+    "%2BRIDLEL%3A~9TZrALpFOV8DAAAAAAAAAA%3D%3D%23RT%3A1%23TRC%3A2%23ISV%3A2%23IEO%3A65567%23QCF%3A8%23FPC%3AAgEAAFFFAAHA%2BAI%3D",
     "+RID:~9TZrALpFOV8DAAAAAAAAAA==#RT:1#TRC:2#ISV:2#IEO:65567#QCF:8#FPC:AgEAAAAEAAHA+AI="
 ])
 def test_get_listings_invalid_continuation_token_returns_error(continuation_token):
