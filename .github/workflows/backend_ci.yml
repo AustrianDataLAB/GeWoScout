@@ -22,6 +22,11 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
           cache-dependency-path: "backend/go.sum"
+      
+      - name: Build Swagger
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@latest
+          swag init -g handler.go
 
       - name: Go Build
         run: go build -v ./...
@@ -55,7 +60,12 @@ jobs:
         with: 
           go-version: 1.22
           cache-dependency-path: "backend/go.sum"
-
+      
+      - name: Build Swagger
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@latest
+          swag init -g handler.go
+  
       - name: Install Azure Functions Core Tools
         run: |
           npm i -g azure-functions-core-tools@4 --unsafe-perm true
