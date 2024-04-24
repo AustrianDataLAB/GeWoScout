@@ -51,6 +51,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Start Cosmos Emulator
+        uses: janpio/cosmos-emulator-github-action@main
+        with:
+          parameter_string: "-Timeout 420"
       
       - name: Set up node (for Azure Functions Core Tools)
         uses: actions/setup-node@v4
@@ -78,11 +83,6 @@ jobs:
         run: |
           npm i -g azure-functions-core-tools@4 --unsafe-perm true
           func --version
-
-      - name: Start Cosmos Emulator
-        uses: janpio/cosmos-emulator-github-action@main
-        with:
-          parameter_string: "-Timeout 420"
 
       - name: Install python dependencies
         run: pip install -r test/requirements.txt
