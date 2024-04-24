@@ -8,10 +8,6 @@ on:
         required: false
         default: '0'
 
-  push:
-    branches: [ "main", "release**" ]
-    paths: ["infra/**", ".github/**"]
-
 permissions:
   contents: read
 

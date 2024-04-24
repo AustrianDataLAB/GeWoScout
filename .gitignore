@@ -5,3 +5,13 @@
 /**/.vscode/*
 
 **/*/local.settings.json
+
+.env
+*.zip
+/infra/.terraform/
+/infra/.terraform.lock.hcl
+/infra/env.sh
+/infra/env.ps1
+
+.pytest_cache
+__pycache__

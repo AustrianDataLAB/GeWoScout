@@ -1,0 +1,12 @@
+version: "2"
+
+services:
+  test:
+      build:
+        context: .
+        dockerfile: Dockerfile.test
+      volumes:
+        - ./test-results:/app/test-results
+      command: ["npx", "vitest", "--reporter=junit", "--outputFile=./test-results/test-output.xml"]
+
+       
