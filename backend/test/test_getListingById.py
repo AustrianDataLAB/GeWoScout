@@ -12,7 +12,7 @@ from .constants import API_BASE_URL, LISTINGS_FIXTURE
 ])
 def test_get_listing(id_comb):
     city, listing_id = id_comb
-    endpoint_url = f"{API_BASE_URL}cities/{city}/listings/{listing_id}"
+    endpoint_url = f"{API_BASE_URL}/cities/{city}/listings/{listing_id}"
     expected_listing = [l for l in LISTINGS_FIXTURE if l["id"] == listing_id][0]
 
     response = requests.get(endpoint_url)
@@ -37,7 +37,7 @@ def test_get_listing(id_comb):
 ])
 def test_get_listing_not_found(id_comb):
     city, listing_id = id_comb
-    endpoint_url = f"{API_BASE_URL}cities/{city}/listings/{listing_id}"
+    endpoint_url = f"{API_BASE_URL}/cities/{city}/listings/{listing_id}"
 
     response = requests.get(endpoint_url)
 

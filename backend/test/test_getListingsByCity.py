@@ -13,7 +13,7 @@ from .constants import API_BASE_URL, LISTINGS_FIXTURE
     ("salzburg", 1)
 ])
 def test_get_all_listings_for_city(city, expected_listings_count):
-    endpoint_url = f"{API_BASE_URL}cities/{city}/listings"
+    endpoint_url = f"{API_BASE_URL}/cities/{city}/listings"
     expected_ids = [listing["id"] for listing in LISTINGS_FIXTURE if listing['_partitionKey'] == city]
 
     # Send a GET request to the endpoint
@@ -46,7 +46,7 @@ def test_get_all_listings_for_city(city, expected_listings_count):
 
 @pytest.mark.usefixtures("cosmos_db_setup")
 def test_get_listings_using_continuation_token():
-    endpoint_url = f"{API_BASE_URL}cities/vienna/listings?pageSize=3"
+    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?pageSize=3"
 
     # Initial page
     response1 = requests.get(endpoint_url)
@@ -119,7 +119,7 @@ def test_get_listings_using_continuation_token():
 
 @pytest.mark.usefixtures("cosmos_db_setup")
 def test_get_listings_for_nonexistent_city():
-    endpoint_url = f"{API_BASE_URL}cities/berlin/listings"
+    endpoint_url = f"{API_BASE_URL}/cities/berlin/listings"
 
     response = requests.get(endpoint_url)
 
@@ -147,7 +147,7 @@ def test_get_listings_has_default_page_size_10(cosmos_db_setup):
             "_partitionKey": "vienna"
         })
 
-    endpoint_url = f"{API_BASE_URL}cities/vienna/listings"
+    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings"
     response = requests.get(endpoint_url)
 
     assert response.status_code == 200, "API did not return a successful status code"
@@ -159,7 +159,7 @@ def test_get_listings_has_default_page_size_10(cosmos_db_setup):
 
 @pytest.mark.usefixtures("cosmos_db_setup")
 def test_get_listings_query_min_flat_size():
-    endpoint_url = f"{API_BASE_URL}cities/vienna/listings?minSize=80"
+    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?minSize=80"
     expected_ids = [l["id"] for l in LISTINGS_FIXTURE if l['_partitionKey'] == 'vienna' and l['squareMeters'] >= 80]
 
     response = requests.get(endpoint_url)
@@ -173,7 +173,7 @@ def test_get_listings_query_min_flat_size():
 
 @pytest.mark.usefixtures("cosmos_db_setup")
 def test_get_listings_query_max_flat_size():
-    endpoint_url = f"{API_BASE_URL}cities/vienna/listings?maxSize=80"
+    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?maxSize=80"
     expected_ids = [l["id"] for l in LISTINGS_FIXTURE if l['_partitionKey'] == 'vienna' and l['squareMeters'] <= 80]
 
     response = requests.get(endpoint_url)
@@ -187,7 +187,7 @@ def test_get_listings_query_max_flat_size():
 
 @pytest.mark.usefixtures("cosmos_db_setup")
 def test_get_listings_query_min_max_flat_size():
-    endpoint_url = f"{API_BASE_URL}cities/vienna/listings?minSize=80&maxSize=100"
+    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?minSize=80&maxSize=100"
     expected_ids = [l["id"] for l in LISTINGS_FIXTURE if
                     l['_partitionKey'] == 'vienna' and 80 <= l['squareMeters'] <= 100]
 
@@ -202,7 +202,7 @@ def test_get_listings_query_min_max_flat_size():
 
 @pytest.mark.usefixtures("cosmos_db_setup")
 def test_get_listings_with_invalid_city_returns_error():
-    endpoint_url = f"{API_BASE_URL}cities/%20/listings"
+    endpoint_url = f"{API_BASE_URL}/cities/%20/listings"
 
     response = requests.get(endpoint_url)
 
@@ -216,7 +216,7 @@ def test_get_listings_with_invalid_city_returns_error():
     "+RID:~9TZrALpFOV8DAAAAAAAAAA==#RT:1#TRC:2#ISV:2#IEO:65567#QCF:8#FPC:AgEAAAAEAAHA+AI="
 ])
 def test_get_listings_invalid_continuation_token_returns_error(continuation_token):
-    endpoint_url = f"{API_BASE_URL}cities/vienna/listings?pageSize=2&continuationToken={continuation_token}"
+    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?pageSize=2&continuationToken={continuation_token}"
 
     response = requests.get(endpoint_url)
 
@@ -229,7 +229,7 @@ def test_get_listings_invalid_continuation_token_returns_error(continuation_toke
     31  # Max page size is 30
 ])
 def test_get_listings_invalid_page_size_returns_error(page_size):
-    endpoint_url = f"{API_BASE_URL}cities/vienna/listings?pageSize={page_size}"
+    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?pageSize={page_size}"
 
     response = requests.get(endpoint_url)
 
@@ -247,7 +247,7 @@ def test_get_listings_invalid_page_size_returns_error(page_size):
     "minSize=51&maxSize=50",
 ])
 def test_get_listings_invalid_size_query_returns_error(size_query):
-    endpoint_url = f"{API_BASE_URL}cities/vienna/listings?{size_query}"
+    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?{size_query}"
 
     response = requests.get(endpoint_url)
 
