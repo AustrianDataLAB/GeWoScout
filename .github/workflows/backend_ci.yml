@@ -81,6 +81,8 @@ jobs:
 
       - name: Start Cosmos Emulator
         uses: janpio/cosmos-emulator-github-action@main
+        with:
+          parameter_string: "-Timeout 420"
 
       - name: Install python dependencies
         run: pip install -r test/requirements.txt
