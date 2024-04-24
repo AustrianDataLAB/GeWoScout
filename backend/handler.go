@@ -1,22 +1,20 @@
 package main
 
 import (
-	_ "github.com/AustrianDataLAB/GeWoScout/backend/docs"
-	httpSwagger "github.com/swaggo/http-swagger"
-	"log"
-	"net/http"
-	"os"
-
 	"github.com/AustrianDataLAB/GeWoScout/backend/api"
+	_ "github.com/AustrianDataLAB/GeWoScout/backend/docs"
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
 	"github.com/AustrianDataLAB/GeWoScout/backend/notification"
 	"github.com/AustrianDataLAB/GeWoScout/backend/queue"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	"log"
+	"net/http"
+	"os"
 )
 
-func setupRouter() *chi.Mux {
+func setupRouter(useSwagger bool) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.URLFormat)
@@ -44,14 +42,12 @@ func setupRouter() *chi.Mux {
 	// request.
 	r.Post("/listingById", api.GetListingById)
 
-	return r
-}
+	if useSwagger {
+		r.Post("/swagger", api.SwaggerBaseHandler)
+		r.Post("/swaggerFiles", api.SwaggerFileHandler)
+	}
 
-func setupSwagger(r *chi.Mux) {
-	r.Mount("/api/swagger", httpSwagger.WrapHandler)
-	r.Get("/api/swagger", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/api/swagger/index.html", http.StatusMovedPermanently)
-	})
+	return r
 }
 
 // @title GeWoScout API
@@ -65,9 +61,9 @@ func main() {
 	}
 
 	log.Printf("About to listen on %s. Go to http://127.0.0.1:%s/", port, port)
-	// TODO don't do this in production??
-	r := setupRouter()
-	setupSwagger(r)
+
+	// TODO don't use Swagger in production??
+	r := setupRouter(true)
 
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
