@@ -30,6 +30,10 @@ jobs:
       ARM_CLIENT_SECRET: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_SECRET_PROD || github.ref == vars.DEVELOPMENT_BRANCH && secrets.ARM_CLIENT_SECRET_DEV }}
       ARM_SUBSCRIPTION_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_SUBSCRIPTION_ID_DEV }}
       ARM_TENANT_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_TENANT_ID_DEV }}
+      
+      TF_VAR_arm_client_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && secrets.ARM_CLIENT_ID_DEV }}
+      TF_VAR_arm_client_secret: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_SECRET_PROD || github.ref == vars.DEVELOPMENT_BRANCH && secrets.ARM_CLIENT_SECRET_DEV }}
+      TF_VAR_arm_tenant_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_TENANT_ID_DEV }}
       TF_VERSION: 1.7.5
 
     defaults:
