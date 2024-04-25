@@ -35,11 +35,11 @@ resource "null_resource" "frontend_build" {
     always_run = timestamp()
   }
 
-  depends_on = [ azurerm_storage_account.frontend_storage_account ]
+  depends_on = [azurerm_storage_account.frontend_storage_account]
 
   provisioner "local-exec" {
-    working_dir = "${var.frontend_path}"
-    command = <<-EOT
+    working_dir = var.frontend_path
+    command     = <<-EOT
       npm install && npm run build
     EOT
   }
@@ -52,11 +52,11 @@ resource "null_resource" "frontend_upload" {
     always_run = timestamp()
   }
 
-  depends_on = [ null_resource.frontend_build ]
+  depends_on = [null_resource.frontend_build]
 
   provisioner "local-exec" {
-    working_dir = "${var.frontend_path}"
-    command = <<EOT
+    working_dir = var.frontend_path
+    command     = <<EOT
       az login --service-principal -u ${var.arm_client_id} -p ${var.arm_client_secret} --tenant ${var.arm_tenant_id} && az storage blob upload-batch --overwrite -s ./dist -d $web --account-name ${azurerm_storage_account.frontend_storage_account.name}
     EOT
   }
