@@ -23,14 +23,6 @@ resource "azurerm_storage_account" "sa_scraper" {
   account_replication_type = "LRS"
 }
 
-# Add Application Insights for logs & monitoring
-resource "azurerm_application_insights" "ai" {
-  name                = "appinsights-gewoscout"
-  location            = data.azurerm_resource_group.rg.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-  application_type    = "other"
-}
-
 # Package the Azure Function's code to zip
 data "archive_file" "scraper_zip" {
   type        = "zip"
@@ -69,10 +61,4 @@ resource "azurerm_linux_function_app" "fa_scraper" {
   }
 
   zip_deploy_file = data.archive_file.scraper_zip.output_path
-}
-
-# Storage Queue - connects scrapers with backend
-resource "azurerm_storage_queue" "queue_scraper_backend" {
-  name                 = "queue-scraper-backend-gewoscout"
-  storage_account_name = azurerm_storage_account.sa_scraper.name
 }
