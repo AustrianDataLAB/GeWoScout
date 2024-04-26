@@ -55,7 +55,7 @@ resource "null_resource" "frontend_upload" {
   provisioner "local-exec" {
     working_dir = local.frontend_path
     command     = <<EOT
-      az login --service-principal -u ${var.arm_client_id} -p ${var.arm_client_secret} --tenant ${var.arm_tenant_id} && az storage blob upload-batch --overwrite -s ./dist -d $web --account-name ${azurerm_storage_account.sa_frontend.name}
+      az login --service-principal -u ${var.arm_client_id} -p ${var.arm_client_secret} --tenant ${var.arm_tenant_id} && az storage blob upload-batch --overwrite -s ./dist -d \$web --account-name ${azurerm_storage_account.sa_frontend.name}
     EOT
   }
 }
