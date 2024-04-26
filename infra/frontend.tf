@@ -1,20 +1,18 @@
 // sources: https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-static-website-terraform?tabs=azure-cli
 
-variable "frontend_path" {
-  type    = string
-  default = "../frontend/vue-gewoscout"
+locals {
+  frontend_path = "${path.module}/../frontend/vue-gewoscout"
 }
 
 # Generate a random value for the storage account name
 resource "random_string" "sa_frontend_suffix" {
   length  = 6
   upper   = false
-  numeric = false
   special = false
 }
 
 # Prepare a storage account for the frontend application
-resource "azurerm_storage_account" "frontend_storage_account" {
+resource "azurerm_storage_account" "sa_frontend" {
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = data.azurerm_resource_group.rg.location
 
@@ -35,10 +33,10 @@ resource "null_resource" "frontend_build" {
     always_run = timestamp()
   }
 
-  depends_on = [azurerm_storage_account.frontend_storage_account]
+  depends_on = [azurerm_storage_account.sa_frontend]
 
   provisioner "local-exec" {
-    working_dir = var.frontend_path
+    working_dir = local.frontend_path
     command     = <<-EOT
       npm install && npm run build
     EOT
@@ -55,14 +53,14 @@ resource "null_resource" "frontend_upload" {
   depends_on = [null_resource.frontend_build]
 
   provisioner "local-exec" {
-    working_dir = var.frontend_path
+    working_dir = local.frontend_path
     command     = <<EOT
-      az login --service-principal -u ${var.arm_client_id} -p ${var.arm_client_secret} --tenant ${var.arm_tenant_id} && az storage blob upload-batch --overwrite -s ./dist -d $web --account-name ${azurerm_storage_account.frontend_storage_account.name}
+      az login --service-principal -u ${var.arm_client_id} -p ${var.arm_client_secret} --tenant ${var.arm_tenant_id} && az storage blob upload-batch --overwrite -s ./dist -d $web --account-name ${azurerm_storage_account.sa_frontend.name}
     EOT
   }
 }
 
 output "frontend_hostname" {
   description = "Frontend hostname"
-  value       = azurerm_storage_account.frontend_storage_account.primary_web_host
+  value       = azurerm_storage_account.sa_frontend.primary_web_host
 }
