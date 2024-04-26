@@ -1,12 +1,3 @@
-# App Service Plan (Consumption Plan for Azure Functions)
-resource "azurerm_service_plan" "sp_scraper" {
-  name                = "serviceplan-gewoscout"
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
-  os_type             = "Linux"
-  sku_name            = "Y1"
-}
-
 # Storage Account name must be globally unique
 resource "random_string" "sa_scraper_suffix" {
   length  = 6
@@ -45,7 +36,7 @@ resource "azurerm_linux_function_app" "fa_scraper" {
 
   storage_account_name       = azurerm_storage_account.sa_scraper.name
   storage_account_access_key = azurerm_storage_account.sa_scraper.primary_access_key
-  service_plan_id            = azurerm_service_plan.sp_scraper.id
+  service_plan_id            = azurerm_service_plan.sp.id
 
   site_config {
     application_stack {
