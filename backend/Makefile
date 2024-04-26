@@ -4,4 +4,10 @@ build:
 build-windows:
 	GOOS=windows GOARCH=amd64 go build -o bin/handler.exe github.com/AustrianDataLAB/GeWoScout/backend
 
+run: build
+	func start
+
+swagger:
+	swag init -g handler.go
+
 all: build build-windows
