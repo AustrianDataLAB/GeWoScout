@@ -1,5 +1,5 @@
 # Terraform deployment
-This is how you should perform the deployment of this architecture.
+This is how you should perform the deployment of this architecture. Because of some limitations this can only work in an environment which supports bash-like variables (linux, macOS, WSL...).
 
 ## Prerequisites
 The terraform will build the applications and deploy them, that's why you also need to install those tools:
