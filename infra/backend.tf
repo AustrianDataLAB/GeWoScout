@@ -57,7 +57,7 @@ resource "null_resource" "backend_build" {
 
   provisioner "local-exec" {
     working_dir = local.backend_path
-    command     = "make build"
+    command     = "make build-ci"
   }
 }
 
@@ -72,7 +72,7 @@ resource "null_resource" "backend_upload" {
 
   provisioner "local-exec" {
     working_dir = local.backend_path
-    command     = "func azure functionapp publish ${azurerm_linux_function_app.fa_backend.name}"
+    command     = "az login --service-principal -u ${var.arm_client_id} -p ${var.arm_client_secret} --tenant ${var.arm_tenant_id} && func azure functionapp publish ${azurerm_linux_function_app.fa_backend.name}"
   }
 }
 
