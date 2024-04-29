@@ -1,0 +1,30 @@
+
+version: '3'
+
+vars:
+  #KUBECONFIG: /home/runner/.kube/config
+  pacman: gewoscout
+
+tasks:
+  cluster:
+    cmds:
+      - kind create cluster 
+    silent: false
+
+  namespace:
+    cmds:
+      - kubectl create namespace {{.pacman}}
+    silent: false
+
+  deploy-manifests:
+    cmds:
+      - for i in manifests/*; do kubectl apply -f $i -n {{.pacman}}; done
+
+  delete-manifests:
+    cmds:
+      - for i in manifests/*; do kubectl delete -f $i -n {{.pacman}}; done
+
+  port-forward:
+    cmds:
+      - kubectl port-forward -n {{.pacman}} service/gewobackend 8000:80 
+    silent: false

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: gewobackend
+  name: gewobackend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: gewobackend
+  template:
+    metadata:
+      labels:
+        name: gewobackend
+    spec:
+      containers:
+      - image: ghcr.io/austriandatalab/gewoscout/gewo-backend:latest
+        name: gewobackend
+        ports:
+        - containerPort: 80
+          name: http-server
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+              - curl http://0.0.0.0:80
+          initialDelaySeconds: 5
+          periodSeconds: 20
+        livenessProbe:
+          exec:
+            command:
+              - curl http://0.0.0.0:80
+          initialDelaySeconds: 15
+          periodSeconds: 20
