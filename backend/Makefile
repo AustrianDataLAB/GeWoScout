@@ -1,3 +1,5 @@
+.PHONY: swagger
+
 build:
 	go build -o bin/handler github.com/AustrianDataLAB/GeWoScout/backend
 
@@ -9,5 +11,7 @@ run: build
 
 swagger:
 	swag init -g handler.go
+
+build-ci: swagger build
 
 all: build build-windows
