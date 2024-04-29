@@ -1,10 +1,6 @@
 name: Infra CI
 
 on:
-  push:
-    paths:
-      - 'infra/**'
-      - '.github/workflows/infra_ci.yml'
   pull_request:
     paths:
       - 'infra/**'
@@ -39,7 +35,7 @@ jobs:
       run:
         shell: bash
         working-directory: infra
-        
+
     steps:
     - uses: actions/checkout@v4
     - name: Setup Terraform
