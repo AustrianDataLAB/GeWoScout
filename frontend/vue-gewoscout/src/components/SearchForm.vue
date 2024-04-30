@@ -6,7 +6,7 @@ const value = ref(null);
 </script>
 
 <template>
-  <div class="form">
+  <div class="form mt-3">
     <div class="flex flex-column gap-2">
         <label for="username">Username</label>
         <vueInputText id="username" v-model="value" />
