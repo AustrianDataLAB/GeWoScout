@@ -1,38 +1,56 @@
-<script lang="ts">
+<script lang="ts" setup>
+import { ref } from "vue";
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 
-export default {
-  components: {
-    // eslint-disable-next-line vue/no-reserved-component-names
-    Button,
-    Card
+const results = ref([
+  {
+    titel: 'Advanced Card',
+  },
+  {
+    titel: 'Advanced Card',
+  },
+  {
+    titel: 'Advanced Card',
+  },
+  {
+    titel: 'Advanced Card',
+  },
+  {
+    titel: 'Advanced Card',
+  },
+  {
+    titel: 'Advanced Card',
+  },
+  {
+    titel: 'Advanced Card',
   }
-}
+])
 
 </script>
 
 <template>
-  <div class="cards">
-    <Card style="width: 25rem; overflow: hidden">
-      <template #header>
-        <img alt="user header" src="../assets/tempFlat.jpg" />
-      </template>
-      <template #title>Advanced Card</template>
-      <template #subtitle>Card subtitle</template>
-      <template #content>
-        <p class="m-0">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque
-          quas!
-        </p>
-      </template>
-      <template #footer>
-        <div class="flex gap-3 mt-1">
-          <Button label="Cancel" severity="secondary" outlined class="w-full" />
-          <Button label="Save" class="w-full" />
-        </div>
-      </template>
-    </Card>
+  <div class="cards mt-3 grid">
+    <div class="col-12 lg:col-4" v-for="(item, index) in results" :key="index">
+      <Card style="width: 25rem; overflow: hidden">
+        <template #header>
+          <img alt="user header" src="../assets/tempFlat.jpg" width="450" height="150" />
+        </template>
+        <template #title>{{ item.titel }}</template>
+        <template #subtitle>Card subtitle</template>
+        <template #content>
+          <p class="m-0">
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+          </p>
+        </template>
+        <template #footer>
+          <div class="flex gap-3 mt-1">
+            <Button label="Cancel" severity="secondary" outlined class="w-full" />
+            <Button label="Save" class="w-full" />
+          </div>
+        </template>
+      </Card>
+    </div>
   </div>
 </template>
 
