@@ -10,8 +10,7 @@
 *.zip
 /infra/.terraform/
 /infra/.terraform.lock.hcl
-/infra/env.sh
-/infra/env.ps1
+/infra/scripts
 
 .pytest_cache
 __pycache__

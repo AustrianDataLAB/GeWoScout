@@ -60,9 +60,18 @@ jobs:
         echo ARM_TENANT_ID: ${{ env.ARM_TENANT_ID }}
         echo TF_VERSION: ${{ env.TF_VERSION }}
 
-    - name: Setup Go
+    - name: Setup Go 1.22.x
       uses: actions/setup-go@v5
-
+      with:
+        go-version: 1.22.x
+        cache-dependency-path: "backend/go.sum"
+    
+    - name: Build Swagger
+      run: |
+        cd ../backend
+        go install github.com/swaggo/swag/cmd/swag@latest
+        swag init -g handler.go 
+        
     - name: Setup AZ CLI
       uses: pietrobolcato/install-azure-cli-action@main
 
