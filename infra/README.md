@@ -9,7 +9,11 @@ The terraform will build the applications and deploy them, that's why you also n
 4. `go`
 
 ## Steps
-1. Initialize the following environmental variables:
+1. Build swagger
+ - go to the `backend` dir
+ - run: `go install github.com/swaggo/swag/cmd/swag@latest` and `swag init -g handler.go`
+
+2. Initialize the following environmental variables:
  - ``TF_VAR_state_resource_group_name``
  - ``TF_VAR_state_storage_account_name``
  - ``TF_VAR_infra_resource_group_name``
@@ -23,12 +27,12 @@ The terraform will build the applications and deploy them, that's why you also n
  - ``TF_VAR_arm_client_secret``
  - ``TF_VAR_arm_tenant_id``
 
-2. Perform `terraform init`:
+3. Perform `terraform init`:
 ```bash
 terraform init -backend-config="resource_group_name=$TF_VAR_state_resource_group_name" -backend-config="storage_account_name=$TF_VAR_state_storage_account_name"
 ```
 
-3. Perform `terraform apply`:
+4. Perform `terraform apply`:
 ```bash
 terraform apply -auto-approve
 ```
