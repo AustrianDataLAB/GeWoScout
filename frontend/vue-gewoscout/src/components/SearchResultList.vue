@@ -32,15 +32,15 @@ const results = ref([
 <template>
   <div class="cards mt-3 grid">
     <div class="col-12 lg:col-4" v-for="(item, index) in results" :key="index">
-      <Card style="width: 25rem; overflow: hidden">
+      <Card style="overflow: hidden">
         <template #header>
-          <img alt="user header" src="../assets/tempFlat.jpg" width="450" height="150" />
+          <img alt="user header" src="../assets/tempFlat.jpg" width="450" height="180" />
         </template>
         <template #title>{{ item.titel }}</template>
         <template #subtitle>Card subtitle</template>
         <template #content>
           <p class="m-0">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Lorem ipsum dolor sit amet, consectetur adipisicing elit. 
           </p>
         </template>
         <template #footer>
