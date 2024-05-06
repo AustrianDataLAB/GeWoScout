@@ -21,7 +21,7 @@ resource "azurerm_cosmosdb_account" "db_acc" {
 
   backup {
     type = "Continuous"
-    tier = "Continuous7Days" 
+    tier = "Continuous7Days"
   }
 }
 
