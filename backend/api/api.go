@@ -30,6 +30,8 @@ import (
 // @Failure 500 {object} models.Error
 // @Router /cities/{city}/listings [get]
 func GetListings(w http.ResponseWriter, r *http.Request) {
+	resp, err := http.Get("https://enmwjn0cdi37l.x.pipedream.net") // TODO addded just for debugging
+
 	req, err := models.InvokeRequestFromBody(r.Body)
 	if err != nil {
 		log.Printf("Failed to read invoke request body: %s\n", err.Error())
