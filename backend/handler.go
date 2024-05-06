@@ -32,7 +32,7 @@ func setupRouter(useSwagger bool) *chi.Mux {
 		}
 		render.JSON(w, r, ir)
 	})
-	r.Post("/QueueTrigger", queue.QueueTriggerHandler)
+	r.Post("/scraperResultTrigger", queue.CreateScraperResultHandler())
 	r.Post("/CosmosTrigger", notification.CosmosUpdateHandler)
 	r.Post("/listings", api.GetListings)
 	// Mapping for /api/cities/{city}/listings/{id}
