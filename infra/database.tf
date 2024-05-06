@@ -26,7 +26,7 @@ resource "azurerm_cosmosdb_account" "db_acc" {
 }
 
 resource "azurerm_cosmosdb_sql_database" "db" {
-  name                = "cosmos-db-gewoscout"
+  name                = "gewoscout-db"
   resource_group_name = azurerm_cosmosdb_account.db_acc.resource_group_name
   account_name        = azurerm_cosmosdb_account.db_acc.name
 }
@@ -37,6 +37,6 @@ resource "azurerm_cosmosdb_sql_container" "listings_by_city" {
   account_name        = azurerm_cosmosdb_account.db_acc.name
   database_name       = azurerm_cosmosdb_sql_database.db.name
 
-  partition_key_path = "/id"
+  partition_key_path = "/_id" # TODO partition key
   # TODO partition key, indexing strategy or uniqueness constraints
 }

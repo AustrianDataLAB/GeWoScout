@@ -41,7 +41,8 @@ resource "azurerm_linux_function_app" "fa_backend" {
   }
 
   app_settings = {
-    QUEUE_NAME = azurerm_storage_queue.queue_scraper_backend.name
+    QUEUE_NAME           = azurerm_storage_queue.queue_scraper_backend.name
+    COSMOS_DB_CONNECTION = azurerm_cosmosdb_account.db_acc.primary_sql_connection_string
   }
 }
 
