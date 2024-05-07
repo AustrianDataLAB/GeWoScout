@@ -1,17 +1,23 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"github.com/AustrianDataLAB/GeWoScout/backend/api"
+	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
 	_ "github.com/AustrianDataLAB/GeWoScout/backend/docs"
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
 	"github.com/AustrianDataLAB/GeWoScout/backend/notification"
 	"github.com/AustrianDataLAB/GeWoScout/backend/queue"
+	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"log"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 )
 
 func setupRouter(useSwagger bool) *chi.Mux {
@@ -19,6 +25,8 @@ func setupRouter(useSwagger bool) *chi.Mux {
 	r.Use(middleware.Logger)
 	r.Use(middleware.URLFormat)
 	r.Use(render.SetContentType(render.ContentTypeJSON))
+
+	h := api.NewHandler()
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Alive"))
@@ -34,13 +42,13 @@ func setupRouter(useSwagger bool) *chi.Mux {
 	})
 	r.Post("/scraperResultTrigger", queue.CreateScraperResultHandler())
 	r.Post("/CosmosTrigger", notification.CosmosUpdateHandler)
-	r.Post("/listings", api.GetListings)
+	r.Post("/listings", h.GetListings)
 	// Mapping for /api/cities/{city}/listings/{id}
 	// The Azure Function defined for this route has an injection from CosmosDB,
 	// which means the original GET request is mapped to a POST request to this
 	// route and the result is subsequently returned for the original GET
 	// request.
-	r.Post("/listingById", api.GetListingById)
+	r.Post("/listingById", h.GetListingById)
 
 	if useSwagger {
 		r.Post("/swagger", api.SwaggerBaseHandler)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 	"log"
 	"net/http"
 	"strconv"
@@ -14,6 +15,22 @@ import (
 
 	"github.com/go-chi/render"
 )
+
+type Handler struct {
+	CosmosClient                  *azcosmos.Client
+	GewoscoutDbClient             *azcosmos.DatabaseClient
+	ListingsByCityContainerClient *azcosmos.ContainerClient
+}
+
+func NewHandler() *Handler {
+	client, db, container := cosmos.InitClients()
+	h := &Handler{
+		CosmosClient:                  client,
+		GewoscoutDbClient:             db,
+		ListingsByCityContainerClient: container,
+	}
+	return h
+}
 
 // GetListings Handler function for /listings, which returns any listings within the
 // partition defined by the city path param, which is guaranteed to exist at
@@ -29,7 +46,7 @@ import (
 // @Failure 400 {object} models.Error
 // @Failure 500 {object} models.Error
 // @Router /cities/{city}/listings [get]
-func GetListings(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 	req, err := models.InvokeRequestFromBody(r.Body)
 	if err != nil {
 		log.Printf("Failed to read invoke request body: %s\n", err.Error())
@@ -52,20 +69,12 @@ func GetListings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	container, err := cosmos.GetContainer()
-	if err != nil {
-		render.JSON(w, r, models.NewInvokeResponse(
-			http.StatusInternalServerError,
-			models.Error{Message: err.Error(), StatusCode: http.StatusInternalServerError},
-		))
-		return
-	}
-
-	pager := cosmos.GetQueryItemsPager(container, city, &req.Data.Req.Query)
-	listings := []models.Listing{}
+	pager := cosmos.GetQueryItemsPager(h.ListingsByCityContainerClient, city, &req.Data.Req.Query)
+	var listings []models.Listing
 	var continuationToken *string
 
 	for pager.More() {
+		// TODO add timeout
 		response, err := pager.NextPage(context.Background())
 		if err != nil {
 			log.Printf("Failed to get next result page: %s\n", err.Error())
@@ -116,7 +125,7 @@ func GetListings(w http.ResponseWriter, r *http.Request) {
 // @Failure 404 {object} models.Error "Listing not found"
 // @Failure 400 {object} models.Error "Bad request"
 // @Router /cities/{city}/listings/{id} [get]
-func GetListingById(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 	injectedData := models.CosmosBindingInput{}
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&injectedData); err != nil {
