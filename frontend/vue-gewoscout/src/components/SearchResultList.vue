@@ -5,25 +5,39 @@ import Card from 'primevue/card';
 
 const results = ref([
   {
-    titel: 'Advanced Card',
+    titel: 'Leo am Teich - Wohnen am Wasser',
+    plz: '1010',
+    city: 'Vienna'
   },
   {
-    titel: 'Advanced Card',
+    titel: 'Leo am Teich - Wohnen am Wasser - Provisionsfrei!',
+    plz: '1011',
+    city: 'Vienna'
   },
   {
-    titel: 'Advanced Card',
+    titel: 'Leo am Teich - Wohnen am Wasser',
+    plz: '1010',
+    city: 'Vienna'
   },
   {
-    titel: 'Advanced Card',
+    titel: 'Leo am Teich - Wohnen am Wasser',
+    plz: '1015',
+    city: 'Vienna'
   },
   {
-    titel: 'Advanced Card',
+    titel: '2 Zimmer mit Küche und riesigem Balkon!',
+    plz: '1013',
+    city: 'Vienna'
   },
   {
-    titel: 'Advanced Card',
+    titel: 'Martha im Grün - gefördertes Eigentum beim Badeteich',
+    plz: '1012',
+    city: 'Vienna'
   },
   {
-    titel: 'Advanced Card',
+    titel: '2 Zimmer mit Küche und riesigem Balkon!',
+    plz: '1012',
+    city: 'Vienna'
   }
 ])
 
@@ -37,16 +51,23 @@ const results = ref([
           <img alt="user header" src="../assets/tempFlat.jpg" width="450" height="180" />
         </template>
         <template #title>{{ item.titel }}</template>
-        <template #subtitle>Card subtitle</template>
+        <template #subtitle><span class="pi pi-map-marker"></span> {{ item.plz }} {{ item.city }}</template>
         <template #content>
-          <p class="m-0">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Lorem ipsum dolor sit amet, consectetur adipisicing elit. 
-          </p>
+          <div class="card flex justify-content-around">
+            <div class="flex flex-column m-0">
+              <p>Rooms</p>
+              <p class="text-center m-0">2</p>
+            </div>
+            <div class="flex flex-column m-0">
+              <p>Area</p>
+              <p class="text-center m-0">75 m²</p>
+            </div>
+          </div>
         </template>
         <template #footer>
           <div class="flex gap-3 mt-1">
-            <Button label="Cancel" severity="secondary" outlined class="w-full" />
-            <Button label="Save" class="w-full" />
+            <Button label="Details" severity="secondary" outlined class="w-full" />
+            <Button label="Request" icon="pi pi-external-link" class="w-full" />
           </div>
         </template>
       </Card>

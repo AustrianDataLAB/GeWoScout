@@ -13,6 +13,8 @@ import SelectButton from 'primevue/selectbutton';
 import Menubar from 'primevue/menubar';
 import Card from 'primevue/card';
 import Avatar from 'primevue/avatar';
+import Divider from 'primevue/divider';
+
 
 import './assets/main.css'
 import 'primevue/resources/themes/lara-light-amber/theme.css'
@@ -34,5 +36,6 @@ app.component('vueSelectButton', SelectButton);
 app.component('vueMenubar', Menubar);
 app.component('vueCard', Card);
 app.component('vueAvatar', Avatar);
+app.component('vueDivider', Divider);
 
 app.mount('#app');
