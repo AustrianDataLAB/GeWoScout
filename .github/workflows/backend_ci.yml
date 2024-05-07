@@ -91,7 +91,7 @@ jobs:
         run: |
           mkdir bin
           go build -o bin/handler .
-          Rename-Item -Path test/test.settings.json -NewName local.settings.json
+          Copy-Item -Path test/test.settings.json -Destination local.settings.json
 
       - name: Prepare db/container for test
         run: cd test; python prepare_fixture.py
