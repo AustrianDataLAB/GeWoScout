@@ -1,4 +1,4 @@
-package queue
+package api
 
 import (
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
