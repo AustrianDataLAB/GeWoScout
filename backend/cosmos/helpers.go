@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
@@ -71,43 +72,71 @@ func GetNonExistingIds(ctx context.Context, container *azcosmos.ContainerClient,
 }
 
 func GetExistingIds(ctx context.Context, container *azcosmos.ContainerClient, idsByPk map[string][]string) (map[string][]string, error) {
-	existingIds := make(map[string][]string)
+	type resultT struct {
+		pk  string
+		ids []string
+		err error
+	}
+
+	results := make(chan resultT, len(idsByPk)) // Buffered channel to prevent goroutine leaks
+
+	var wg sync.WaitGroup
+	wg.Add(len(idsByPk))
 
 	for pk, ids := range idsByPk {
+		go func(pk string, ids []string) {
+			defer wg.Done()
 
-		existingIds[pk] = []string{}
+			partitionKey := azcosmos.NewPartitionKeyString(pk)
+			placeholder, parameters := genStringParamList(ids)
 
-		partitionKey := azcosmos.NewPartitionKeyString(pk)
-		placeholder, parameters := genStringParamList(ids)
+			query := fmt.Sprintf("SELECT c.id FROM c WHERE c.id IN (%s)", strings.Join(placeholder, ", "))
 
-		query := fmt.Sprintf("SELECT c.id FROM c WHERE c.id IN (%s)", strings.Join(placeholder, ", "))
+			pager := container.NewQueryItemsPager(query, partitionKey, &azcosmos.QueryOptions{
+				QueryParameters: parameters,
+			})
 
-		pager := container.NewQueryItemsPager(query, partitionKey, &azcosmos.QueryOptions{
-			QueryParameters: parameters,
-		})
-
-		for pager.More() {
-			ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-			page, err := pager.NextPage(ctx)
-			cancel()
-			if err != nil {
-				return nil, fmt.Errorf("failed to get next page: %w", err)
-			}
-
-			type IdItem struct {
-				ID string `json:"id"`
-			}
-
-			for _, item := range page.Items {
-				var idItem IdItem
-				err := json.Unmarshal(item, &idItem)
+			var foundIds []string
+			for pager.More() {
+				ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+				page, err := pager.NextPage(ctx)
+				cancel()
 				if err != nil {
-					return nil, fmt.Errorf("failed to unmarshal item: %w", err)
+					results <- resultT{pk, nil, fmt.Errorf("failed to get next page: %w", err)}
+					return
 				}
 
-				existingIds[pk] = append(existingIds[pk], idItem.ID)
+				type IdItem struct {
+					ID string `json:"id"`
+				}
+
+				for _, item := range page.Items {
+					var idItem IdItem
+					err := json.Unmarshal(item, &idItem)
+					if err != nil {
+						results <- resultT{pk, nil, fmt.Errorf("failed to unmarshal item: %w", err)}
+						return
+					}
+
+					foundIds = append(foundIds, idItem.ID)
+				}
 			}
+
+			results <- resultT{pk, foundIds, nil}
+		}(pk, ids)
+	}
+
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	existingIds := make(map[string][]string)
+	for result := range results {
+		if result.err != nil {
+			return nil, result.err
 		}
+		existingIds[result.pk] = result.ids
 	}
 
 	return existingIds, nil
