@@ -4,32 +4,49 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/AustrianDataLAB/GeWoScout/backend/models"
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
+	"github.com/go-chi/render"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
-	"github.com/AustrianDataLAB/GeWoScout/backend/models"
-
-	"github.com/go-chi/render"
 )
 
 type Handler struct {
-	CosmosClient                  *azcosmos.Client
-	GewoscoutDbClient             *azcosmos.DatabaseClient
-	ListingsByCityContainerClient *azcosmos.ContainerClient
+	cosmosOnce sync.Once
+	// Do NOT access directly
+	cosmosClient *azcosmos.Client
+	// Do NOT access directly
+	gewoscoutDbClient *azcosmos.DatabaseClient
+	// Do NOT access directly
+	listingsByCityContainerClient *azcosmos.ContainerClient
+}
+
+func (h *Handler) initCosmos() {
+	h.cosmosClient, h.gewoscoutDbClient, h.listingsByCityContainerClient = cosmos.InitClients()
+}
+
+func (h *Handler) GetCosmosClient() *azcosmos.Client {
+	h.cosmosOnce.Do(h.initCosmos)
+	return h.cosmosClient
+}
+
+func (h *Handler) GetGewoscoutDbClient() *azcosmos.DatabaseClient {
+	h.cosmosOnce.Do(h.initCosmos)
+	return h.gewoscoutDbClient
+}
+
+func (h *Handler) GetListingsByCityContainerClient() *azcosmos.ContainerClient {
+	h.cosmosOnce.Do(h.initCosmos)
+	return h.listingsByCityContainerClient
 }
 
 func NewHandler() *Handler {
-	client, db, container := cosmos.InitClients()
-	h := &Handler{
-		CosmosClient:                  client,
-		GewoscoutDbClient:             db,
-		ListingsByCityContainerClient: container,
-	}
-	return h
+	return &Handler{}
 }
 
 // GetListings Handler function for /listings, which returns any listings within the
@@ -69,7 +86,7 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pager := cosmos.GetQueryItemsPager(h.ListingsByCityContainerClient, city, &req.Data.Req.Query)
+	pager := cosmos.GetQueryItemsPager(h.GetListingsByCityContainerClient(), city, &req.Data.Req.Query)
 	var listings []models.Listing
 	var continuationToken *string
 
