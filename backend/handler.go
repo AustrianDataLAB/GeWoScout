@@ -1,23 +1,16 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"github.com/AustrianDataLAB/GeWoScout/backend/api"
-	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
 	_ "github.com/AustrianDataLAB/GeWoScout/backend/docs"
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
 	"github.com/AustrianDataLAB/GeWoScout/backend/notification"
-	"github.com/AustrianDataLAB/GeWoScout/backend/queue"
-	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"log"
 	"net/http"
 	"os"
-	"strings"
-	"time"
 )
 
 func setupRouter(useSwagger bool) *chi.Mux {
@@ -40,7 +33,7 @@ func setupRouter(useSwagger bool) *chi.Mux {
 		}
 		render.JSON(w, r, ir)
 	})
-	r.Post("/scraperResultTrigger", queue.CreateScraperResultHandler())
+	r.Post("/scraperResultTrigger", h.CreateScraperResultHandler())
 	r.Post("/CosmosTrigger", notification.CosmosUpdateHandler)
 	r.Post("/listings", h.GetListings)
 	// Mapping for /api/cities/{city}/listings/{id}
