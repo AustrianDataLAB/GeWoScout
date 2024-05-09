@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
 )
@@ -87,12 +88,14 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pager := cosmos.GetQueryItemsPager(h.GetListingsByCityContainerClient(), city, &req.Data.Req.Query)
-	var listings []models.Listing
+	var listings = make([]models.Listing, 30)
 	var continuationToken *string
 
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	for pager.More() {
-		// TODO add timeout
-		response, err := pager.NextPage(context.Background())
+		response, err := pager.NextPage(ctx)
 		if err != nil {
 			log.Printf("Failed to get next result page: %s\n", err.Error())
 
