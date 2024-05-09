@@ -58,7 +58,7 @@ resource "null_resource" "backend_build" {
 
   provisioner "local-exec" {
     working_dir = local.backend_path
-    command     = "build-linux-minimal"
+    command     = "make build-linux-minimal"
   }
 }
 
