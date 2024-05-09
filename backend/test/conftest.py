@@ -1,6 +1,7 @@
 import os
 import subprocess
 import time
+import warnings
 
 import pytest
 import requests
@@ -9,7 +10,11 @@ from azure.cosmos import PartitionKey, CosmosClient, exceptions
 
 from .constants import CONNECTION_STRING, LISTINGS_FIXTURE
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+@pytest.fixture(scope="session", autouse=True)
+def disable_warnings():
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 @pytest.fixture(scope="module")
