@@ -88,7 +88,7 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pager := cosmos.GetQueryItemsPager(h.GetListingsByCityContainerClient(), city, &req.Data.Req.Query)
-	var listings = make([]models.Listing, 30)
+	var listings = make([]models.Listing, 0, 30)
 	var continuationToken *string
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
