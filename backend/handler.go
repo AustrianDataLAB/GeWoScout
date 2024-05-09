@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/AustrianDataLAB/GeWoScout/backend/api"
-	_ "github.com/AustrianDataLAB/GeWoScout/backend/docs"
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
 	"github.com/AustrianDataLAB/GeWoScout/backend/notification"
 	"github.com/AustrianDataLAB/GeWoScout/backend/queue"
