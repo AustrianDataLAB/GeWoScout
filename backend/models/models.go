@@ -31,6 +31,5 @@ type Listing struct {
 
 // Holds any form of error (either from Azure or some internal error)
 type Error struct {
-	StatusCode int    `json:"status_code"`
-	Message    string `json:"message"`
+	Message string `json:"message"`
 }

@@ -1,12 +1,13 @@
 package api
 
 import (
-	"github.com/AustrianDataLAB/GeWoScout/backend/models"
-	"github.com/go-chi/render"
-	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/AustrianDataLAB/GeWoScout/backend/models"
+	"github.com/go-chi/render"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func SwaggerBaseHandler(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +21,7 @@ func SwaggerFileHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		render.JSON(w, r, models.NewInvokeResponse(
 			http.StatusBadRequest,
-			models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
+			models.Error{Message: err.Error()},
 		))
 		return
 	}
@@ -30,7 +31,7 @@ func SwaggerFileHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		render.JSON(w, r, models.NewInvokeResponse(
 			http.StatusBadRequest,
-			models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
+			models.Error{Message: err.Error()},
 		))
 		return
 	}

@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/AustrianDataLAB/GeWoScout/backend/models"
-	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
-	"github.com/go-chi/render"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/AustrianDataLAB/GeWoScout/backend/models"
+	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
+	"github.com/go-chi/render"
 
 	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
 )
@@ -69,7 +70,7 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Failed to read invoke request body: %s\n", err.Error())
 		render.JSON(w, r, models.NewInvokeResponse(
 			http.StatusBadRequest,
-			models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
+			models.Error{Message: err.Error()},
 		))
 		return
 	}
@@ -81,7 +82,7 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 		log.Println("City param was invalid empty")
 		render.JSON(w, r, models.NewInvokeResponse(
 			http.StatusBadRequest,
-			models.Error{Message: "City param was invalid or empty", StatusCode: http.StatusBadRequest},
+			models.Error{Message: "City param was invalid or empty"},
 		))
 		return
 	}
@@ -98,7 +99,7 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 
 			render.JSON(w, r, models.NewInvokeResponse(
 				http.StatusBadRequest,
-				models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
+				models.Error{Message: err.Error()},
 			))
 			return
 		}
@@ -110,7 +111,7 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 
 				render.JSON(w, r, models.NewInvokeResponse(
 					http.StatusBadRequest,
-					models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
+					models.Error{Message: err.Error()},
 				))
 				return
 			}
@@ -154,8 +155,7 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, models.NewInvokeResponse(
 			http.StatusNotFound,
 			models.Error{
-				Message:    fmt.Sprintf("Listing with id %s could not be found in city %s", injectedData.Metadata.ID, injectedData.Metadata.City),
-				StatusCode: http.StatusNotFound,
+				Message: fmt.Sprintf("Listing with id %s could not be found in city %s", injectedData.Metadata.ID, injectedData.Metadata.City),
 			},
 		))
 		return
@@ -170,8 +170,7 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, models.NewInvokeResponse(
 			http.StatusBadRequest,
 			models.Error{
-				Message:    fmt.Sprintf("Listing with id %s could not be found in city %s", injectedData.Metadata.ID, injectedData.Metadata.City),
-				StatusCode: http.StatusBadRequest,
+				Message: fmt.Sprintf("Listing with id %s could not be found in city %s", injectedData.Metadata.ID, injectedData.Metadata.City),
 			},
 		))
 		return
