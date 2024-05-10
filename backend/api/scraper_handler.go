@@ -12,7 +12,6 @@ import (
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
-	"io"
 	"log"
 	"net/http"
 	"slices"
@@ -46,13 +45,6 @@ func (h *Handler) CreateScraperResultHandler() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		injectedData := bindingInput{}
-
-		bodyBytes, err := io.ReadAll(r.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Printf("ScraperResultHandler | Received message: %s\n", string(bodyBytes))
-
 		dec := json.NewDecoder(r.Body)
 		if err := dec.Decode(&injectedData); err != nil {
 			render.Status(r, http.StatusInternalServerError)
@@ -166,7 +158,7 @@ func (h *Handler) CreateScraperResultHandler() http.HandlerFunc {
 			batch := container.NewTransactionalBatch(partitionKey)
 
 			for i, id := range ids {
-				if !slices.Contains(nonExIdsForPk, id) {
+				if slices.Contains(nonExIdsForPk, id) {
 					marshalled, err := json.Marshal(listings[i])
 					if err != nil {
 						logs = append(logs, fmt.Sprintf("ScraperResultHandler %s | Failed to marshal listing %s: %s", msgId, id, err.Error()))
