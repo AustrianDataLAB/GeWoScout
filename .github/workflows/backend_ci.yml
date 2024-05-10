@@ -57,17 +57,16 @@ jobs:
         with:
           parameter_string: "-Timeout 420"
 
-      - name: Install Azurite
-        id: azuright
-        uses: potatoqualitee/azuright@v1.1
-        with:
-          self-signed-cert: true
-
       - name: Set up node (for Azure Functions Core Tools)
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
+
+      - name: Start Azurite
+        run: |
+          npm install -g azurite
+          azurite --silent --location c:\azurite --debug c:\azurite\debug.log
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
