@@ -56,7 +56,13 @@ jobs:
         uses: janpio/cosmos-emulator-github-action@main
         with:
           parameter_string: "-Timeout 420"
-      
+
+      - name: Install Azurite
+        id: azuright
+        uses: potatoqualitee/azuright@v1.1
+        with:
+          self-signed-cert: true
+
       - name: Set up node (for Azure Functions Core Tools)
         uses: actions/setup-node@v4
         with:

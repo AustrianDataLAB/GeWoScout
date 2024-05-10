@@ -7,8 +7,10 @@ import pytest
 import requests
 import urllib3
 from azure.cosmos import PartitionKey, CosmosClient, exceptions
+from azure.storage.queue import QueueServiceClient
 
-from .constants import CONNECTION_STRING, LISTINGS_FIXTURE
+from .constants import COSMOS_CONNECTION_STRING, LISTINGS_FIXTURE, QUEUE_STORAGE_CONNECTION, SCRAPER_RESULTS_QUEUE_NAME, \
+    NEW_LISTINGS_QUEUE_NAME
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -19,8 +21,28 @@ def disable_warnings():
 
 @pytest.fixture(scope="module")
 def cosmos_db_client():
-    client = CosmosClient.from_connection_string(CONNECTION_STRING)
+    client = CosmosClient.from_connection_string(COSMOS_CONNECTION_STRING)
     return client
+
+
+@pytest.fixture(scope="module")
+def queue_service_client():
+    return QueueServiceClient.from_connection_string(QUEUE_STORAGE_CONNECTION)
+
+
+@pytest.fixture(scope="module")
+def clear_queues(queue_service_client):
+    queues = [SCRAPER_RESULTS_QUEUE_NAME, NEW_LISTINGS_QUEUE_NAME]
+
+    for queue_name in queues:
+        queue_client = queue_service_client.get_queue_client(queue_name)
+        queue_client.clear_messages()
+
+    yield
+
+    for queue_name in queues:
+        queue_client = queue_service_client.get_queue_client(queue_name)
+        queue_client.clear_messages()
 
 
 @pytest.fixture(scope="module")
