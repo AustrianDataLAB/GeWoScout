@@ -3,9 +3,9 @@ package models
 import "time"
 
 type ScraperResultList struct {
-	ScraperId string    `json:"scraperId"`
-	Timestamp time.Time `json:"timestamp"`
-	Listings  []Listing `json:"listings"`
+	ScraperId string                 `json:"scraperId"`
+	Timestamp time.Time              `json:"timestamp"`
+	Listings  []ScraperResultListing `json:"listings"`
 }
 
 type ScraperResultListing struct {

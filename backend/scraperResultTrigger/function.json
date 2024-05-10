@@ -5,7 +5,14 @@
       "type": "queueTrigger",
       "direction": "in",
       "queueName": "scraper-result-queue",
-      "connection": "AzureWebJobsStorage"
+      "connection": "QUEUE_STORAGE_CONNECTION"
+    },
+    {
+      "name": "msgOut",
+      "type": "queue",
+      "direction": "out",
+      "queueName": "scraper-result-queue",
+      "connection": "QUEUE_STORAGE_CONNECTION"
     }
   ]
 }
