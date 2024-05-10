@@ -63,9 +63,11 @@ jobs:
           node-version: '20'
 
       - name: Start Azurite
+        shell: powershell
         run: |
           npm install -g azurite
-          azurite --silent --location c:\azurite --debug c:\azurite\debug.log
+          $azuritePath = "$(npm root -g)\azurite\dist\src\azurite.js"
+          Start-Process -NoNewWindow -FilePath "azurite" -ArgumentList "--silent", "--location c:\azurite", "--debug c:\azurite\debug.log"
 
       - name: Set up Python
         uses: actions/setup-python@v5
