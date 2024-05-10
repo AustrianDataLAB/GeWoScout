@@ -67,7 +67,7 @@ jobs:
         run: |
           npm install -g azurite
           $azuritePath = "$(npm root -g)\azurite\dist\src\azurite.js"
-          Start-Process -NoNewWindow -FilePath "azurite" -ArgumentList "--silent", "--location c:\azurite", "--debug c:\azurite\debug.log"
+          Start-Process -NoNewWindow -FilePath "node" -ArgumentList $azuritePath, "--silent", "--location c:\azurite", "--debug c:\azurite\debug.log"
 
       - name: Set up Python
         uses: actions/setup-python@v5
