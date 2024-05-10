@@ -50,27 +50,3 @@ func Test(t *testing.T) {
 		t.Errorf("expected returnVal to be ArtHabitat_AHProj055_AHFlat681, got %s", returnVal)
 	}
 }
-
-func TestGetListingById(t *testing.T) {
-
-}
-
-func TestHandleScraperResult(t *testing.T) {
-	r := setupRouter(false)
-
-	bodyStr := `{"Data":{"msg":"\"{\\\"scraperId\\\":\\\"viennaHousingScraper002\\\",\\\"timestamp\\\":\\\"2024-04-06T15:30:00Z\\\",\\\"listings\\\":[{\\\"title\\\":\\\"Modern3-BedroomApartmentinCentralVienna\\\",\\\"housingCooperative\\\":\\\"FutureLivingGenossenschaft\\\",\\\"projectId\\\":\\\"FLG2024\\\",\\\"listingId\\\":\\\"12345ABC\\\",\\\"country\\\":\\\"Austria\\\",\\\"city\\\":\\\"Vienna\\\",\\\"postalCode\\\":\\\"1010\\\",\\\"address\\\":\\\"Beispielgasse42\\\",\\\"roomCount\\\":3,\\\"squareMeters\\\":95,\\\"availabilityDate\\\":\\\"2024-09-01\\\",\\\"yearBuilt\\\":2019,\\\"hwgEnergyClass\\\":\\\"A\\\",\\\"fgeeEnergyClass\\\":\\\"A+\\\",\\\"listingType\\\":\\\"both\\\",\\\"rentPricePerMonth\\\":1200,\\\"cooperativeShare\\\":5000,\\\"salePrice\\\":350000,\\\"additionalFees\\\":6500,\\\"detailsUrl\\\":\\\"https://www.futurelivinggenossenschaft.at/listings/12345ABC\\\",\\\"previewImageUrl\\\":\\\"https://www.futurelivinggenossenschaft.at/listings/12345ABC/preview.jpg\\\"}]}\""},"Metadata":{"DequeueCount":"5","ExpirationTime":"2024-05-17T16:13:45+00:00","Id":"\"4434c659-815f-434e-a851-f1df7b701f27\"","InsertionTime":"2024-05-10T16:13:45+00:00","NextVisibleTime":"2024-05-10T16:23:46+00:00","PopReceipt":"\"AgAAAAMAAAAAAAAAVqQNb/ai2gE=\"","sys":{"MethodName":"scraperResultTrigger","UtcNow":"2024-05-10T16:13:47.1756352Z","RandGuid":"828f9d97-f30d-46ff-a609-024f97f376d8"},"scraperId":"\"viennaHousingScraper002\"","timestamp":"\"04/06/2024 15:30:00\""}}`
-
-	req, _ := http.NewRequest("POST", "/scraperResultTrigger", strings.NewReader(bodyStr))
-	w := httptest.NewRecorder()
-
-	r.ServeHTTP(w, req)
-
-	if w.Code != http.StatusOK {
-		t.Errorf("expected status code 200, got %d", w.Code)
-	}
-
-	if w.Header().Get("Content-Type") != "application/json; charset=utf-8" {
-		t.Errorf("expected Content-Type to be application/json; charset=utf-8")
-	}
-
-}

@@ -11,7 +11,7 @@
       "name": "msgOut",
       "type": "queue",
       "direction": "out",
-      "queueName": "scraper-result-queue",
+      "queueName": "new-listings-queue",
       "connection": "QUEUE_STORAGE_CONNECTION"
     }
   ]

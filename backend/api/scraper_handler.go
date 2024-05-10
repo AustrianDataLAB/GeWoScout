@@ -179,7 +179,12 @@ func (h *Handler) CreateScraperResultHandler() http.HandlerFunc {
 				break // Go to end
 			}
 
-			logs = append(logs, fmt.Sprintf("ScraperResultHandler %s | Inserted/patched batch of %d for %s with success %v", msgId, len(listings), pk, resp.Success))
+			if !resp.Success {
+				logs = append(logs, fmt.Sprintf("ScraperResultHandler %s | Failed to execute batch for %s with success %v", msgId, pk, resp.Success))
+				break // Go to end
+			}
+
+			logs = append(logs, fmt.Sprintf("ScraperResultHandler %s | Inserted/patched batch of %d for %s", msgId, len(listings), pk))
 		}
 
 		newListingsOutput := make([]string, len(newListings))
