@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -67,10 +66,11 @@ func NewHandler() *Handler {
 func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 	req, err := models.InvokeRequestFromBody(r.Body)
 	if err != nil {
-		log.Printf("Failed to read invoke request body: %s\n", err.Error())
+		errMsg := fmt.Sprintf("Failed to read invoke request body: %s\n", err.Error())
 		render.JSON(w, r, models.NewInvokeResponse(
 			http.StatusBadRequest,
-			models.Error{Message: err.Error()},
+			models.Error{Message: errMsg},
+			[]string{errMsg},
 		))
 		return
 	}
@@ -79,27 +79,28 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 	// Manual check that city is not empty, validation through validator package
 	// does not work
 	if len(strings.TrimSpace(city)) == 0 {
-		log.Println("City param was invalid empty")
+		errMsg := "City param was invalid or empty"
 		render.JSON(w, r, models.NewInvokeResponse(
 			http.StatusBadRequest,
-			models.Error{Message: "City param was invalid or empty"},
+			models.Error{Message: errMsg},
+			[]string{errMsg},
 		))
 		return
 	}
 
 	pager := cosmos.GetQueryItemsPager(h.GetListingsByCityContainerClient(), city, &req.Data.Req.Query)
-	var listings []models.Listing
+	listings := []models.Listing{}
 	var continuationToken *string
 
 	for pager.More() {
 		// TODO add timeout
 		response, err := pager.NextPage(context.Background())
 		if err != nil {
-			log.Printf("Failed to get next result page: %s\n", err.Error())
-
+			errMsg := fmt.Sprintf("Failed to get next result page: %s\n", err.Error())
 			render.JSON(w, r, models.NewInvokeResponse(
 				http.StatusBadRequest,
-				models.Error{Message: err.Error()},
+				models.Error{Message: errMsg},
+				[]string{errMsg},
 			))
 			return
 		}
@@ -107,11 +108,11 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 		for _, bytes := range response.Items {
 			listing := models.Listing{}
 			if err := json.Unmarshal(bytes, &listing); err != nil {
-				log.Printf("An error occurred trying to parse the response json: %s", err.Error())
-
+				errMsg := fmt.Sprintf("An error occurred trying to parse the response json: %s", err.Error())
 				render.JSON(w, r, models.NewInvokeResponse(
 					http.StatusBadRequest,
 					models.Error{Message: err.Error()},
+					[]string{errMsg},
 				))
 				return
 			}
@@ -127,7 +128,7 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 		ContinuationToken: continuationToken,
 	}
 
-	render.JSON(w, r, models.NewInvokeResponse(http.StatusOK, result))
+	render.JSON(w, r, models.NewInvokeResponse(http.StatusOK, result, nil))
 }
 
 // GetListingById Handler function for /listingById, which returns a listing by its id
@@ -147,16 +148,25 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 	injectedData := models.CosmosBindingInput{}
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&injectedData); err != nil {
-		log.Printf("Error trying to unmarshal injected data: %s\n", err.Error())
+		errMsg := fmt.Sprintf("Error trying to unmarshal injected data: %s\n", err.Error())
+		render.JSON(w, r, models.NewInvokeResponse(
+			http.StatusInternalServerError,
+			models.Error{
+				Message: errMsg,
+			},
+			[]string{errMsg},
+		))
 		return
 	}
 
 	if injectedData.Data.Documents == "null" {
+		errMsg := fmt.Sprintf("Listing with id %s could not be found in city %s", injectedData.Metadata.ID, injectedData.Metadata.City)
 		render.JSON(w, r, models.NewInvokeResponse(
 			http.StatusNotFound,
 			models.Error{
-				Message: fmt.Sprintf("Listing with id %s could not be found in city %s", injectedData.Metadata.ID, injectedData.Metadata.City),
+				Message: errMsg,
 			},
+			[]string{errMsg},
 		))
 		return
 	}
@@ -165,16 +175,16 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 
 	listing := models.Listing{}
 	if err := json.Unmarshal([]byte(input), &listing); err != nil {
-		log.Printf("Error trying to unmarshal injected listing: %s\n", err.Error())
-
+		errMsg := fmt.Sprintf("Error trying to unmarshal injected listing: %s\n", err.Error())
 		render.JSON(w, r, models.NewInvokeResponse(
 			http.StatusBadRequest,
 			models.Error{
-				Message: fmt.Sprintf("Listing with id %s could not be found in city %s", injectedData.Metadata.ID, injectedData.Metadata.City),
+				Message: errMsg,
 			},
+			[]string{errMsg},
 		))
 		return
 	}
 
-	render.JSON(w, r, models.NewInvokeResponse(http.StatusOK, listing))
+	render.JSON(w, r, models.NewInvokeResponse(http.StatusOK, listing, nil))
 }

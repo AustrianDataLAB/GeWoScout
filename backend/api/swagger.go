@@ -11,7 +11,7 @@ import (
 )
 
 func SwaggerBaseHandler(w http.ResponseWriter, r *http.Request) {
-	response := models.NewInvokeResponse(http.StatusMovedPermanently, "Redirecting to Swagger UI")
+	response := models.NewInvokeResponse(http.StatusMovedPermanently, "Redirecting to Swagger UI", nil)
 	response.Outputs.Res.Headers["Location"] = "/api/swagger/index.html"
 	render.JSON(w, r, response)
 }
@@ -22,6 +22,7 @@ func SwaggerFileHandler(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, models.NewInvokeResponse(
 			http.StatusBadRequest,
 			models.Error{Message: err.Error()},
+			[]string{err.Error()},
 		))
 		return
 	}
@@ -32,6 +33,7 @@ func SwaggerFileHandler(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, models.NewInvokeResponse(
 			http.StatusBadRequest,
 			models.Error{Message: err.Error()},
+			[]string{err.Error()},
 		))
 		return
 	}

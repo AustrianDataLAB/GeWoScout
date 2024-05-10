@@ -69,12 +69,13 @@ type InvokeResponse struct {
 	ReturnValue interface{}
 }
 
-func NewInvokeResponse(statusCode int, body interface{}) (ir InvokeResponse) {
+func NewInvokeResponse(statusCode int, body interface{}, logs []string) (ir InvokeResponse) {
 	d, _ := json.Marshal(body)
 	ir.Outputs.Res.StatusCode = statusCode
 	ir.Outputs.Res.Body = string(d)
 	ir.Outputs.Res.Headers = map[string]string{
 		"Content-Type": "application/json",
 	}
+	ir.Logs = logs
 	return
 }
