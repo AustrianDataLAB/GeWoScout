@@ -63,11 +63,13 @@ jobs:
           node-version: '20'
 
       - name: Start Azurite
-        shell: powershell
-        run: |
-          npm install -g azurite
-          $azuritePath = "$(npm root -g)\azurite\dist\src\azurite.js"
-          Start-Process -NoNewWindow -FilePath "node" -ArgumentList $azuritePath, "--silent", "--location c:\azurite", "--debug c:\azurite\debug.log"
+        id: azuright
+        uses: potatoqualitee/azuright@v1.1
+      #  shell: powershell
+      #  run: |
+      #    npm install -g azurite
+      #    $azuritePath = "$(npm root -g)\azurite\dist\src\azurite.js"
+      #    Start-Process -NoNewWindow -FilePath "node" -ArgumentList $azuritePath, "--silent", "--location c:\azurite", "--debug c:\azurite\debug.log"
 
       - name: Set up Python
         uses: actions/setup-python@v5
