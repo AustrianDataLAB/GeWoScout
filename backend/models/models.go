@@ -18,8 +18,8 @@ type Listing struct {
 	HwgEnergyClass     string `json:"hwgEnergyClass"`
 	FgeeEnergyClass    string `json:"fgeeEnergyClass"`
 	ListingType        string `json:"listingType"`
-	RentPricePerMonth  int    `json:"rentPricePerMonth"`
-	CooperativeShare   int    `json:"cooperativeShare"`
+	RentPricePerMonth  *int   `json:"rentPricePerMonth"`
+	CooperativeShare   *int   `json:"cooperativeShare"`
 	SalePrice          *int   `json:"salePrice"`
 	AdditionalFees     *int   `json:"additionalFees"`
 	DetailsURL         string `json:"detailsUrl"`

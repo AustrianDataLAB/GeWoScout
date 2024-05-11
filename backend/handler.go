@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/AustrianDataLAB/GeWoScout/backend/api"
 	_ "github.com/AustrianDataLAB/GeWoScout/backend/docs"
-	"github.com/AustrianDataLAB/GeWoScout/backend/models"
 	"github.com/AustrianDataLAB/GeWoScout/backend/notification"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -21,18 +20,8 @@ func setupRouter(useSwagger bool) *chi.Mux {
 
 	h := api.NewHandler()
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Alive"))
-	})
-	r.Post("/health", func(w http.ResponseWriter, r *http.Request) {
-		ir := models.InvokeResponse{}
-		ir.Outputs.Res.StatusCode = http.StatusOK
-		ir.Outputs.Res.Body = "Alive"
-		ir.Outputs.Res.Headers = map[string]string{
-			"Content-Type": "text/plain",
-		}
-		render.JSON(w, r, ir)
-	})
+	r.Get("/", h.HandleHealth)
+	r.Post("/health", h.HandleHealth)
 	r.Post("/scraperResultTrigger", h.CreateScraperResultHandler())
 	r.Post("/CosmosTrigger", notification.CosmosUpdateHandler)
 	r.Post("/listings", h.GetListings)

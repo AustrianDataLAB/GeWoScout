@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
@@ -67,7 +68,7 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 	req, err := models.InvokeRequestFromBody(r.Body)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to read invoke request body: %s\n", err.Error())
-		render.JSON(w, r, models.NewInvokeResponse(
+		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusBadRequest,
 			models.Error{Message: errMsg},
 			[]string{errMsg},
@@ -80,7 +81,7 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 	// does not work
 	if len(strings.TrimSpace(city)) == 0 {
 		errMsg := "City param was invalid or empty"
-		render.JSON(w, r, models.NewInvokeResponse(
+		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusBadRequest,
 			models.Error{Message: errMsg},
 			[]string{errMsg},
@@ -89,15 +90,17 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pager := cosmos.GetQueryItemsPager(h.GetListingsByCityContainerClient(), city, &req.Data.Req.Query)
-	listings := []models.Listing{}
+	var listings = make([]models.Listing, 0, 30)
 	var continuationToken *string
 
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	for pager.More() {
-		// TODO add timeout
-		response, err := pager.NextPage(context.Background())
+		response, err := pager.NextPage(ctx)
 		if err != nil {
 			errMsg := fmt.Sprintf("Failed to get next result page: %s\n", err.Error())
-			render.JSON(w, r, models.NewInvokeResponse(
+			render.JSON(w, r, models.NewHttpInvokeResponse(
 				http.StatusBadRequest,
 				models.Error{Message: errMsg},
 				[]string{errMsg},
@@ -109,7 +112,7 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 			listing := models.Listing{}
 			if err := json.Unmarshal(bytes, &listing); err != nil {
 				errMsg := fmt.Sprintf("An error occurred trying to parse the response json: %s", err.Error())
-				render.JSON(w, r, models.NewInvokeResponse(
+				render.JSON(w, r, models.NewHttpInvokeResponse(
 					http.StatusBadRequest,
 					models.Error{Message: err.Error()},
 					[]string{errMsg},
@@ -128,7 +131,7 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 		ContinuationToken: continuationToken,
 	}
 
-	render.JSON(w, r, models.NewInvokeResponse(http.StatusOK, result, nil))
+	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, result, nil))
 }
 
 // GetListingById Handler function for /listingById, which returns a listing by its id
@@ -149,7 +152,7 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&injectedData); err != nil {
 		errMsg := fmt.Sprintf("Error trying to unmarshal injected data: %s\n", err.Error())
-		render.JSON(w, r, models.NewInvokeResponse(
+		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusInternalServerError,
 			models.Error{
 				Message: errMsg,
@@ -161,7 +164,7 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 
 	if injectedData.Data.Documents == "null" {
 		errMsg := fmt.Sprintf("Listing with id %s could not be found in city %s", injectedData.Metadata.ID, injectedData.Metadata.City)
-		render.JSON(w, r, models.NewInvokeResponse(
+		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusNotFound,
 			models.Error{
 				Message: errMsg,
@@ -176,7 +179,7 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 	listing := models.Listing{}
 	if err := json.Unmarshal([]byte(input), &listing); err != nil {
 		errMsg := fmt.Sprintf("Error trying to unmarshal injected listing: %s\n", err.Error())
-		render.JSON(w, r, models.NewInvokeResponse(
+		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusBadRequest,
 			models.Error{
 				Message: errMsg,
@@ -186,5 +189,20 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	render.JSON(w, r, models.NewInvokeResponse(http.StatusOK, listing, nil))
+	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, listing, nil))
+}
+
+// HandleHealth Handler function for /health, which returns a simple alive response
+// @Summary Health check
+// @Description Health check
+// @Tags health
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.HealthResponse "Alive"
+// @Router /health [get]
+func (h *Handler) HandleHealth(w http.ResponseWriter, r *http.Request) {
+	aliveResponse := models.HealthResponse{
+		Status: "ok",
+	}
+	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, aliveResponse, nil))
 }

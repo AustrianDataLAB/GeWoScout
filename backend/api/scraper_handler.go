@@ -1,9 +1,12 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
+	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 	"github.com/go-chi/render"
 	"github.com/xeipuuv/gojsonschema"
 	"golang.org/x/text/runes"
@@ -11,8 +14,10 @@ import (
 	"golang.org/x/text/unicode/norm"
 	"log"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 )
 
@@ -67,6 +72,8 @@ func (h *Handler) CreateScraperResultHandler() http.HandlerFunc {
 			return
 		}
 
+		logs := make([]string, 0)
+
 		// TODO remove
 		log.Printf("ScraperResultHandler %s | Received message: %s\n", msgId, msgPlain)
 
@@ -89,7 +96,7 @@ func (h *Handler) CreateScraperResultHandler() http.HandlerFunc {
 			return
 		}
 
-		scraperResult := models.ScraperResultListing{}
+		scraperResult := models.ScraperResultList{}
 		err = json.Unmarshal([]byte(msgPlain), &scraperResult)
 		if err != nil {
 			render.Status(r, http.StatusUnprocessableEntity)
@@ -101,14 +108,155 @@ func (h *Handler) CreateScraperResultHandler() http.HandlerFunc {
 
 		// TODO actually do something with the scraper results
 
-		invokeResponse := models.InvokeResponse{Logs: []string{"TODO"}}
+		idsByPk := make(map[string][]string)
+		listingsById := make(map[string][]*models.Listing)
+		for _, listing := range scraperResult.Listings {
+			pk := mapPartitionKey(listing)
+			idsByPk[pk] = append(idsByPk[pk], mapListingId(listing))
+			listingsById[pk] = append(listingsById[pk], mapListing(listing, scraperResult.ScraperId, scraperResult.Timestamp))
+		}
+
+		log.Println(idsByPk)
+
+		logs = append(logs, fmt.Sprintf("ScraperResultHandler %s | Processing valid scraper result from %s with %d listings", msgId, scraperResult.ScraperId, len(scraperResult.Listings)))
+
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		nonExIds, err := cosmos.GetNonExistingIds(ctx, h.GetListingsByCityContainerClient(), idsByPk)
+		if err != nil {
+			render.Status(r, http.StatusInternalServerError)
+			render.JSON(w, r, models.InvokeResponse{
+				Logs: []string{fmt.Sprintf("ScraperResultHandler %s | Failed to get non-existing IDs: %s", msgId, err.Error())},
+			})
+			return
+		}
+
+		newCount := 0
+		for _, v := range nonExIds {
+			newCount += len(v)
+		}
+
+		if newCount == 0 {
+			logs = append(logs, fmt.Sprintf("ScraperResultHandler %s | No new listings found", msgId))
+		} else {
+			logs = append(logs, fmt.Sprintf("ScraperResultHandler %s | Found %d new listings", msgId, newCount))
+		}
+
+		// Insert the new listings into the db
+		// Path existing listings
+		// Batch on partition key
+
+		newListings := make([]*models.Listing, 0, newCount)
+		container := h.GetListingsByCityContainerClient()
+
+		for pk, ids := range idsByPk {
+			listings := listingsById[pk]
+			nonExIdsForPk := nonExIds[pk]
+
+			partitionKey := azcosmos.NewPartitionKeyString(pk)
+			batch := container.NewTransactionalBatch(partitionKey)
+
+			for i, id := range ids {
+				if slices.Contains(nonExIdsForPk, id) {
+					marshalled, err := json.Marshal(listings[i])
+					if err != nil {
+						logs = append(logs, fmt.Sprintf("ScraperResultHandler %s | Failed to marshal listing %s: %s", msgId, id, err.Error()))
+						continue
+					}
+					batch.UpsertItem(marshalled, nil)
+					newListings = append(newListings, listings[i])
+				} else {
+					batch.PatchItem(id, createListingPatch(listings[i]), nil)
+				}
+			}
+
+			// TODO do something with response??
+			resp, err := container.ExecuteTransactionalBatch(ctx, batch, nil)
+			if err != nil {
+				logs = append(logs, fmt.Sprintf("ScraperResultHandler %s | Failed to execute batch for %s: %s", msgId, pk, err.Error()))
+				//render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusInternalServerError, struct{}{}))
+				break // Go to end
+			}
+
+			if !resp.Success {
+				logs = append(logs, fmt.Sprintf("ScraperResultHandler %s | Failed to execute batch for %s with success %v", msgId, pk, resp.Success))
+				break // Go to end
+			}
+
+			logs = append(logs, fmt.Sprintf("ScraperResultHandler %s | Inserted/patched batch of %d for %s", msgId, len(listings), pk))
+		}
+
+		newListingsOutput := make([]string, len(newListings))
+		for i, l := range newListings {
+			marshalled, _ := json.Marshal(l)
+			newListingsOutput[i] = string(marshalled)
+		}
+
+		// For each non-existant ID, insert the listing and create a queue message
+		invokeResponse := models.InvokeResponse{
+			Logs: logs,
+			Outputs: map[string]interface{}{
+				"msgOut": newListingsOutput,
+			},
+		}
 		render.JSON(w, r, invokeResponse)
 	}
 }
 
-func mapListings(scraperResult models.ScraperResultListing) []models.Listing {
-	// TODO
-	return nil
+func mapListing(scraperResult models.ScraperResultListing, scraperId string, ts time.Time) *models.Listing {
+	timestamp := ts.Format(time.RFC3339)
+	return &models.Listing{
+		ID:                 mapListingId(scraperResult),
+		PartitionKey:       mapPartitionKey(scraperResult),
+		Title:              scraperResult.Title,
+		HousingCooperative: scraperResult.HousingCooperative,
+		ProjectID:          scraperResult.ProjectId,
+		ListingID:          scraperResult.ListingId,
+		Country:            scraperResult.Country,
+		City:               scraperResult.City,
+		PostalCode:         scraperResult.PostalCode,
+		Address:            scraperResult.Address,
+		RoomCount:          scraperResult.RoomCount,
+		SquareMeters:       scraperResult.SquareMeters,
+		AvailabilityDate:   scraperResult.AvailabilityDate,
+		YearBuilt:          scraperResult.YearBuilt,
+		HwgEnergyClass:     scraperResult.HwgEnergyClass,
+		FgeeEnergyClass:    scraperResult.FgeeEnergyClass,
+		ListingType:        scraperResult.ListingType,
+		RentPricePerMonth:  scraperResult.RentPricePerMonth,
+		CooperativeShare:   scraperResult.CooperativeShare,
+		SalePrice:          scraperResult.SalePrice,
+		AdditionalFees:     scraperResult.AdditionalFees,
+		DetailsURL:         scraperResult.DetailsUrl,
+		PreviewImageURL:    scraperResult.PreviewImageUrl,
+		ScraperID:          scraperId,
+		CreatedAt:          timestamp,
+		LastModifiedAt:     timestamp,
+	}
+}
+
+func createListingPatch(l *models.Listing) azcosmos.PatchOperations {
+	// TODO figure out which fields to actually patch
+	patch := azcosmos.PatchOperations{}
+	patch.AppendSet("/availabilityDate", l.AvailabilityDate)
+	patch.AppendSet("/listingType", l.ListingType)
+	patch.AppendSet("/rentPricePerMonth", l.RentPricePerMonth)
+	patch.AppendSet("/cooperativeShare", l.CooperativeShare)
+	patch.AppendSet("/salePrice", l.SalePrice)
+	patch.AppendSet("/additionalFees", l.AdditionalFees)
+	patch.AppendSet("/detailsUrl", l.DetailsURL)
+	patch.AppendSet("/lastModifiedAt", l.LastModifiedAt)
+	return patch
+}
+
+func mapListingId(listing models.ScraperResultListing) string {
+	id := fmt.Sprintf("%s_%s_%s", listing.HousingCooperative, listing.ProjectId, listing.ListingId)
+	id = strings.TrimSpace(id)
+	id = removeDiacritics(id)
+	id = strings.ToLower(id)
+	id = strings.ReplaceAll(id, " ", "")
+	return id
 }
 
 func mapPartitionKey(listing models.ScraperResultListing) string {
