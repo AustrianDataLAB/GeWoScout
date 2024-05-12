@@ -146,7 +146,6 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 		}
 
 		continuationToken = response.ContinuationToken
-		break
 	}
 
 	result := models.GetListingsResponse{
