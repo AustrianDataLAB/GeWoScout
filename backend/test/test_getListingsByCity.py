@@ -159,7 +159,7 @@ def test_get_listings_has_default_page_size_10(cosmos_db_setup):
 
 @pytest.mark.usefixtures("cosmos_db_setup")
 def test_get_listings_query_min_flat_size():
-    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?minSize=80"
+    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?minSqm=80"
     expected_ids = [l["id"] for l in LISTINGS_FIXTURE if l['_partitionKey'] == 'vienna' and l['squareMeters'] >= 80]
 
     response = requests.get(endpoint_url)
@@ -173,7 +173,7 @@ def test_get_listings_query_min_flat_size():
 
 @pytest.mark.usefixtures("cosmos_db_setup")
 def test_get_listings_query_max_flat_size():
-    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?maxSize=80"
+    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?maxSqm=80"
     expected_ids = [l["id"] for l in LISTINGS_FIXTURE if l['_partitionKey'] == 'vienna' and l['squareMeters'] <= 80]
 
     response = requests.get(endpoint_url)
@@ -187,7 +187,7 @@ def test_get_listings_query_max_flat_size():
 
 @pytest.mark.usefixtures("cosmos_db_setup")
 def test_get_listings_query_min_max_flat_size():
-    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?minSize=80&maxSize=100"
+    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?minSqm=80&maxSqm=100"
     expected_ids = [l["id"] for l in LISTINGS_FIXTURE if
                     l['_partitionKey'] == 'vienna' and 80 <= l['squareMeters'] <= 100]
 
@@ -238,13 +238,13 @@ def test_get_listings_invalid_page_size_returns_error(page_size):
 
 @pytest.mark.usefixtures("cosmos_db_setup")
 @pytest.mark.parametrize("size_query", [
-    "minSize=invalid",
-    "minSize=-1",
-    "minSize=inf",
-    "maxSize=0",
-    "maxSize=invalid",
-    "minSize=100&maxSize=50",
-    "minSize=51&maxSize=50",
+    "minSqm=invalid",
+    "minSqm=-1",
+    "minSqm=inf",
+    "maxSqm=0",
+    "maxSqm=invalid",
+    "minSqm=100&maxSqm=50",
+    "minSqm=51&maxSqm=50",
 ])
 def test_get_listings_invalid_size_query_returns_error(size_query):
     endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?{size_query}"
