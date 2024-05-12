@@ -15,23 +15,23 @@ type Query struct {
 	HousingCooperative   *string      `json:"housingCooperative,string" validate:"omitempty"`
 	ProjectId            *string      `json:"projectId,string" validate:"omitempty"`
 	PostalCode           *string      `json:"postalCode" validate:"omitempty"`
-	RoomCount            *uint16      `json:"roomCount,string" validate:"omitempty"`
-	MinRoomCount         *uint16      `json:"minRoomCount,string" validate:"omitempty"`
-	MaxRoomCount         *uint16      `json:"maxRoomCount,string" validate:"omitempty,gtfieldcustom=MinRoomCount"`
-	MinSquareMeters      *uint16      `json:"minSqm,string" validate:"omitempty"`
-	MaxSquareMeters      *uint16      `json:"maxSqm,string" validate:"omitempty,gtfieldcustom=MinSquareMeters"`
-	AvailableFrom        *time.Time   `json:"availableFrom,string" validate:"omitempty"`
-	MinYearBuilt         *uint16      `json:"minYearBuilt,string" validate:"omitempty"`
-	MaxYearBuilt         *uint16      `json:"maxYearBuilt,string" validate:"omitempty,gtfieldcustom=MinYearBuilt"`
+	RoomCount            *uint16      `json:"roomCount,string" validate:"omitempty,gt=0"`
+	MinRoomCount         *uint16      `json:"minRoomCount,string" validate:"omitempty,gt=0"`
+	MaxRoomCount         *uint16      `json:"maxRoomCount,string" validate:"omitempty,gt=0,gtfieldcustom=MinRoomCount"`
+	MinSquareMeters      *uint16      `json:"minSqm,string" validate:"omitempty,gt=0"`
+	MaxSquareMeters      *uint16      `json:"maxSqm,string" validate:"omitempty,gt=0,gtfieldcustom=MinSquareMeters"`
+	AvailableFrom        *time.Time   `json:"availableFrom" validate:"omitempty"`
+	MinYearBuilt         *uint16      `json:"minYearBuilt,string" validate:"omitempty,gt=1900"`
+	MaxYearBuilt         *uint16      `json:"maxYearBuilt,string" validate:"omitempty,gt=1900,gtfieldcustom=MinYearBuilt"`
 	MinHwgEnergyClass    *EnergyClass `json:"minHwgEnergyClass" validate:"omitempty,energycustom"`
 	MinFgeeEnergyClass   *EnergyClass `json:"minFgeeEnergyClass,string" validate:"omitempty,energycustom"`
 	ListingType          *ListingType `json:"listingType" validate:"omitempty,listingtypecustom"`
-	MinRentPricePerMonth *uint32      `json:"minRent,string" validate:"omitempty"`
-	MaxRentPricePerMonth *uint32      `json:"maxRent,string" validate:"omitempty,gtfieldcustom=MinRentPricePerMonth"`
-	MinCooperativeShare  *uint32      `json:"minCooperativeShare,string" validate:"omitempty"`
-	MaxCooperativeShare  *uint32      `json:"maxCooperativeShare,string" validate:"omitempty,gtfieldcustom=MinCooperativeShare"`
-	MinSalePrice         *uint32      `json:"minSalePrice,string" validate:"omitempty"`
-	MaxSalePrice         *uint32      `json:"maxSalePrice,string" validate:"omitempty,gtfieldcustom=MinSalePrice"`
+	MinRentPricePerMonth *uint32      `json:"minRent,string" validate:"omitempty,gt=0"`
+	MaxRentPricePerMonth *uint32      `json:"maxRent,string" validate:"omitempty,gt=0,gtfieldcustom=MinRentPricePerMonth"`
+	MinCooperativeShare  *uint32      `json:"minCooperativeShare,string" validate:"omitempty,gt=0"`
+	MaxCooperativeShare  *uint32      `json:"maxCooperativeShare,string" validate:"omitempty,gt=0,gtfieldcustom=MinCooperativeShare"`
+	MinSalePrice         *uint32      `json:"minSalePrice,string" validate:"omitempty,gt=0"`
+	MaxSalePrice         *uint32      `json:"maxSalePrice,string" validate:"omitempty,gt=0,gtfieldcustom=MinSalePrice"`
 	SortBy               *string
 	SortType             *SortType `json:"sortType" validate:"omitempty,sorttypecustom"`
 }
