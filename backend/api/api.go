@@ -60,6 +60,29 @@ func NewHandler() *Handler {
 // @Produce json
 // @Param city path string true "The city for which to get listings"
 // @Param continuationToken query string false "The continuation token for pagination"
+// @Param title query string false "Listing title to search for"
+// @Param housingCooperative query string false "Name of the 'Genossenschaft'"
+// @Param projectId query string false "Project ID for which to return listings"
+// @Param postalCode query string false "Postal code(s) within which to look for listings"
+// @Param roomCount query integer false "Exact room count to search for"
+// @Param minRoomCount query integer false "Minimum number of rooms"
+// @Param maxRoomCount query integer false "Maximum number of rooms"
+// @Param minSquareMeters query integer false "Minimum number of square meters"
+// @Param maxSquareMeters query integer false "Maximum number of square meters"
+// @Param availableFrom query string false "Date from which the listing has to be available (latest date)"
+// @Param minYearBuilt query integer false "Oldest allowed construction year"
+// @Param maxYearBuilt query integer false "Most recent allowed construction year"
+// @Param minHwgEnergyClass query string false "Worst acceptable HWG energy class" Enums(A++, A+, A, B, C, D, E, F)
+// @Param minFgeeEnergyClass query string false "Worst acceptable fgEE energy class" Enums(A++, A+, A, B, C, D, E, F)
+// @Param listingType query string false "Type of listing" Enums(rent, sale, both)
+// @Param minRentPricePerMonth query integer false "Minimum rent per month"
+// @Param maxRentPricePerMonth query integer false "Maximum rent per month"
+// @Param minCooperativeShare query integer false "Minimum cooperative share"
+// @Param maxCooperativeShare query integer false "Maximum cooperative share"
+// @Param minSalePrice query integer false "Minimum sale price"
+// @Param maxSalePrice query integer false "Maximum sale price"
+// @Param sortBy query string false "Field to sort by"
+// @Param sortType query string false "Whether to search ascending or descending" Enums(ASC, DESC)
 // @Success 200 {object} models.GetListingsResponse
 // @Failure 400 {object} models.Error
 // @Failure 500 {object} models.Error
