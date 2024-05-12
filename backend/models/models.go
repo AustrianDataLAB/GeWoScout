@@ -29,6 +29,53 @@ type Listing struct {
 	LastModifiedAt     string `json:"lastModifiedAt"`
 }
 
+type EnergyClass string
+
+func (c EnergyClass) IsEnumValue() bool {
+	return (c == EnergyClassAplusplus ||
+		c == EnergyClassAplus ||
+		c == EnergyClassA ||
+		c == EnergyClassB ||
+		c == EnergyClassC ||
+		c == EnergyClassD ||
+		c == EnergyClassE ||
+		c == EnergyClassF)
+}
+
+type ListingType string
+
+func (t ListingType) IsEnumValue() bool {
+	return t == ListingTypeRent || t == ListingTypeSale || t == ListingTypeBoth
+}
+
+type SortType string
+
+func (t SortType) IsEnumValue() bool {
+	return t == SortTypeAsc || t == SortTypeDesc
+}
+
+const (
+	EnergyClassAplusplus EnergyClass = "A++"
+	EnergyClassAplus     EnergyClass = "A+"
+	EnergyClassA         EnergyClass = "A"
+	EnergyClassB         EnergyClass = "B"
+	EnergyClassC         EnergyClass = "C"
+	EnergyClassD         EnergyClass = "D"
+	EnergyClassE         EnergyClass = "E"
+	EnergyClassF         EnergyClass = "F"
+
+	ListingTypeRent ListingType = "rent"
+	ListingTypeSale ListingType = "sale"
+	ListingTypeBoth ListingType = "both"
+
+	SortTypeAsc  SortType = "ASC"
+	SortTypeDesc SortType = "DESC"
+)
+
+type StringEnum interface {
+	IsEnumValue() bool
+}
+
 // Holds any form of error (either from Azure or some internal error)
 type Error struct {
 	Message string `json:"message"`
