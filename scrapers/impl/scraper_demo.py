@@ -19,7 +19,7 @@ def demo_scraper(timerObj: func.TimerRequest, q: func.Out[str]) -> None:
     logging.info('Scraper Demo A triggered.')
     
     payload = {
-        "scraperId": "viennaHousingScraper002",
+        "scraperId": "demoScraper",
         "timestamp": "2024-04-06T15:30:00Z",
         "listings": [
             {
