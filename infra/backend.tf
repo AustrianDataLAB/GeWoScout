@@ -36,14 +36,20 @@ resource "azurerm_linux_function_app" "fa_backend" {
   service_plan_id            = azurerm_service_plan.sp.id
 
   site_config {
+    application_stack {
+      use_custom_runtime = true
+    }
     application_insights_connection_string = azurerm_application_insights.ai.connection_string
     application_insights_key               = azurerm_application_insights.ai.instrumentation_key
   }
 
   app_settings = {
-    QUEUE_NAME           = azurerm_storage_queue.queue_scraper_backend.name
-    COSMOS_DB_CONNECTION = azurerm_cosmosdb_account.db_acc.primary_sql_connection_string
+    FUNCTIONS_WORKER_RUNTIME = "custom"
+    QUEUE_NAME               = azurerm_storage_queue.queue_scraper_backend.name
+    COSMOS_DB_CONNECTION     = azurerm_cosmosdb_account.db_acc.primary_sql_connection_string
   }
+  
+  zip_deploy_file = data.archive_file.backend_zip.output_path
 }
 
 
@@ -62,21 +68,9 @@ resource "null_resource" "backend_build" {
   }
 }
 
-# Upload the backend
-resource "null_resource" "backend_upload" {
-  # Using triggers to force execution on every apply
-  triggers = {
-    always_run = timestamp()
-  }
-
-  depends_on = [null_resource.backend_build]
-
-  provisioner "local-exec" {
-    working_dir = local.backend_path
-    command     = "az login --service-principal -u ${var.arm_client_id} -p ${var.arm_client_secret} --tenant ${var.arm_tenant_id} && func azure functionapp publish ${azurerm_linux_function_app.fa_backend.name}"
-  }
-}
-
-output "backend_default_hostname" {
-  value = azurerm_linux_function_app.fa_backend.default_hostname
+# Package the Azure Function's code to zip
+data "archive_file" "backend_zip" {
+  type        = "zip"
+  source_dir  = "${path.module}/../backend"
+  output_path = "${path.module}/be-${sha1(join("", [for f in fileset("../backend", "**") : filesha1("../backend/${f}")]))}.zip"
 }
