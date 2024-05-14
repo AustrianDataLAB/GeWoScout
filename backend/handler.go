@@ -22,7 +22,7 @@ func setupRouter(useSwagger bool) *chi.Mux {
 
 	r.Get("/", h.HandleHealth)
 	r.Post("/health", h.HandleHealth)
-	r.Post("/scraperResultTrigger", h.CreateScraperResultHandler())
+	r.Post("/scraperResultTrigger", h.HandleScraperResult)
 	r.Post("/CosmosTrigger", notification.CosmosUpdateHandler)
 	r.Post("/listings", h.GetListings)
 	// Mapping for /api/cities/{city}/listings/{id}
