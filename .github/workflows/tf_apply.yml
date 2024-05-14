@@ -46,7 +46,6 @@ jobs:
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
-    needs:  build_backend
     env:
       # statefile environmental variables
       TF_VAR_state_resource_group_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.STATE_RESOURCE_GROUP_NAME_PROD || vars.STATE_RESOURCE_GROUP_NAME_DEV }}
