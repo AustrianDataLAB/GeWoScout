@@ -63,7 +63,7 @@ resource "null_resource" "backend_build" {
 
   provisioner "local-exec" {
     working_dir = local.backend_path
-    command     = "make build-linux-minimal"
+    command     = "make build-deployment"
   }
 }
 
@@ -73,5 +73,5 @@ data "archive_file" "backend_zip" {
 
   type        = "zip"
   source_dir  = "${path.module}/../backend"
-  output_path = "backend.zip" # ${path.module}/be-${sha1(join("", [for f in fileset("../backend", "**") : filesha1("../backend/${f}")]))}.zip"
+  output_path = "backend.zip"
 }

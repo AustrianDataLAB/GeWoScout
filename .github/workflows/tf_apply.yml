@@ -109,10 +109,10 @@ jobs:
       env:
         DESTROY: ${{ github.event.inputs.destroy == '1' && '-destroy' || '' }}
 
-    - name: 'Debugging'
+    - name: 'Debugging Backend'
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: my-artifact
+        name: backend_artifact
         path: .
         retention-days: 5
