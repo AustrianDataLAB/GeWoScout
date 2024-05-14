@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/AustrianDataLAB/GeWoScout/backend/api"
-	// _ "github.com/AustrianDataLAB/GeWoScout/backend/docs"
+	_ "github.com/AustrianDataLAB/GeWoScout/backend/docs"
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
 	"github.com/AustrianDataLAB/GeWoScout/backend/notification"
 	"github.com/AustrianDataLAB/GeWoScout/backend/queue"
@@ -26,7 +26,7 @@ func setupRouter(useSwagger bool) *chi.Mux {
 	r.Post("/health", func(w http.ResponseWriter, r *http.Request) {
 		ir := models.InvokeResponse{}
 		ir.Outputs.Res.StatusCode = http.StatusOK
-		ir.Outputs.Res.Body = "Alive"
+		ir.Outputs.Res.Body = "Alive World"
 		ir.Outputs.Res.Headers = map[string]string{
 			"Content-Type": "text/plain",
 		}
