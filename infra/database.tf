@@ -24,6 +24,8 @@ resource "azurerm_cosmosdb_account" "db_acc" {
     tier = "Continuous7Days"
   }
 }
+# public_network_access_enabled
+# virtual_network_rule
 
 resource "azurerm_cosmosdb_sql_database" "db" {
   name                = "gewoscout-db"
@@ -31,12 +33,12 @@ resource "azurerm_cosmosdb_sql_database" "db" {
   account_name        = azurerm_cosmosdb_account.db_acc.name
 }
 
-resource "azurerm_cosmosdb_sql_container" "listings_by_city" {
-  name                = "ListingsByCity"
-  resource_group_name = azurerm_cosmosdb_account.db_acc.resource_group_name
-  account_name        = azurerm_cosmosdb_account.db_acc.name
-  database_name       = azurerm_cosmosdb_sql_database.db.name
+# resource "azurerm_cosmosdb_sql_container" "listings_by_city" {
+#   name                = "ListingsByCity"
+#   resource_group_name = azurerm_cosmosdb_account.db_acc.resource_group_name
+#   account_name        = azurerm_cosmosdb_account.db_acc.name
+#   database_name       = azurerm_cosmosdb_sql_database.db.name
 
-  partition_key_path = "/_id" # TODO partition key
-  # TODO partition key, indexing strategy or uniqueness constraints
-}
+#   partition_key_path = "/_id" # TODO partition key
+#   # TODO partition key, indexing strategy or uniqueness constraints
+# }
