@@ -26,7 +26,7 @@ func setupRouter(useSwagger bool) *chi.Mux {
 	r.Post("/health", func(w http.ResponseWriter, r *http.Request) {
 		ir := models.InvokeResponse{}
 		ir.Outputs.Res.StatusCode = http.StatusOK
-		ir.Outputs.Res.Body = "Alive World"
+		ir.Outputs.Res.Body = "Alive"
 		ir.Outputs.Res.Headers = map[string]string{
 			"Content-Type": "text/plain",
 		}
