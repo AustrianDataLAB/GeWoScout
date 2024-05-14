@@ -53,10 +53,8 @@ resource "azurerm_linux_function_app" "fa_backend" {
   zip_deploy_file = data.archive_file.backend_zip.output_path
 }
 
-
-# Build the backend
+# Build the backend on every TF apply
 resource "null_resource" "backend_build" {
-  # Using triggers to force execution on every apply
   triggers = {
     always_run = timestamp()
   }
@@ -71,7 +69,14 @@ resource "null_resource" "backend_build" {
 data "archive_file" "backend_zip" {
   depends_on = [null_resource.backend_build]
 
+  excludes = [
+    "api", "cosmos", "docs", "models", "notification", "queue", "test",
+    ".dockerignore", ".gitignore", ".funcignore", "test.settings.json",
+    "handler.go", "go.mod", "Dockerfile", "Makefile", "go.sum",
+    "handler_test.go", "local.settings.json"
+  ]
+
   type        = "zip"
   source_dir  = "${path.module}/../backend"
-  output_path = "backend.zip"
+  output_path = "backend-${timestamp()}.zip"
 }
