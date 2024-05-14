@@ -108,3 +108,9 @@ jobs:
       run: terraform apply -auto-approve $DESTROY
       env:
         DESTROY: ${{ github.event.inputs.destroy == '1' && '-destroy' || '' }}
+    
+    - name: debugging
+      uses: actions/upload-artifact@v2
+      with: 
+        name: assets-for-download
+        path: .
