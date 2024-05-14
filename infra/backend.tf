@@ -61,8 +61,6 @@ resource "null_resource" "backend_build" {
     always_run = timestamp()
   }
 
-  depends_on = [azurerm_linux_function_app.fa_backend]
-
   provisioner "local-exec" {
     working_dir = local.backend_path
     command     = "make build-linux-minimal"
@@ -71,6 +69,8 @@ resource "null_resource" "backend_build" {
 
 # Package the Azure Function's code to zip
 data "archive_file" "backend_zip" {
+  depends_on = [ null_resource.backend_build ]
+
   type        = "zip"
   source_dir  = "${path.module}/../backend"
   output_path = "${path.module}/be-${sha1(join("", [for f in fileset("../backend", "**") : filesha1("../backend/${f}")]))}.zip"
