@@ -108,10 +108,10 @@ jobs:
       run: terraform apply -auto-approve $DESTROY
       env:
         DESTROY: ${{ github.event.inputs.destroy == '1' && '-destroy' || '' }}
-    
-    - name: 'Upload Artifact'
+
+    - name: 'Debugging'
       uses: actions/upload-artifact@v4
       with:
         name: my-artifact
-        path: backend.zip
+        path: .
         retention-days: 5
