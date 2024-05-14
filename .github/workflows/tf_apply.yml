@@ -111,6 +111,7 @@ jobs:
 
     - name: 'Debugging'
       uses: actions/upload-artifact@v4
+      if: always()
       with:
         name: my-artifact
         path: .
