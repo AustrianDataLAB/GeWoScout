@@ -46,15 +46,31 @@ resource "azurerm_linux_function_app" "fa_backend" {
   app_settings = {
     FUNCTIONS_WORKER_RUNTIME = "custom"
     WEBSITE_RUN_FROM_PACKAGE = "1"
-    # QUEUE_NAME               = azurerm_storage_queue.queue_scraper_backend.name
-    # COSMOS_DB_CONNECTION     = azurerm_cosmosdb_account.db_acc.primary_sql_connection_string
+    QUEUE_NAME               = azurerm_storage_queue.queue_scraper_backend.name
+    COSMOS_DB_CONNECTION     = azurerm_cosmosdb_account.db_acc.primary_sql_connection_string
   }
 
   zip_deploy_file = data.archive_file.backend_zip.output_path
 }
 
+
+# Build the backend
+resource "null_resource" "backend_build" {
+  # Using triggers to force execution on every apply
+  triggers = {
+    always_run = timestamp()
+  }
+
+  provisioner "local-exec" {
+    working_dir = local.backend_path
+    command     = "make build-deployment"
+  }
+}
+
 # Package the Azure Function's code to zip
 data "archive_file" "backend_zip" {
+  depends_on = [null_resource.backend_build]
+
   type        = "zip"
   source_dir  = "${path.module}/../backend"
   output_path = "backend.zip"

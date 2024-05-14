@@ -12,37 +12,6 @@ permissions:
   contents: read
 
 jobs:
-  build_backend:
-    name: 'Build Backend'
-    runs-on: windows-latest
-  
-    defaults:
-      run:
-        working-directory: ./infra
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    
-    - name: Setup Go 1.22.x
-      uses: actions/setup-go@v5
-      with:
-        go-version: 1.22.x
-        cache-dependency-path: "backend/go.sum"
-    
-    - name: Build Backend
-      run: |
-        cd ../backend
-        go install github.com/swaggo/swag/cmd/swag@latest
-        swag init -g handler.go
-        SET GOOS=linux&&SET GOARCH=amd64&&go build -ldflags="-w -s" -o bin/handler github.com/AustrianDataLAB/GeWoScout/backend
-
-    - name: Pack the backend
-      uses: actions/upload-artifact@v2
-      with:
-        name: backend
-        path: ../backend
-
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
@@ -90,6 +59,18 @@ jobs:
         echo ARM_SUBSCRIPTION_ID: ${{ env.ARM_SUBSCRIPTION_ID }}
         echo ARM_TENANT_ID: ${{ env.ARM_TENANT_ID }}
         echo TF_VERSION: ${{ env.TF_VERSION }}
+
+    - name: Setup Go 1.22.x
+      uses: actions/setup-go@v5
+      with:
+        go-version: 1.22.x
+        cache-dependency-path: "backend/go.sum"
+    
+    - name: Build Swagger
+      run: |
+        cd ../backend
+        go install github.com/swaggo/swag/cmd/swag@latest
+        swag init -g handler.go 
         
     - name: Setup AZ CLI
       uses: pietrobolcato/install-azure-cli-action@main
@@ -101,19 +82,6 @@ jobs:
       uses: hashicorp/setup-terraform@v2
       with:
         terraform_version: ${{ env.TF_VERSION }}
-
-    - name: Delete the unnecessary backend files
-      run: rm -rf ../backend
-
-    - name: Unpack the backend
-      uses: actions/download-artifact@v2
-      with:
-        name: backend
-        path: ../backend
-
-    - name: sanitycheck
-      run: |
-        ls -la ../backend
 
     - name: Terraform fmt
       id: fmt
@@ -136,15 +104,10 @@ jobs:
       run: terraform plan -no-color
 
     - name: Terraform apply
-      if: github.event.inputs.destroy != '1'
       id: apply
-      run: terraform destroy -auto-approve
+      run: terraform apply -auto-approve $DESTROY
       env:
         DESTROY: ${{ github.event.inputs.destroy == '1' && '-destroy' || '' }}
-
-    - name: Terraform apply
-      if: github.event.inputs.destroy == '1'
-      run: terraform apply -auto-approve -target azurerm_linux_function_app.fa_backend $DESTROY
 
     - name: 'Debugging Backend'
       uses: actions/upload-artifact@v4
