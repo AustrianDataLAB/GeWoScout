@@ -69,7 +69,7 @@ resource "null_resource" "backend_build" {
 
 # Package the Azure Function's code to zip
 data "archive_file" "backend_zip" {
-  depends_on = [ null_resource.backend_build ]
+  depends_on = [null_resource.backend_build]
 
   type        = "zip"
   source_dir  = "${path.module}/../backend"
