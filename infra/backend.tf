@@ -70,7 +70,7 @@ data "archive_file" "backend_zip" {
   depends_on = [null_resource.backend_build]
 
   excludes = [
-    "api", "cosmos", "docs", "models", "notification", "queue", "test",
+    "api", "cosmos", "docs/docs.go", "models", "notification", "queue", "test",
     ".dockerignore", ".gitignore", ".funcignore", "test.settings.json",
     "handler.go", "go.mod", "Dockerfile", "Makefile", "go.sum",
     "handler_test.go", "local.settings.json"
