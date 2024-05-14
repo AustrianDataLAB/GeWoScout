@@ -109,8 +109,9 @@ jobs:
       env:
         DESTROY: ${{ github.event.inputs.destroy == '1' && '-destroy' || '' }}
     
-    - name: debugging
-      uses: actions/upload-artifact@v2
-      with: 
-        name: assets-for-download
-        path: .
+    - name: 'Upload Artifact'
+      uses: actions/upload-artifact@v4
+      with:
+        name: my-artifact
+        path: backend.zip
+        retention-days: 5
