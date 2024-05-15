@@ -46,8 +46,9 @@ resource "azurerm_linux_function_app" "fa_backend" {
   app_settings = {
     FUNCTIONS_WORKER_RUNTIME = "custom"
     WEBSITE_RUN_FROM_PACKAGE = "1"
-    QUEUE_NAME               = azurerm_storage_queue.queue_scraper_backend.name
     COSMOS_DB_CONNECTION     = azurerm_cosmosdb_account.db_acc.primary_sql_connection_string
+    QUEUE_NAME               = azurerm_storage_queue.queue_scraper_backend.name
+    QUEUE_CONNECTION_STRING  = azurerm_storage_account.sa_queue.primary_connection_string
   }
 
   zip_deploy_file = data.archive_file.backend_zip.output_path

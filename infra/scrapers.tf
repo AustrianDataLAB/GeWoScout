@@ -49,6 +49,7 @@ resource "azurerm_linux_function_app" "fa_scraper" {
   app_settings = {
     SCM_DO_BUILD_DURING_DEPLOYMENT = true
     QUEUE_NAME                     = azurerm_storage_queue.queue_scraper_backend.name
+    QUEUE_CONNECTION_STRING  = azurerm_storage_account.sa_queue.primary_connection_string
   }
 
   zip_deploy_file = data.archive_file.scraper_zip.output_path
