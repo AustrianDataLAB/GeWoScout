@@ -110,6 +110,7 @@ jobs:
         DESTROY: ${{ github.event.inputs.destroy == '1' && '-destroy' || '' }}
       
     - name: Build frontend
+      if: github.event.inputs.destroy != '1'
       run: |
         cd ../frontend/vue-gewoscout
         npm install
@@ -119,8 +120,9 @@ jobs:
         swa deploy --app-location ./dist --env ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && 'Production' || 'Development' }}
 
     - name: Link the backend
+      if: github.event.inputs.destroy != '1'
       run: |
         . ./env.sh
         az login --service-principal -u ${{env.ARM_CLIENT_ID}} -p ${{env.ARM_CLIENT_SECRET}} --tenant ${{env.ARM_TENANT_ID}}
-        az staticwebapp backends unlink --name ${{ vars.SWA_NAME }} --resource-group ${{ vars.SWA_RESOURCE_GROUP }} --environment-name ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && 'Production' || 'Development' }} | true
-        az staticwebapp backends link --backend-resource-id ${BACKEND_FUNCTION_ID} --name ${{ vars.SWA_NAME }} --resource-group ${{ vars.SWA_RESOURCE_GROUP }} --environment-name ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && 'Production' || 'Development' }} --backend-region ${PROJECT_LOCATION}
+        az staticwebapp backends unlink --name ${{ vars.SWA_NAME }} --resource-group ${{ vars.SWA_RESOURCE_GROUP }} ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && '' || ' --environment-name Development' }} | true
+        az staticwebapp backends link --backend-resource-id ${BACKEND_FUNCTION_ID} --name ${{ vars.SWA_NAME }} --resource-group ${{ vars.SWA_RESOURCE_GROUP }} ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && '' || ' --environment-name Development' }} --backend-region ${PROJECT_LOCATION}
