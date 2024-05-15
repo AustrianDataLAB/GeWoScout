@@ -81,3 +81,14 @@ data "archive_file" "backend_zip" {
   source_dir  = "${path.module}/../backend"
   output_path = "backend-${timestamp()}.zip"
 }
+
+resource "null_resource" "backend_env" {
+  triggers = {
+    always_run = timestamp()
+  }
+
+  provisioner "local-exec" {
+    working_dir = path.module
+    command     = "echo \"export BACKEND_FUNCTION_ID=${azurerm_linux_function_app.fa_backend.id}\nexport PROJECT_LOCATION=${data.azurerm_resource_group.rg.location} \" > env.sh"
+  }
+}
