@@ -114,12 +114,13 @@ jobs:
         cd ../frontend/vue-gewoscout
         npm install
         npm run build
+        npm install -g @azure/static-web-apps-cli
         export SWA_CLI_DEPLOYMENT_TOKEN=${{ secrets.SWA_TOKEN }}
         swa deploy --app-location ./dist --env ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && 'Production' || 'Development' }}
 
     - name: Link the backend
       run: |
         . ./env.sh
-        az login --service-principal -u ${{env.arm_client_id}} -p ${{env.arm_client_secret}} --tenant ${{env.ARM_TENANT_ID}}
+        az login --service-principal -u ${{env.ARM_CLIENT_ID}} -p ${{env.ARM_CLIENT_SECRET}} --tenant ${{env.ARM_TENANT_ID}}
         az staticwebapp backends unlink --name ${{ vars.SWA_NAME }} --resource-group ${{ vars.SWA_RESOURCE_GROUP }} --environment-name ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && 'Production' || 'Development' }} | true
         az staticwebapp backends link --backend-resource-id ${BACKEND_FUNCTION_ID} --name ${{ vars.SWA_NAME }} --resource-group ${{ vars.SWA_RESOURCE_GROUP }} --environment-name ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && 'Production' || 'Development' }} --backend-region ${PROJECT_LOCATION}
