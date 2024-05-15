@@ -17,7 +17,7 @@ PARAMS = {
 bp = func.Blueprint() 
 
 @bp.timer_trigger(schedule="0 */5 * * * *", arg_name="timerObj", run_on_startup=False) 
-@bp.queue_output(arg_name="q", queue_name=os.getenv('QUEUE_NAME'), connection="AzureWebJobsStorage")
+@bp.queue_output(arg_name="q", queue_name=os.getenv('QUEUE_NAME'), connection="QUEUE_CONNECTION_STRING")
 def bwsg_scraper(timerObj: func.TimerRequest, q: func.Out[str]) -> None:
     logging.info('BWSG scraper triggered.')
 
