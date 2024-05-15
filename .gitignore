@@ -11,6 +11,7 @@
 /infra/.terraform/
 /infra/.terraform.lock.hcl
 /infra/scripts
+/infra/env.sh
 
 .pytest_cache
 __pycache__
