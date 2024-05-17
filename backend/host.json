@@ -17,7 +17,6 @@
       "defaultExecutablePath": "bin/handler",
       "workingDirectory": "",
       "arguments": []
-    },
-    "enableForwardingHttpRequest": true
+    }
   }
 }

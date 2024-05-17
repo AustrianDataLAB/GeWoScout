@@ -24,14 +24,85 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Go ${{ matrix.go-version }}
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
-      - name: Install dependencies
-        run: go get .
-      - name: Build
+          cache-dependency-path: "backend/go.sum"
+      
+      - name: Build Swagger
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@latest
+          swag init -g handler.go
+
+      - name: Go Build
         run: go build -v ./...
-      - name: Test with the Go CLI
+
+      - name: Go Test
         run: go test
-    
+  
+  integration-test:
+    runs-on: windows-latest
+    needs: build
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start Cosmos Emulator
+        uses: janpio/cosmos-emulator-github-action@main
+        with:
+          parameter_string: "-Timeout 420"
+      
+      - name: Set up node (for Azure Functions Core Tools)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Set up Go 1.22
+        uses: actions/setup-go@v5
+        with: 
+          go-version: 1.22
+          cache-dependency-path: "backend/go.sum"
+      
+      - name: Build Swagger
+        run: |
+          go install github.com/swaggo/swag/cmd/swag@latest
+          swag init -g handler.go
+  
+      - name: Install Azure Functions Core Tools
+        run: |
+          npm i -g azure-functions-core-tools@4 --unsafe-perm true
+          func --version
+
+      - name: Install python dependencies
+        run: pip install -r test/requirements.txt
+
+      - name: Build backend
+        run: |
+          mkdir bin
+          go build -o bin/handler .
+          Rename-Item -Path test.settings.json -NewName local.settings.json
+
+      - name: Prepare db/container for test
+        run: cd test; python prepare_fixture.py
+
+      - name: Run integration tests
+        run: cd test; pytest --junit-xml=test-results.xml
+
+      - name: Upload test results
+        if: success() || failure()
+        uses: mikepenz/action-junit-report@v4
+        with:
+          report_paths: '**/test-results.xml'
+          check_name: 'Integration Test Report'
+          check_title_template: 'Integration Test Report'

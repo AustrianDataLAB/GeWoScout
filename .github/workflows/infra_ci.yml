@@ -1,0 +1,64 @@
+name: Infra CI
+
+on:
+  pull_request:
+    paths:
+      - 'infra/**'
+      - '.github/workflows/infra_ci.yml'
+
+jobs:
+  test:
+    env:
+      # statefile environmental variables
+      TF_VAR_state_resource_group_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.STATE_RESOURCE_GROUP_NAME_PROD || vars.STATE_RESOURCE_GROUP_NAME_DEV }}
+      TF_VAR_state_storage_account_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.STATE_STORAGE_ACCOUNT_NAME_PROD || vars.STATE_STORAGE_ACCOUNT_NAME_DEV }}
+
+      # infra environmental variables
+      TF_VAR_infra_resource_group_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_RESOURCE_GROUP_NAME_PROD || vars.INFRA_RESOURCE_GROUP_NAME_DEV }}
+      TF_VAR_infra_subscription_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_SUBSCRIPTION_ID_PROD || vars.INFRA_SUBSCRIPTION_ID_DEV }}
+      TF_VAR_infra_tenant_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || vars.INFRA_TENANT_ID_DEV }}
+
+      # automatic terraform variables
+      ARM_CLIENT_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_ID_PROD || secrets.ARM_CLIENT_ID_DEV }}
+      ARM_CLIENT_SECRET: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_SECRET_PROD || secrets.ARM_CLIENT_SECRET_DEV }}
+      ARM_SUBSCRIPTION_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_SUBSCRIPTION_ID_PROD || vars.INFRA_SUBSCRIPTION_ID_DEV }}
+      ARM_TENANT_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || vars.INFRA_TENANT_ID_DEV }}
+      
+      TF_VAR_arm_client_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_ID_PROD || secrets.ARM_CLIENT_ID_DEV }}
+      TF_VAR_arm_client_secret: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_SECRET_PROD || secrets.ARM_CLIENT_SECRET_DEV }}
+      TF_VAR_arm_tenant_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || vars.INFRA_TENANT_ID_DEV }}
+      TF_VERSION: 1.7.5
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: infra
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Terraform fmt
+      id: fmt
+      run: terraform fmt --check --diff
+
+    - name: Terraform init
+      id: init
+      run: |
+        set -a 
+        terraform init \
+          -backend-config="resource_group_name=$TF_VAR_state_resource_group_name" \
+          -backend-config="storage_account_name=$TF_VAR_state_storage_account_name"
+
+    - name: Terraform validate
+      id: validate
+      run: terraform validate -no-color
+
+    - name: Terraform plan
+      id: plan
+      run: terraform plan -no-color

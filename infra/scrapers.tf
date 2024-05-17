@@ -1,12 +1,3 @@
-# App Service Plan (Consumption Plan for Azure Functions)
-resource "azurerm_service_plan" "sp_scraper" {
-  name                = "serviceplan-gewoscout"
-  resource_group_name = data.azurerm_resource_group.rg.name
-  location            = data.azurerm_resource_group.rg.location
-  os_type             = "Linux"
-  sku_name            = "Y1"
-}
-
 # Storage Account name must be globally unique
 resource "random_string" "sa_scraper_suffix" {
   length  = 6
@@ -21,14 +12,6 @@ resource "azurerm_storage_account" "sa_scraper" {
   location                 = data.azurerm_resource_group.rg.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-}
-
-# Add Application Insights for logs & monitoring
-resource "azurerm_application_insights" "ai" {
-  name                = "appinsights-gewoscout"
-  location            = data.azurerm_resource_group.rg.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-  application_type    = "other"
 }
 
 # Package the Azure Function's code to zip
@@ -53,7 +36,7 @@ resource "azurerm_linux_function_app" "fa_scraper" {
 
   storage_account_name       = azurerm_storage_account.sa_scraper.name
   storage_account_access_key = azurerm_storage_account.sa_scraper.primary_access_key
-  service_plan_id            = azurerm_service_plan.sp_scraper.id
+  service_plan_id            = azurerm_service_plan.sp.id
 
   site_config {
     application_stack {
@@ -66,13 +49,8 @@ resource "azurerm_linux_function_app" "fa_scraper" {
   app_settings = {
     SCM_DO_BUILD_DURING_DEPLOYMENT = true
     QUEUE_NAME                     = azurerm_storage_queue.queue_scraper_backend.name
+    QUEUE_CONNECTION_STRING        = azurerm_storage_account.sa_queue.primary_connection_string
   }
 
   zip_deploy_file = data.archive_file.scraper_zip.output_path
-}
-
-# Storage Queue - connects scrapers with backend
-resource "azurerm_storage_queue" "queue_scraper_backend" {
-  name                 = "queue-scraper-backend-gewoscout"
-  storage_account_name = azurerm_storage_account.sa_scraper.name
 }

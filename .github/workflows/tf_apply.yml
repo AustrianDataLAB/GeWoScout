@@ -17,19 +17,23 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # statefile environmental variables
-      TF_VAR_state_resource_group_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.STATE_RESOURCE_GROUP_NAME_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.STATE_RESOURCE_GROUP_NAME_DEV }}
-      TF_VAR_state_storage_account_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.STATE_STORAGE_ACCOUNT_NAME_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.STATE_STORAGE_ACCOUNT_NAME_DEV }}
+      TF_VAR_state_resource_group_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.STATE_RESOURCE_GROUP_NAME_PROD || vars.STATE_RESOURCE_GROUP_NAME_DEV }}
+      TF_VAR_state_storage_account_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.STATE_STORAGE_ACCOUNT_NAME_PROD || vars.STATE_STORAGE_ACCOUNT_NAME_DEV }}
 
       # infra environmental variables
-      TF_VAR_infra_resource_group_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_RESOURCE_GROUP_NAME_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_RESOURCE_GROUP_NAME_DEV }}
-      TF_VAR_infra_subscription_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_SUBSCRIPTION_ID_DEV }}
-      TF_VAR_infra_tenant_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_TENANT_ID_DEV }}
+      TF_VAR_infra_resource_group_name: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_RESOURCE_GROUP_NAME_PROD || vars.INFRA_RESOURCE_GROUP_NAME_DEV }}
+      TF_VAR_infra_subscription_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_SUBSCRIPTION_ID_PROD || vars.INFRA_SUBSCRIPTION_ID_DEV }}
+      TF_VAR_infra_tenant_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || vars.INFRA_TENANT_ID_DEV }}
 
       # automatic terraform variables
-      ARM_CLIENT_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && secrets.ARM_CLIENT_ID_DEV }}
-      ARM_CLIENT_SECRET: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_SECRET_PROD || github.ref == vars.DEVELOPMENT_BRANCH && secrets.ARM_CLIENT_SECRET_DEV }}
-      ARM_SUBSCRIPTION_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_SUBSCRIPTION_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_SUBSCRIPTION_ID_DEV }}
-      ARM_TENANT_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || github.ref == vars.DEVELOPMENT_BRANCH && vars.INFRA_TENANT_ID_DEV }}
+      ARM_CLIENT_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_ID_PROD || secrets.ARM_CLIENT_ID_DEV }}
+      ARM_CLIENT_SECRET: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_SECRET_PROD || secrets.ARM_CLIENT_SECRET_DEV }}
+      ARM_SUBSCRIPTION_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_SUBSCRIPTION_ID_PROD || vars.INFRA_SUBSCRIPTION_ID_DEV }}
+      ARM_TENANT_ID: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || vars.INFRA_TENANT_ID_DEV }}
+      
+      TF_VAR_arm_client_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_ID_PROD || secrets.ARM_CLIENT_ID_DEV }}
+      TF_VAR_arm_client_secret: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && secrets.ARM_CLIENT_SECRET_PROD || secrets.ARM_CLIENT_SECRET_DEV }}
+      TF_VAR_arm_tenant_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || vars.INFRA_TENANT_ID_DEV }}
       TF_VERSION: 1.7.5
 
     defaults:
@@ -43,7 +47,7 @@ jobs:
 
     - name: Verify the Environment
       run: |
-        echo TF_VAR_state_resource_group_name: ${{ env.TF_VAR_state_resource_group_name }}, $TF_VAR_state_resource_group_name
+        echo TF_VAR_state_resource_group_name: ${{ env.TF_VAR_state_resource_group_name }}
         echo TF_VAR_state_storage_account_name: ${{ env.TF_VAR_state_storage_account_name }}
   
         echo TF_VAR_infra_resource_group_name: ${{ env.TF_VAR_infra_resource_group_name }}
@@ -55,6 +59,24 @@ jobs:
         echo ARM_SUBSCRIPTION_ID: ${{ env.ARM_SUBSCRIPTION_ID }}
         echo ARM_TENANT_ID: ${{ env.ARM_TENANT_ID }}
         echo TF_VERSION: ${{ env.TF_VERSION }}
+
+    - name: Setup Go 1.22.x
+      uses: actions/setup-go@v5
+      with:
+        go-version: 1.22.x
+        cache-dependency-path: "backend/go.sum"
+    
+    - name: Build Swagger
+      run: |
+        cd ../backend
+        go install github.com/swaggo/swag/cmd/swag@latest
+        swag init -g handler.go 
+        
+    - name: Setup AZ CLI
+      uses: pietrobolcato/install-azure-cli-action@main
+
+    - name: Setup azure core tools
+      run: npm i -g azure-functions-core-tools@4 --unsafe-perm true
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
@@ -86,3 +108,21 @@ jobs:
       run: terraform apply -auto-approve $DESTROY
       env:
         DESTROY: ${{ github.event.inputs.destroy == '1' && '-destroy' || '' }}
+      
+    - name: Build frontend
+      if: github.event.inputs.destroy != '1'
+      run: |
+        cd ../frontend/vue-gewoscout
+        npm install
+        npm run build
+        npm install -g @azure/static-web-apps-cli
+        export SWA_CLI_DEPLOYMENT_TOKEN=${{ secrets.SWA_TOKEN }}
+        swa deploy --app-location ./dist --env ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && 'Production' || 'Development' }}
+
+    - name: Link the backend
+      if: github.event.inputs.destroy != '1'
+      run: |
+        . ./env.sh
+        az login --service-principal -u ${{env.ARM_CLIENT_ID}} -p ${{env.ARM_CLIENT_SECRET}} --tenant ${{env.ARM_TENANT_ID}}
+        az staticwebapp backends unlink --name ${{ vars.SWA_NAME }} --resource-group ${{ vars.SWA_RESOURCE_GROUP }} ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && '' || ' --environment-name Development' }} | true
+        az staticwebapp backends link --backend-resource-id ${BACKEND_FUNCTION_ID} --name ${{ vars.SWA_NAME }} --resource-group ${{ vars.SWA_RESOURCE_GROUP }} ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && '' || ' --environment-name Development' }} --backend-region ${PROJECT_LOCATION}

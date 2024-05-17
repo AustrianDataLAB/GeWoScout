@@ -8,7 +8,7 @@
       "methods": [
         "get"
       ],
-      "route": "cities/{city}/listings"
+      "route": "swagger"
     },
     {
       "type": "http",
