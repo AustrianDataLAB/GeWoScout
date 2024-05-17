@@ -1,6 +1,7 @@
 <script setup lang="ts">
+
+import type SearchInputs from '@/types/SearchInputs';
 import { ref } from 'vue';
-import type SearchInputs from '@/types/SearchInputs'
 
 const selectedPriceFrom = ref(null);
 const selectedPriceTo = ref();
@@ -11,9 +12,8 @@ const selectedRoomsTo = ref();
 const selectedAreaFrom = ref();
 const selectedAreaTo = ref();
 
-const searchInputs:SearchInputs = {
-  firstName: 'John',
-  lastName: 'Doe'
+const searchInputs: SearchInputs = {
+  city: '',
 }
 
 const selectedCity = ref('vienna');
@@ -78,27 +78,7 @@ const types = ref(['All', 'Rent', 'Rent + Option to buy']);
   </div>
 </template>
 
+
 <style scoped>
-h1 {
-  font-weight: 500;
-  font-size: 2.6rem;
-  position: relative;
-  top: -10px;
-}
 
-h3 {
-  font-size: 1.2rem;
-}
-
-.greetings h1,
-.greetings h3 {
-  text-align: center;
-}
-
-@media (min-width: 1024px) {
-  .greetings h1,
-  .greetings h3 {
-    text-align: left;
-  }
-}
 </style>
