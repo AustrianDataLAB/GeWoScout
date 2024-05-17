@@ -11,7 +11,9 @@ import SearchResultList from './components/SearchResultList.vue';
 
   <main>
     <SearchForm />
-    <SearchResultList />
+    <Suspense>
+      <SearchResultList searchCity="vienna" />
+    </Suspense>
   </main>
 </template>
 
