@@ -3,10 +3,10 @@
 import type SearchInputs from '@/types/SearchInputs';
 import { ref } from 'vue';
 
-import SelectButton from 'primevue/selectbutton';
+import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
 import InputNumber from 'primevue/inputnumber';
-import Button from 'primevue/button';
+import SelectButton from 'primevue/selectbutton';
 
 const selectedPriceFrom = ref(null);
 const selectedPriceTo = ref();
@@ -50,7 +50,7 @@ const types = ref(['All', 'Rent', 'Rent + Option to buy']);
       </div>
       <div class="field col-4">
         <label for="geno">Genossenschaft</label>
-        <vueDroDropdownpdown id="geno" v-model="selectedGeno" :options="genos" showClear optionLabel="name" optionValue="code" placeholder="Select a Genossenschaft" class="w-full" />
+        <Dropdown id="geno" v-model="selectedGeno" :options="genos" showClear optionLabel="name" optionValue="code" placeholder="Select a Genossenschaft" class="w-full" />
       </div>
       <div class="field col-4">
         <label for="priceFrom">Price €</label>
