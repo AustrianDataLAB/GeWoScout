@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 
-import { ref, type Ref } from "vue";
+import { onMounted, ref, type Ref } from "vue";
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import { getListings } from "@/common/api-service";
@@ -211,8 +211,10 @@ const results: Ref<Listing[]> = ref([
 ]); 
 */
 
-const realResults : Ref<Listing[]> = ref(await getListings(props.searchCity));
+// const realResults : Ref<Listing[]> = ref(await getListings(props.searchCity));
 
+const realResults: Ref<Listing[]> = ref([]);
+onMounted(async () => {realResults.value = await getListings(props.searchCity);});
 
 function redirectToAppartment(index: number) {
   window.open(
