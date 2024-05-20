@@ -15,23 +15,23 @@ type Query struct {
 	HousingCooperative   *string      `json:"housingCooperative,string" validate:"omitempty"`
 	ProjectId            *string      `json:"projectId,string" validate:"omitempty"`
 	PostalCode           *string      `json:"postalCode" validate:"omitempty"`
-	RoomCount            *uint16      `json:"roomCount,string" validate:"omitempty,gt=0"`
-	MinRoomCount         *uint16      `json:"minRoomCount,string" validate:"omitempty,gt=0"`
-	MaxRoomCount         *uint16      `json:"maxRoomCount,string" validate:"omitempty,gt=0,gtfieldcustom=MinRoomCount"`
-	MinSquareMeters      *uint16      `json:"minSqm,string" validate:"omitempty,gt=0"`
-	MaxSquareMeters      *uint16      `json:"maxSqm,string" validate:"omitempty,gt=0,gtfieldcustom=MinSquareMeters"`
+	RoomCount            *int         `json:"roomCount,string" validate:"omitempty,gt=0"`
+	MinRoomCount         *int         `json:"minRoomCount,string" validate:"omitempty,gt=0"`
+	MaxRoomCount         *int         `json:"maxRoomCount,string" validate:"omitempty,gt=0,gtfieldcustom=MinRoomCount"`
+	MinSquareMeters      *int         `json:"minSqm,string" validate:"omitempty,gt=0"`
+	MaxSquareMeters      *int         `json:"maxSqm,string" validate:"omitempty,gt=0,gtfieldcustom=MinSquareMeters"`
 	AvailableFrom        *time.Time   `json:"availableFrom" validate:"omitempty"`
-	MinYearBuilt         *uint16      `json:"minYearBuilt,string" validate:"omitempty,gt=1900"`
-	MaxYearBuilt         *uint16      `json:"maxYearBuilt,string" validate:"omitempty,gt=1900,gtfieldcustom=MinYearBuilt"`
+	MinYearBuilt         *int         `json:"minYearBuilt,string" validate:"omitempty,gt=1900"`
+	MaxYearBuilt         *int         `json:"maxYearBuilt,string" validate:"omitempty,gt=1900,gtfieldcustom=MinYearBuilt"`
 	MinHwgEnergyClass    *EnergyClass `json:"minHwgEnergyClass" validate:"omitempty,energycustom"`
 	MinFgeeEnergyClass   *EnergyClass `json:"minFgeeEnergyClass,string" validate:"omitempty,energycustom"`
 	ListingType          *ListingType `json:"listingType" validate:"omitempty,listingtypecustom"`
-	MinRentPricePerMonth *uint32      `json:"minRent,string" validate:"omitempty,gt=0"`
-	MaxRentPricePerMonth *uint32      `json:"maxRent,string" validate:"omitempty,gt=0,gtfieldcustom=MinRentPricePerMonth"`
-	MinCooperativeShare  *uint32      `json:"minCooperativeShare,string" validate:"omitempty,gt=0"`
-	MaxCooperativeShare  *uint32      `json:"maxCooperativeShare,string" validate:"omitempty,gt=0,gtfieldcustom=MinCooperativeShare"`
-	MinSalePrice         *uint32      `json:"minSalePrice,string" validate:"omitempty,gt=0"`
-	MaxSalePrice         *uint32      `json:"maxSalePrice,string" validate:"omitempty,gt=0,gtfieldcustom=MinSalePrice"`
+	MinRentPricePerMonth *int         `json:"minRent,string" validate:"omitempty,gt=0"`
+	MaxRentPricePerMonth *int         `json:"maxRent,string" validate:"omitempty,gt=0,gtfieldcustom=MinRentPricePerMonth"`
+	MinCooperativeShare  *int         `json:"minCooperativeShare,string" validate:"omitempty,gt=0"`
+	MaxCooperativeShare  *int         `json:"maxCooperativeShare,string" validate:"omitempty,gt=0,gtfieldcustom=MinCooperativeShare"`
+	MinSalePrice         *int         `json:"minSalePrice,string" validate:"omitempty,gt=0"`
+	MaxSalePrice         *int         `json:"maxSalePrice,string" validate:"omitempty,gt=0,gtfieldcustom=MinSalePrice"`
 	SortBy               *string
 	SortType             *SortType `json:"sortType" validate:"omitempty,sorttypecustom"`
 }
@@ -44,7 +44,7 @@ func enumFieldValidator[T StringEnum](fl validator.FieldLevel) bool {
 func gtFieldIgnoreNilValidator(fl validator.FieldLevel) bool {
 	otherField := fl.Parent().FieldByName(fl.Param())
 	if !otherField.IsNil() {
-		return otherField.Elem().Uint() <= fl.Field().Uint()
+		return otherField.Elem().Int() <= fl.Field().Int()
 	}
 	return true
 }
