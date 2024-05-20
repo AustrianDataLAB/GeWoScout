@@ -1,18 +1,18 @@
 {
   "bindings": [
     {
-      "name": "scrapingQueueItem",
+      "name": "msg",
       "type": "queueTrigger",
       "direction": "in",
-      "queueName": "scraping-input-node",
+      "queueName": "scraper-result-queue",
       "connection": "QUEUE_CONNECTION_STRING"
     },
     {
-      "name": "$return",
+      "name": "msgOut",
       "type": "queue",
       "direction": "out",
-      "queueName": "scraping-output-node",
-      "connection": "AzureWebJobsStorage"      
+      "queueName": "new-listings-queue",
+      "connection": "QUEUE_CONNECTION_STRING"
     }
   ]
 }

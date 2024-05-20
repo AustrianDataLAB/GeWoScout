@@ -13,7 +13,7 @@ build-deployment:
 run: build
 	func start
 
-swagger:
+swaggergen:
 	swag init -g handler.go
 
 all: build build-windows

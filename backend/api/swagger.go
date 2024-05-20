@@ -10,15 +10,16 @@ import (
 )
 
 func SwaggerBaseHandler(w http.ResponseWriter, r *http.Request) {
-	response := models.NewInvokeResponse(http.StatusMovedPermanently, "Redirecting to Swagger UI")
-	response.Outputs.Res.Headers["Location"] = "/api/swagger/index.html"
+	response := models.NewHttpInvokeResponse(http.StatusMovedPermanently, "Redirecting to Swagger UI")
+	httpOutput := response.Outputs["res"].(models.HttpResponse)
+	httpOutput.Headers["Location"] = "/api/swagger/index.html"
 	render.JSON(w, r, response)
 }
 
 func SwaggerFileHandler(w http.ResponseWriter, r *http.Request) {
 	req, err := models.InvokeRequestFromBody(r.Body)
 	if err != nil {
-		render.JSON(w, r, models.NewInvokeResponse(
+		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusBadRequest,
 			models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
 		))
@@ -28,7 +29,7 @@ func SwaggerFileHandler(w http.ResponseWriter, r *http.Request) {
 	r.Method = http.MethodGet
 	r.URL, err = url.Parse(req.Data.Req.Url)
 	if err != nil {
-		render.JSON(w, r, models.NewInvokeResponse(
+		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusBadRequest,
 			models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
 		))
@@ -40,13 +41,17 @@ func SwaggerFileHandler(w http.ResponseWriter, r *http.Request) {
 
 	httpSwagger.Handler().ServeHTTP(mockWriter, r)
 
-	//ir := models.NewInvokeResponse(mockWriter.StatusCode, mockWriter.Body.String())
+	//ir := models.NewHttpInvokeResponse(mockWriter.StatusCode, mockWriter.Body.String())
 	ir := models.InvokeResponse{}
-	ir.Outputs.Res.StatusCode = mockWriter.StatusCode
-	ir.Outputs.Res.Body = mockWriter.Body.String()
-	ir.Outputs.Res.Headers = map[string]string{}
+	ir.Outputs = map[string]interface{}{}
+	headers := make(map[string]string)
 	for k, v := range mockWriter.Headers {
-		ir.Outputs.Res.Headers[k] = strings.Join(v, "; ")
+		headers[k] = strings.Join(v, "; ")
+	}
+	ir.Outputs["res"] = models.HttpResponse{
+		StatusCode: mockWriter.StatusCode,
+		Body:       mockWriter.Body.String(),
+		Headers:    headers,
 	}
 	render.JSON(w, r, ir)
 }

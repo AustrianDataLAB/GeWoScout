@@ -50,7 +50,3 @@ func Test(t *testing.T) {
 		t.Errorf("expected returnVal to be ArtHabitat_AHProj055_AHFlat681, got %s", returnVal)
 	}
 }
-
-func TestGetListingById(t *testing.T) {
-
-}

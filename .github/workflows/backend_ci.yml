@@ -56,12 +56,16 @@ jobs:
         uses: janpio/cosmos-emulator-github-action@main
         with:
           parameter_string: "-Timeout 420"
-      
+
+      - name: Start Azurite
+        id: azuright
+        uses: potatoqualitee/azuright@v1.1
+
       - name: Set up node (for Azure Functions Core Tools)
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
+        
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -91,7 +95,7 @@ jobs:
         run: |
           mkdir bin
           go build -o bin/handler .
-          Rename-Item -Path test.settings.json -NewName local.settings.json
+          Copy-Item -Path test/test.settings.json -Destination local.settings.json
 
       - name: Prepare db/container for test
         run: cd test; python prepare_fixture.py
