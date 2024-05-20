@@ -9,7 +9,7 @@ import urllib3
 from azure.cosmos import PartitionKey, CosmosClient, exceptions
 from azure.storage.queue import QueueServiceClient
 
-from .constants import COSMOS_CONNECTION_STRING, LISTINGS_FIXTURE, QUEUE_STORAGE_CONNECTION, SCRAPER_RESULTS_QUEUE_NAME, \
+from .constants import COSMOS_CONNECTION_STRING, LISTINGS_FIXTURE, QUEUE_CONNECTION_STRING, SCRAPER_RESULTS_QUEUE_NAME, \
     NEW_LISTINGS_QUEUE_NAME
 
 
@@ -27,7 +27,7 @@ def cosmos_db_client():
 
 @pytest.fixture(scope="module")
 def queue_service_client():
-    return QueueServiceClient.from_connection_string(QUEUE_STORAGE_CONNECTION)
+    return QueueServiceClient.from_connection_string(QUEUE_CONNECTION_STRING)
 
 
 @pytest.fixture(scope="module")

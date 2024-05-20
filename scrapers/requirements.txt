@@ -4,3 +4,5 @@
 
 azure-functions
 pytest
+requests
+beautifulsoup4
