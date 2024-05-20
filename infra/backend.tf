@@ -36,46 +36,59 @@ resource "azurerm_linux_function_app" "fa_backend" {
   service_plan_id            = azurerm_service_plan.sp.id
 
   site_config {
+    application_stack {
+      use_custom_runtime = true
+    }
     application_insights_connection_string = azurerm_application_insights.ai.connection_string
     application_insights_key               = azurerm_application_insights.ai.instrumentation_key
   }
 
   app_settings = {
-    QUEUE_NAME = azurerm_storage_queue.queue_scraper_backend.name
+    FUNCTIONS_WORKER_RUNTIME = "custom"
+    WEBSITE_RUN_FROM_PACKAGE = "1"
+    COSMOS_DB_CONNECTION     = azurerm_cosmosdb_account.db_acc.primary_sql_connection_string
+    QUEUE_NAME               = azurerm_storage_queue.queue_scraper_backend.name
+    QUEUE_CONNECTION_STRING  = azurerm_storage_account.sa_queue.primary_connection_string
   }
+
+  zip_deploy_file = data.archive_file.backend_zip.output_path
 }
 
-
-# Build the backend
+# Build the backend on every TF apply
 resource "null_resource" "backend_build" {
-  # Using triggers to force execution on every apply
   triggers = {
     always_run = timestamp()
   }
-
-  depends_on = [azurerm_linux_function_app.fa_backend]
 
   provisioner "local-exec" {
     working_dir = local.backend_path
-    command     = "make build"
+    command     = "make build-deployment"
   }
 }
 
-# Upload the backend
-resource "null_resource" "backend_upload" {
-  # Using triggers to force execution on every apply
-  triggers = {
-    always_run = timestamp()
-  }
-
+# Package the Azure Function's code to zip
+data "archive_file" "backend_zip" {
   depends_on = [null_resource.backend_build]
 
-  provisioner "local-exec" {
-    working_dir = local.backend_path
-    command     = "az login --service-principal -u ${var.arm_client_id} -p ${var.arm_client_secret} --tenant ${var.arm_tenant_id} && func azure functionapp publish ${azurerm_linux_function_app.fa_backend.name}"
-  }
+  excludes = [
+    "api", "cosmos", "docs/docs.go", "models", "notification", "queue", "test",
+    ".dockerignore", ".gitignore", ".funcignore", "test.settings.json",
+    "handler.go", "go.mod", "Dockerfile", "Makefile", "go.sum",
+    "handler_test.go", "local.settings.json"
+  ]
+
+  type        = "zip"
+  source_dir  = "${path.module}/../backend"
+  output_path = "backend-${timestamp()}.zip"
 }
 
-output "backend_default_hostname" {
-  value = azurerm_linux_function_app.fa_backend.default_hostname
+resource "null_resource" "backend_env" {
+  triggers = {
+    always_run = timestamp()
+  }
+
+  provisioner "local-exec" {
+    working_dir = path.module
+    command     = "echo \"export BACKEND_FUNCTION_ID=${azurerm_linux_function_app.fa_backend.id}\nexport PROJECT_LOCATION=${data.azurerm_resource_group.rg.location} \" > env.sh"
+  }
 }
