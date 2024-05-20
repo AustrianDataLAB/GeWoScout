@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 	"github.com/go-chi/render"
+	"github.com/xeipuuv/gojsonschema"
 
 	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
 )
@@ -25,6 +27,8 @@ type Handler struct {
 	gewoscoutDbClient *azcosmos.DatabaseClient
 	// Do NOT access directly
 	listingsByCityContainerClient *azcosmos.ContainerClient
+
+	ScraperResultSchema *gojsonschema.Schema
 }
 
 func (h *Handler) initCosmos() {
@@ -47,7 +51,15 @@ func (h *Handler) GetListingsByCityContainerClient() *azcosmos.ContainerClient {
 }
 
 func NewHandler() *Handler {
-	return &Handler{}
+	schemaLoader := gojsonschema.NewStringLoader(models.ScraperResultListingSchema)
+	schema, err := gojsonschema.NewSchema(schemaLoader)
+	if err != nil {
+		log.Fatalf("Failed to create schema: %s", err.Error())
+	}
+
+	return &Handler{
+		ScraperResultSchema: schema,
+	}
 }
 
 // GetListings Handler function for /listings, which returns any listings within the
