@@ -14,6 +14,8 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 )
 
+const DEFAULT_PAGE_SIZE = 10
+
 func addQueryParam(sb *strings.Builder, params *[]azcosmos.QueryParameter, name, condition string, value interface{}) {
 	*params = append(*params, azcosmos.QueryParameter{Name: name, Value: value})
 	sb.WriteString(condition)
@@ -96,7 +98,7 @@ func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query 
 	if query.PageSize != nil {
 		options.PageSizeHint = int32(*query.PageSize)
 	} else {
-		options.PageSizeHint = 10
+		options.PageSizeHint = DEFAULT_PAGE_SIZE
 	}
 
 	return container.NewQueryItemsPager(sb.String(), partitionKey, &options)

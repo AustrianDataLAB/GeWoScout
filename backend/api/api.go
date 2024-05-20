@@ -125,13 +125,19 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pager := cosmos.GetQueryItemsPager(h.GetListingsByCityContainerClient(), city, &req.Data.Req.Query)
-	var listings = make([]models.Listing, 0, 30)
+
+	maxNumListings := cosmos.DEFAULT_PAGE_SIZE
+	if req.Data.Req.Query.PageSize != nil {
+		maxNumListings = *req.Data.Req.Query.PageSize
+	}
+
+	listings := make([]models.Listing, 0, maxNumListings)
 	var continuationToken *string
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	for pager.More() {
+	if pager.More() {
 		response, err := pager.NextPage(ctx)
 		if err != nil {
 			errMsg := fmt.Sprintf("Failed to get next result page: %s\n", err.Error())
@@ -158,7 +164,6 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 		}
 
 		continuationToken = response.ContinuationToken
-		break
 	}
 
 	result := models.GetListingsResponse{
