@@ -20,14 +20,14 @@ type Query struct {
 	MaxRoomCount         *int         `json:"maxRoomCount,string" validate:"omitempty,gt=0,gtfieldcustom=MinRoomCount"`
 	MinSquareMeters      *int         `json:"minSqm,string" validate:"omitempty,gt=0"`
 	MaxSquareMeters      *int         `json:"maxSqm,string" validate:"omitempty,gt=0,gtfieldcustom=MinSquareMeters"`
-	AvailableFrom        *time.Time   `json:"availableFrom" validate:"omitempty"`
+	AvailableFrom        *string      `json:"availableFrom" validate:"omitempty,datecustom"`
 	MinYearBuilt         *int         `json:"minYearBuilt,string" validate:"omitempty,gt=1900"`
 	MaxYearBuilt         *int         `json:"maxYearBuilt,string" validate:"omitempty,gt=1900,gtfieldcustom=MinYearBuilt"`
 	MinHwgEnergyClass    *EnergyClass `json:"minHwgEnergyClass" validate:"omitempty,energycustom"`
 	MinFgeeEnergyClass   *EnergyClass `json:"minFgeeEnergyClass" validate:"omitempty,energycustom"`
 	ListingType          *ListingType `json:"listingType" validate:"omitempty,listingtypecustom"`
-	MinRentPricePerMonth *int         `json:"minRent,string" validate:"omitempty,gt=0"`
-	MaxRentPricePerMonth *int         `json:"maxRent,string" validate:"omitempty,gt=0,gtfieldcustom=MinRentPricePerMonth"`
+	MinRentPricePerMonth *int         `json:"minRentPrice,string" validate:"omitempty,gt=0"`
+	MaxRentPricePerMonth *int         `json:"maxRentPrice,string" validate:"omitempty,gt=0,gtfieldcustom=MinRentPricePerMonth"`
 	MinCooperativeShare  *int         `json:"minCooperativeShare,string" validate:"omitempty,gt=0"`
 	MaxCooperativeShare  *int         `json:"maxCooperativeShare,string" validate:"omitempty,gt=0,gtfieldcustom=MinCooperativeShare"`
 	MinSalePrice         *int         `json:"minSalePrice,string" validate:"omitempty,gt=0"`
@@ -47,6 +47,11 @@ func gtFieldIgnoreNilValidator(fl validator.FieldLevel) bool {
 		return otherField.Elem().Int() <= fl.Field().Int()
 	}
 	return true
+}
+
+func dateCustomValidator(fl validator.FieldLevel) bool {
+	_, err := time.Parse("2006-01-02", fl.Field().String())
+	return err == nil
 }
 
 type InvokeRequest struct {
@@ -79,6 +84,7 @@ func InvokeRequestFromBody(body io.ReadCloser) (ir InvokeRequest, err error) {
 	}
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
+	validate.RegisterValidation("datecustom", dateCustomValidator)
 	validate.RegisterValidation("gtfieldcustom", gtFieldIgnoreNilValidator)
 	validate.RegisterValidation("energycustom", enumFieldValidator[EnergyClass])
 	validate.RegisterValidation("listingtypecustom", enumFieldValidator[ListingType])
