@@ -1,10 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect } from 'vitest';
 
-import { mount } from '@vue/test-utils'
-import SearchForm from '../SearchForm.vue'
-import PrimeVue from 'primevue/config'
-
-
+import { mount } from '@vue/test-utils';
+import SearchForm from '../SearchForm.vue';
+import PrimeVue from 'primevue/config';
 
 describe('SearchForm', () => {
   it('renders properly', () => {
@@ -16,14 +14,14 @@ describe('SearchForm', () => {
         mocks: {
           $primevue: {
             config: {
-              ripple: true,
-            },
-          },
-        },
-      },
+              ripple: true
+            }
+          }
+        }
+      }
     });
 
     expect(wrapper.text()).toContain('Type of acquisition');
     expect(wrapper.text()).toContain('Price €');
-  })
-})
+  });
+});

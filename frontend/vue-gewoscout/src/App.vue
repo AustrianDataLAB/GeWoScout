@@ -11,10 +11,8 @@ import SearchResultList from './components/SearchResultList.vue';
 
   <main>
     <SearchForm />
-      <SearchResultList searchCity="vienna" />
+    <SearchResultList searchCity="vienna" />
   </main>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

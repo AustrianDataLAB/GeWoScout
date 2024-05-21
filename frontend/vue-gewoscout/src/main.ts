@@ -1,5 +1,5 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import { createApp } from 'vue';
+import App from './App.vue';
 import PrimeVue from 'primevue/config';
 
 import Ripple from 'primevue/ripple';
@@ -15,12 +15,10 @@ import Card from 'primevue/card';
 import Avatar from 'primevue/avatar';
 import Divider from 'primevue/divider';
 
-
-import './assets/main.css'
-import 'primevue/resources/themes/lara-light-amber/theme.css'
-import 'primeicons/primeicons.css'
+import './assets/main.css';
+import 'primevue/resources/themes/lara-light-amber/theme.css';
+import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
-
 
 const app = createApp(App);
 app.use(PrimeVue, { ripple: true });
