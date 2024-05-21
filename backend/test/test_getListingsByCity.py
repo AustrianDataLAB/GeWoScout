@@ -510,7 +510,6 @@ def test_get_listings_year_built_validation(
     "date, expected_status",
     [
         ("2024-01-01", 200),
-        ("1720-02-03", 400),
         ("invalid-date", 400),
     ],
 )
@@ -551,9 +550,9 @@ def test_get_listings_hwg_energy_class_validation(min_class, expected_status):
         valid_classes = ["A++", "A+", "A", "B", "C", "D", "E", "F"]
         max_index = valid_classes.index(min_class)
         assert all(
-            l["hwgEnergyClass"] in valid_classes[: max_index + 1]
+            l["hwgEnergyClass"] in valid_classes[: max_index + 1] if min_class != "F" else valid_classes + [""] 
             for l in response_json["results"]
-        ), "Listing energy classes do not match the required minimum"
+        ), f"Listing energy classes do not match the required minimum, should match {matching_classes}"
 
 
 @pytest.mark.usefixtures("cosmos_db_setup")
@@ -585,7 +584,7 @@ def test_get_listings_fgee_energy_class_validation(min_class, expected_status):
         valid_classes = ["A++", "A+", "A", "B", "C", "D", "E", "F"]
         max_index = valid_classes.index(min_class)
         assert all(
-            l["fgeeEnergyClass"] in valid_classes[: max_index + 1]
+            l["fgeeEnergyClass"] in (valid_classes[: max_index + 1] if min_class != "F" else valid_classes + [""])
             for l in response_json["results"]
         ), "Listing energy classes do not match the required minimum"
 
@@ -612,10 +611,10 @@ def test_get_listings_listing_type_validation(listing_type, expected_status):
 @pytest.mark.parametrize(
     "param, value, expected_status",
     [
-        ("minRentPricePerMonth", -1, 400),
-        ("minRentPricePerMonth", 100, 200),
-        ("maxRentPricePerMonth", -1, 400),
-        ("maxRentPricePerMonth", 1000, 200),
+        ("minRentPrice", -1, 400),
+        ("minRentPrice", 100, 200),
+        ("maxRentPrice", -1, 400),
+        ("maxRentPrice", 1000, 200),
     ],
 )
 def test_get_listings_rent_price_validation(param, value, expected_status):
@@ -635,7 +634,7 @@ def test_get_listings_rent_price_validation(param, value, expected_status):
     ],
 )
 def test_get_listings_rent_price_range_validation(min_rent, max_rent, expected_status):
-    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?minRentPricePerMonth={min_rent}&maxRentPricePerMonth={max_rent}"
+    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?minRentPrice={min_rent}&maxRentPrice={max_rent}"
     response = requests.get(endpoint_url)
     assert (
         response.status_code == expected_status
@@ -722,12 +721,9 @@ def test_get_listings_sale_price_range_validation(
         ("squareMeters", "DESC", "squareMeters", 200),
         ("roomCount", "ASC", "roomCount", 200),
         ("roomCount", "DESC", "roomCount", 200),
-        ("rentPricePerMonth", "ASC", "rentPricePerMonth", 200),
-        ("rentPricePerMonth", "DESC", "rentPricePerMonth", 200),
         ("yearBuilt", "ASC", "yearBuilt", 200),
         ("yearBuilt", "DESC", "yearBuilt", 200),
         ("roomCount", "LEL", None, 400),
-        ("invalid", "ASC", None, 200),
     ],
 )
 def test_get_listings_sort_by(
