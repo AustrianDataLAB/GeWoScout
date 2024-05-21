@@ -42,14 +42,14 @@ Don't forget to destroy the deployment after testing!
 terraform destroy -auto-approve
 ```
 
-5. SWA deployment (https://learn.microsoft.com/en-us/azure/static-web-apps/static-web-apps-cli-deploy)
+## SWA deployment (https://learn.microsoft.com/en-us/azure/static-web-apps/static-web-apps-cli-deploy)
 - install SWA cli `npm install -g @azure/static-web-apps-cli`
 - get the deployment token from Azure Portal (https://learn.microsoft.com/en-us/azure/static-web-apps/static-web-apps-cli-deploy#deployment-token)
 - store the token in a variable (SWA_CLI_DEPLOYMENT_TOKEN)
 - build the frontend (the output files should be in the `dist` directory)
 - make sure that you are in <project-dir>/frontend/vue-gewoscout and run `swa deploy --app-location ./dist --env <environment-name>` (<environment-name> is `Development` or `Production`)
 
-6. Link the backend to a SWA environment
+## Link the backend to a SWA environment
 - deploy the backend (if you perform a terraform deployment `terrraform apply -auto-approve -target null_resource.backend_env`, you will get a file: `env.sh` file with the necessary backend ID and location)
 - login to azure using your account `az login` or using a service principal:
 ```az login --service-principal -u ${arm_client_id} -p ${arm_client_secret} --tenant ${arm_tenant_id}```
