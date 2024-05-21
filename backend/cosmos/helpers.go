@@ -73,6 +73,9 @@ func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query 
 				if *ecStr != "F" {
 					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, bc[*ecStr])
 				}
+			} else if field == "postalCodes" {
+				postalCodeStr := mapping.value.(*string)
+				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, strings.Split(*postalCodeStr, ","))
 			} else {
 				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
 			}
