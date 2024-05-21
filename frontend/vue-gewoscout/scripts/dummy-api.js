@@ -1,16 +1,6 @@
-<script lang="ts" setup>
-import { onMounted, ref, type Ref } from 'vue';
-import Button from 'primevue/button';
-import Card from 'primevue/card';
-import { getListings } from '@/common/api-service';
-import type { Listing } from '@/types/ApiResponseListings';
+import { createServer } from 'http';
 
-const props = withDefaults(defineProps<{ searchCity?: string }>(), {
-  searchCity: 'vienna'
-});
-
-/*
-const results: Ref<Listing[]> = ref([
+const listings = [
   {
     title: 'Leo am Teich - Wohnen am Wasser',
     postalCode: 1010,
@@ -262,63 +252,22 @@ const results: Ref<Listing[]> = ref([
     scraperId: 'test',
     createdAt: 'test',
     lastModifiedAt: 'test'
-  },
-]);
-*/
+  }
+];
 
-const realResults: Ref<Listing[]> = ref([]);
-onMounted(async () => {
-  realResults.value = await getListings(props.searchCity);
+const server = createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  if (req.url.match("/api/cities/.+/listings/?")) {
+    const city = req.url.split("/")[3];
+    res.end(JSON.stringify({
+      results: listings.filter(listing => listing.city.toLowerCase() === city)
+    }));
+    return;
+  }
+  res.end(JSON.stringify({results: listings}));
 });
 
-function redirectToApartment(index: number) {
-  window.open(realResults.value[index].detailsUrl, '_blank');
-}
-</script>
-
-<template>
-  <div class="cards mt-3 grid">
-    <div class="col-12 lg:col-4" v-for="(item, index) in realResults" :key="index">
-      <Card style="overflow: hidden">
-        <template #header>
-          <img
-            alt="appartment"
-            :src="item.previewImageUrl"
-            width="450"
-            height="180"
-            onerror="this.onerror=null;this.src='/src/assets/temp.jpg';"
-          />
-        </template>
-        <template #title>{{ item.title }}</template>
-        <template #subtitle
-          ><span class="pi pi-map-marker"></span> {{ item.postalCode }} {{ item.city }}</template
-        >
-        <template #content>
-          <div class="card flex justify-content-around">
-            <div class="flex flex-column m-0">
-              <p>Rooms</p>
-              <p class="text-center m-0">2</p>
-            </div>
-            <div class="flex flex-column m-0">
-              <p>Area</p>
-              <p class="text-center m-0">75 m²</p>
-            </div>
-          </div>
-        </template>
-        <template #footer>
-          <div class="flex gap-3 mt-1">
-            <Button label="Details" severity="secondary" outlined class="w-full" />
-            <Button
-              label="Request"
-              icon="pi pi-external-link"
-              class="w-full"
-              @click="redirectToApartment(index)"
-            />
-          </div>
-        </template>
-      </Card>
-    </div>
-  </div>
-</template>
-
-<style scoped></style>
+const PORT = 3333;
+server.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
+});
