@@ -43,9 +43,9 @@ func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query 
 		condition string
 		value     interface{}
 	}{
-		"title":                {" AND c.title = @title", query.Title},
-		"housingCooperative":   {" AND c.housingCooperative = @housingCooperative", query.HousingCooperative},
-		"projectId":            {" AND c.projectId = @projectId", query.ProjectId},
+		"title":                {" AND CONTAINS(LOWER(c.title), LOWER(@title))", query.Title},
+		"housingCooperative":   {" AND CONTAINS(LOWER(c.housingCooperative), LOWER(@housingCooperative))", query.HousingCooperative},
+		"projectId":            {" AND LOWER(c.projectId) = LOWER(@projectId)", query.ProjectId},
 		"postalCodes":          {" AND ARRAY_CONTAINS(@postalCodes, c.postalCode) = true", query.PostalCode},
 		"roomCount":            {" AND c.roomCount = @roomCount", query.RoomCount},
 		"minRoomCount":         {" AND c.roomCount >= @minRoomCount", query.MinRoomCount},
