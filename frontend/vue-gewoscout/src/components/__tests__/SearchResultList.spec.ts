@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect } from 'vitest';
 
-import { mount } from '@vue/test-utils'
-import SearchResultList from '../SearchResultList.vue'
+import { mount } from '@vue/test-utils';
+import SearchResultList from '../SearchResultList.vue';
 
 describe('SearchResultList', () => {
   it('renders properly', () => {
@@ -10,5 +10,5 @@ describe('SearchResultList', () => {
     const wrapper = mount(SearchResultList);
     // expect(wrapper.text()).toContain('Modern 3-Bedroom Apartment in Central Vienna');
     // expect(wrapper.text()).toContain('Cozy Studio in the Heart of the City');
-  })
-})
+  });
+});
