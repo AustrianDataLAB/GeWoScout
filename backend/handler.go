@@ -1,15 +1,16 @@
 package main
 
 import (
+	"log"
+	"net/http"
+	"os"
+
 	"github.com/AustrianDataLAB/GeWoScout/backend/api"
 	_ "github.com/AustrianDataLAB/GeWoScout/backend/docs"
 	"github.com/AustrianDataLAB/GeWoScout/backend/notification"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"log"
-	"net/http"
-	"os"
 )
 
 func setupRouter(useSwagger bool) *chi.Mux {

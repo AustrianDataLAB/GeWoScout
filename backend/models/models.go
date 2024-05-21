@@ -31,15 +31,31 @@ type Listing struct {
 
 type EnergyClass string
 
+func GetEnergyClasses() []EnergyClass {
+	return []EnergyClass{
+		EnergyClassAplusplus,
+		EnergyClassAplus,
+		EnergyClassA,
+		EnergyClassB,
+		EnergyClassC,
+		EnergyClassD,
+		EnergyClassE,
+		EnergyClassF,
+	}
+}
+
 func (c EnergyClass) IsEnumValue() bool {
-	return (c == EnergyClassAplusplus ||
-		c == EnergyClassAplus ||
-		c == EnergyClassA ||
-		c == EnergyClassB ||
-		c == EnergyClassC ||
-		c == EnergyClassD ||
-		c == EnergyClassE ||
-		c == EnergyClassF)
+	return c.GetIndex() != -1
+}
+
+func (c EnergyClass) GetIndex() int {
+	arr := GetEnergyClasses()
+	for i := 0; i < len(arr); i++ {
+		if arr[i] == c {
+			return i
+		}
+	}
+	return -1
 }
 
 type ListingType string

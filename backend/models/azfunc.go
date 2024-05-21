@@ -11,9 +11,9 @@ import (
 type Query struct {
 	ContinuationToken    *string      `json:"continuationToken"`
 	PageSize             *int         `json:"pageSize,string" validate:"omitempty,gt=0,lte=30"`
-	Title                *string      `json:"title,string" validate:"omitempty"`
-	HousingCooperative   *string      `json:"housingCooperative,string" validate:"omitempty"`
-	ProjectId            *string      `json:"projectId,string" validate:"omitempty"`
+	Title                *string      `json:"title" validate:"omitempty"`
+	HousingCooperative   *string      `json:"housingCooperative" validate:"omitempty"`
+	ProjectId            *string      `json:"projectId" validate:"omitempty"`
 	PostalCode           *string      `json:"postalCode" validate:"omitempty"`
 	RoomCount            *int         `json:"roomCount,string" validate:"omitempty,gt=0"`
 	MinRoomCount         *int         `json:"minRoomCount,string" validate:"omitempty,gt=0"`
@@ -24,7 +24,7 @@ type Query struct {
 	MinYearBuilt         *int         `json:"minYearBuilt,string" validate:"omitempty,gt=1900"`
 	MaxYearBuilt         *int         `json:"maxYearBuilt,string" validate:"omitempty,gt=1900,gtfieldcustom=MinYearBuilt"`
 	MinHwgEnergyClass    *EnergyClass `json:"minHwgEnergyClass" validate:"omitempty,energycustom"`
-	MinFgeeEnergyClass   *EnergyClass `json:"minFgeeEnergyClass,string" validate:"omitempty,energycustom"`
+	MinFgeeEnergyClass   *EnergyClass `json:"minFgeeEnergyClass" validate:"omitempty,energycustom"`
 	ListingType          *ListingType `json:"listingType" validate:"omitempty,listingtypecustom"`
 	MinRentPricePerMonth *int         `json:"minRent,string" validate:"omitempty,gt=0"`
 	MaxRentPricePerMonth *int         `json:"maxRent,string" validate:"omitempty,gt=0,gtfieldcustom=MinRentPricePerMonth"`

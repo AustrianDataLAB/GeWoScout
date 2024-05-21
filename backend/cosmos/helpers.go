@@ -29,16 +29,6 @@ func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query 
 		{Name: "@city", Value: city},
 	}
 
-	bc := map[models.EnergyClass][]string{
-		models.EnergyClassAplusplus: {"A++"},
-		models.EnergyClassAplus:     {"A++", "A+"},
-		models.EnergyClassA:         {"A++", "A+", "A"},
-		models.EnergyClassB:         {"A++", "A+", "A", "B"},
-		models.EnergyClassC:         {"A++", "A+", "A", "B", "C"},
-		models.EnergyClassD:         {"A++", "A+", "A", "B", "C", "D"},
-		models.EnergyClassE:         {"A++", "A+", "A", "B", "C", "D", "E"},
-	}
-
 	fieldMappings := map[string]struct {
 		condition string
 		value     interface{}
@@ -71,7 +61,7 @@ func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query 
 			if field == "minHwgEnergyClass" || field == "minFgeeEnergyClass" {
 				ecStr, _ := (mapping.value).(*models.EnergyClass)
 				if *ecStr != "F" {
-					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, bc[*ecStr])
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[:ecStr.GetIndex()+1])
 				}
 			} else if field == "postalCodes" {
 				postalCodeStr := mapping.value.(*string)
