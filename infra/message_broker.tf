@@ -14,6 +14,12 @@ resource "azurerm_storage_account" "sa_queue" {
 
 # Storage Queue - connects scrapers with backend
 resource "azurerm_storage_queue" "queue_scraper_backend" {
-  name                 = "scraping-input-node"
+  name                 = "scraper-result-queue"
+  storage_account_name = azurerm_storage_account.sa_queue.name
+}
+
+# Storage Queue - buffer for newly created listings
+resource "azurerm_storage_queue" "queue_new_listings" {
+  name                 = "new-listings-queue"
   storage_account_name = azurerm_storage_account.sa_queue.name
 }
