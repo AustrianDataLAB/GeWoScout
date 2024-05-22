@@ -102,6 +102,8 @@ func NewHandler() *Handler {
 func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 	req, err := models.InvokeRequestFromBody(r.Body)
 	if err != nil {
+		// Error is returned to the user here because the validation errors
+		// return information about which fields were invalid.
 		errMsg := fmt.Sprintf("Failed to read invoke request body: %s\n", err.Error())
 		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusBadRequest,
@@ -140,11 +142,10 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 	if pager.More() {
 		response, err := pager.NextPage(ctx)
 		if err != nil {
-			errMsg := fmt.Sprintf("Failed to get next result page: %s\n", err.Error())
 			render.JSON(w, r, models.NewHttpInvokeResponse(
 				http.StatusBadRequest,
-				models.Error{Message: errMsg},
-				[]string{errMsg},
+				models.Error{Message: "Failed to get listings"},
+				[]string{fmt.Sprintf("Failed to get next result page: %s\n", err.Error())},
 			))
 			return
 		}
@@ -152,11 +153,10 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 		for _, bytes := range response.Items {
 			listing := models.Listing{}
 			if err := json.Unmarshal(bytes, &listing); err != nil {
-				errMsg := fmt.Sprintf("An error occurred trying to parse the response json: %s", err.Error())
 				render.JSON(w, r, models.NewHttpInvokeResponse(
 					http.StatusBadRequest,
-					models.Error{Message: err.Error()},
-					[]string{errMsg},
+					models.Error{Message: "Failed to get listings"},
+					[]string{fmt.Sprintf("Failed to parse listings: %s\n", err.Error())},
 				))
 				return
 			}
@@ -191,13 +191,12 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 	injectedData := models.CosmosBindingInput{}
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&injectedData); err != nil {
-		errMsg := fmt.Sprintf("Error trying to unmarshal injected data: %s\n", err.Error())
 		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusInternalServerError,
 			models.Error{
-				Message: errMsg,
+				Message: "Failed to get listing",
 			},
-			[]string{errMsg},
+			[]string{fmt.Sprintf("Failed to unmarshal injected data: %s\n", err.Error())},
 		))
 		return
 	}
@@ -218,13 +217,12 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 
 	listing := models.Listing{}
 	if err := json.Unmarshal([]byte(input), &listing); err != nil {
-		errMsg := fmt.Sprintf("Error trying to unmarshal injected listing: %s\n", err.Error())
 		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusBadRequest,
 			models.Error{
-				Message: errMsg,
+				Message: "Failed to get listing",
 			},
-			[]string{errMsg},
+			[]string{fmt.Sprintf("Failed to unmarshal injected listing: %s\n", err.Error())},
 		))
 		return
 	}
