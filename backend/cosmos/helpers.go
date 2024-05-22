@@ -21,18 +21,41 @@ func addQueryParam(sb *strings.Builder, params *[]azcosmos.QueryParameter, name,
 	sb.WriteString(condition)
 }
 
-func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query *models.Query) *runtime.Pager[azcosmos.QueryItemsResponse] {
-	var sb strings.Builder
-	sb.WriteString("SELECT * FROM c WHERE c._partitionKey = @city")
-
-	queryParams := []azcosmos.QueryParameter{
-		{Name: "@city", Value: city},
+func getValidSortParams() map[string]bool {
+	return map[string]bool{
+		"title":              true,
+		"housingCooperative": true,
+		"projectId":          true,
+		"listingId":          true,
+		"country":            true,
+		"city":               true,
+		"postalCode":         true,
+		"address":            true,
+		"roomCount":          true,
+		"squareMeters":       true,
+		"availabilityDate":   true,
+		"yearBuilt":          true,
+		"hwgEnergyClass":     true,
+		"fgeeEnergyClass":    true,
+		"listingType":        true,
+		"rentPricePerMonth":  true,
+		"cooperativeShare":   true,
+		"salePrice":          true,
+		"additionalFees":     true,
+		"detailsUrl":         true,
+		"previewImageUrl":    true,
+		"scraperId":          true,
+		"createdAt":          true,
 	}
+}
 
-	fieldMappings := map[string]struct {
-		condition string
-		value     interface{}
-	}{
+type fieldMapping struct {
+	condition string
+	value     interface{}
+}
+
+func getFieldMappings(query *models.Query) map[string]fieldMapping {
+	return map[string]fieldMapping{
 		"title":                {" AND CONTAINS(LOWER(c.title), LOWER(@title))", query.Title},
 		"housingCooperative":   {" AND CONTAINS(LOWER(c.housingCooperative), LOWER(@housingCooperative))", query.HousingCooperative},
 		"projectId":            {" AND LOWER(c.projectId) = LOWER(@projectId)", query.ProjectId},
@@ -55,6 +78,17 @@ func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query 
 		"minSalePrice":         {" AND c.salePrice >= @minSalePrice", query.MinSalePrice},
 		"maxSalePrice":         {" AND c.salePrice >= @maxSalePrice", query.MaxSalePrice},
 	}
+}
+
+func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query *models.Query) *runtime.Pager[azcosmos.QueryItemsResponse] {
+	var sb strings.Builder
+	sb.WriteString("SELECT * FROM c WHERE c._partitionKey = @city")
+
+	queryParams := []azcosmos.QueryParameter{
+		{Name: "@city", Value: city},
+	}
+
+	fieldMappings := getFieldMappings(query)
 
 	for field, mapping := range fieldMappings {
 		if !reflect.ValueOf(mapping.value).IsNil() {
@@ -73,11 +107,13 @@ func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query 
 	}
 
 	if query.SortBy != nil {
-		sb.WriteString(fmt.Sprintf(" ORDER BY c.%s ", *query.SortBy))
-		if query.SortType != nil {
-			sb.WriteString(string(*query.SortType))
-		} else {
-			sb.WriteString("ASC")
+		if _, ok := getValidSortParams()[*query.SortBy]; ok {
+			sb.WriteString(fmt.Sprintf(" ORDER BY c.%s ", *query.SortBy))
+			if query.SortType != nil && *query.SortType == "DESC" {
+				sb.WriteString(string(*query.SortType))
+			} else {
+				sb.WriteString("ASC")
+			}
 		}
 	}
 
