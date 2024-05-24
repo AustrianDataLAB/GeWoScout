@@ -15,6 +15,7 @@ PARAMS = {
     'f[all][city]'          : 'Wien',
 	'from'                  : '1117350'
 }
+QUEUE_BATCH_SIZE = 20
 
 bp = func.Blueprint() 
 
@@ -59,7 +60,7 @@ def bwsg_scraper(timerObj: func.TimerRequest, q: func.Out[str]) -> None:
     Wohnungen = list()
 
 
-    for link in links:        
+    for i, link in enumerate(links):
         req = requests.request(method = 'GET', url = URL + link)
         soup = BeautifulSoup(req.text, 'html.parser')
         info = soup.find(class_ = 'container-wrapper')
@@ -212,7 +213,13 @@ def bwsg_scraper(timerObj: func.TimerRequest, q: func.Out[str]) -> None:
         wohnung['cost-explanation'] = explanation
         
         Wohnungen.append(wohnung)
+
+        if i % QUEUE_BATCH_SIZE == 0:
+            payload["listings"] = Wohnungen
+            q.set(json.dumps(payload).encode(encoding='UTF-8'))
+            del payload["listings"]
+            Wohnungen = list()
     
     payload["listings"] = Wohnungen
     
-    q.set(json.dumps(Wohnungen).encode(encoding='UTF-8'))
+    q.set(json.dumps(payload).encode(encoding='UTF-8'))
