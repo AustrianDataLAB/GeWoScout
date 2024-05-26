@@ -1,16 +1,17 @@
 package api
 
 import (
-	"github.com/AustrianDataLAB/GeWoScout/backend/models"
-	"github.com/go-chi/render"
-	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/AustrianDataLAB/GeWoScout/backend/models"
+	"github.com/go-chi/render"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func SwaggerBaseHandler(w http.ResponseWriter, r *http.Request) {
-	response := models.NewHttpInvokeResponse(http.StatusMovedPermanently, "Redirecting to Swagger UI")
+	response := models.NewHttpInvokeResponse(http.StatusMovedPermanently, "Redirecting to Swagger UI", nil)
 	httpOutput := response.Outputs["res"].(models.HttpResponse)
 	httpOutput.Headers["Location"] = "/api/swagger/index.html"
 	render.JSON(w, r, response)
@@ -21,7 +22,8 @@ func SwaggerFileHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusBadRequest,
-			models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
+			models.Error{Message: err.Error()},
+			[]string{err.Error()},
 		))
 		return
 	}
@@ -31,7 +33,8 @@ func SwaggerFileHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusBadRequest,
-			models.Error{Message: err.Error(), StatusCode: http.StatusBadRequest},
+			models.Error{Message: err.Error()},
+			[]string{err.Error()},
 		))
 		return
 	}
