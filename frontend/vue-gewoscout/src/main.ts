@@ -20,6 +20,9 @@ import 'primevue/resources/themes/lara-light-amber/theme.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 
+import { createPinia } from 'pinia';
+
+const pinia = createPinia();
 const app = createApp(App);
 app.use(PrimeVue, { ripple: true });
 
@@ -35,5 +38,7 @@ app.component('vueMenubar', Menubar);
 app.component('vueCard', Card);
 app.component('vueAvatar', Avatar);
 app.component('vueDivider', Divider);
+
+app.use(pinia);
 
 app.mount('#app');
