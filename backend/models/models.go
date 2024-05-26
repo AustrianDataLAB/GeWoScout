@@ -29,6 +29,69 @@ type Listing struct {
 	LastModifiedAt     string `json:"lastModifiedAt"`
 }
 
+type EnergyClass string
+
+func GetEnergyClasses() []EnergyClass {
+	return []EnergyClass{
+		EnergyClassAplusplus,
+		EnergyClassAplus,
+		EnergyClassA,
+		EnergyClassB,
+		EnergyClassC,
+		EnergyClassD,
+		EnergyClassE,
+		EnergyClassF,
+	}
+}
+
+func (c EnergyClass) IsEnumValue() bool {
+	return c.GetIndex() != -1
+}
+
+func (c EnergyClass) GetIndex() int {
+	arr := GetEnergyClasses()
+	for i := 0; i < len(arr); i++ {
+		if arr[i] == c {
+			return i
+		}
+	}
+	return -1
+}
+
+type ListingType string
+
+func (t ListingType) IsEnumValue() bool {
+	return t == ListingTypeRent || t == ListingTypeSale || t == ListingTypeBoth
+}
+
+type SortType string
+
+func (t SortType) IsEnumValue() bool {
+	return t == SortTypeAsc || t == SortTypeDesc
+}
+
+const (
+	EnergyClassAplusplus EnergyClass = "A++"
+	EnergyClassAplus     EnergyClass = "A+"
+	EnergyClassA         EnergyClass = "A"
+	EnergyClassB         EnergyClass = "B"
+	EnergyClassC         EnergyClass = "C"
+	EnergyClassD         EnergyClass = "D"
+	EnergyClassE         EnergyClass = "E"
+	EnergyClassF         EnergyClass = "F"
+
+	ListingTypeRent ListingType = "rent"
+	ListingTypeSale ListingType = "sale"
+	ListingTypeBoth ListingType = "both"
+
+	SortTypeAsc  SortType = "ASC"
+	SortTypeDesc SortType = "DESC"
+)
+
+type StringEnum interface {
+	IsEnumValue() bool
+}
+
 // Holds any form of error (either from Azure or some internal error)
 type Error struct {
 	Message string `json:"message"`
