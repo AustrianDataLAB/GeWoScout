@@ -1,293 +1,21 @@
 <script lang="ts" setup>
-import { onMounted, ref, type Ref } from 'vue';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
-import { getListings } from '@/common/api-service';
-import type { Listing } from '@/types/ApiResponseListings';
+import { useListingsStore } from '@/common/store';
 
-const props = withDefaults(defineProps<{ searchCity?: string }>(), {
-  searchCity: 'vienna'
-});
-
-/*
-const results: Ref<Listing[]> = ref([
-  {
-    title: 'Leo am Teich - Wohnen am Wasser',
-    postalCode: 1010,
-    city: 'Vienna',
-    id: '1',
-    _partitionKey: 'test',
-    housingCooperative: 'test',
-    projectId: 'test',
-    listingId: 'test',
-    country: 'test',
-    address: 'test',
-    roomCount: 0,
-    squareMeters: 0,
-    availabilityDate: 'test',
-    yearBuilt: 0,
-    hwgEnergyClass: 'test',
-    fgeeEnergyClass: 'test',
-    listingType: 'test',
-    rentPricePerMonth: 0,
-    cooperativeShare: 0,
-    salePrice: 0,
-    additionalFees: 0,
-    detailsUrl: 'test',
-    previewImageUrl: 'test',
-    scraperId: 'test',
-    createdAt: 'test',
-    lastModifiedAt: 'test'
-  },
-  {
-    title: 'Leo am Teich - Wohnen am Wasser - Provisionsfrei!',
-    postalCode: 1011,
-    city: 'Vienna',
-    id: '1',
-    _partitionKey: 'test',
-    housingCooperative: 'test',
-    projectId: 'test',
-    listingId: 'test',
-    country: 'test',
-    address: 'test',
-    roomCount: 0,
-    squareMeters: 0,
-    availabilityDate: 'test',
-    yearBuilt: 0,
-    hwgEnergyClass: 'test',
-    fgeeEnergyClass: 'test',
-    listingType: 'test',
-    rentPricePerMonth: 0,
-    cooperativeShare: 0,
-    salePrice: 0,
-    additionalFees: 0,
-    detailsUrl: 'test',
-    previewImageUrl: 'test',
-    scraperId: 'test',
-    createdAt: 'test',
-    lastModifiedAt: 'test'
-  },
-  {
-    title: 'Leo am Teich - Wohnen am Wasser',
-    postalCode: 1010,
-    city: 'Vienna',
-    id: '1',
-    _partitionKey: 'test',
-    housingCooperative: 'test',
-    projectId: 'test',
-    listingId: 'test',
-    country: 'test',
-    address: 'test',
-    roomCount: 0,
-    squareMeters: 0,
-    availabilityDate: 'test',
-    yearBuilt: 0,
-    hwgEnergyClass: 'test',
-    fgeeEnergyClass: 'test',
-    listingType: 'test',
-    rentPricePerMonth: 0,
-    cooperativeShare: 0,
-    salePrice: 0,
-    additionalFees: 0,
-    detailsUrl: 'test',
-    previewImageUrl: 'test',
-    scraperId: 'test',
-    createdAt: 'test',
-    lastModifiedAt: 'test'
-  },
-  {
-    title: 'Leo am Teich - Wohnen am Wasser',
-    postalCode: 1015,
-    city: 'Vienna',
-    id: '1',
-    _partitionKey: 'test',
-    housingCooperative: 'test',
-    projectId: 'test',
-    listingId: 'test',
-    country: 'test',
-    address: 'test',
-    roomCount: 0,
-    squareMeters: 0,
-    availabilityDate: 'test',
-    yearBuilt: 0,
-    hwgEnergyClass: 'test',
-    fgeeEnergyClass: 'test',
-    listingType: 'test',
-    rentPricePerMonth: 0,
-    cooperativeShare: 0,
-    salePrice: 0,
-    additionalFees: 0,
-    detailsUrl: 'test',
-    previewImageUrl: 'test',
-    scraperId: 'test',
-    createdAt: 'test',
-    lastModifiedAt: 'test'
-  },
-  {
-    title: '2 Zimmer mit Küche und riesigem Balkon!',
-    postalCode: 1013,
-    city: 'Vienna',
-    id: '1',
-    _partitionKey: 'test',
-    housingCooperative: 'test',
-    projectId: 'test',
-    listingId: 'test',
-    country: 'test',
-    address: 'test',
-    roomCount: 0,
-    squareMeters: 0,
-    availabilityDate: 'test',
-    yearBuilt: 0,
-    hwgEnergyClass: 'test',
-    fgeeEnergyClass: 'test',
-    listingType: 'test',
-    rentPricePerMonth: 0,
-    cooperativeShare: 0,
-    salePrice: 0,
-    additionalFees: 0,
-    detailsUrl: 'test',
-    previewImageUrl: 'test',
-    scraperId: 'test',
-    createdAt: 'test',
-    lastModifiedAt: 'test'
-  },
-  {
-    title: 'Martha im Grün - gefördertes Eigentum beim Badeteich',
-    postalCode: 1012,
-    city: 'Vienna',
-    id: '1',
-    _partitionKey: 'test',
-    housingCooperative: 'test',
-    projectId: 'test',
-    listingId: 'test',
-    country: 'test',
-    address: 'test',
-    roomCount: 0,
-    squareMeters: 0,
-    availabilityDate: 'test',
-    yearBuilt: 0,
-    hwgEnergyClass: 'test',
-    fgeeEnergyClass: 'test',
-    listingType: 'test',
-    rentPricePerMonth: 0,
-    cooperativeShare: 0,
-    salePrice: 0,
-    additionalFees: 0,
-    detailsUrl: 'test',
-    previewImageUrl: 'test',
-    scraperId: 'test',
-    createdAt: 'test',
-    lastModifiedAt: 'test'
-  },
-  {
-    title: '2 Zimmer mit Küche und riesigem Balkon!',
-    postalCode: 1012,
-    city: 'Vienna',
-    id: '1',
-    _partitionKey: 'test',
-    housingCooperative: 'test',
-    projectId: 'test',
-    listingId: 'test',
-    country: 'test',
-    address: 'test',
-    roomCount: 0,
-    squareMeters: 0,
-    availabilityDate: 'test',
-    yearBuilt: 0,
-    hwgEnergyClass: 'test',
-    fgeeEnergyClass: 'test',
-    listingType: 'test',
-    rentPricePerMonth: 0,
-    cooperativeShare: 0,
-    salePrice: 0,
-    additionalFees: 0,
-    detailsUrl: 'test',
-    previewImageUrl: 'test',
-    scraperId: 'test',
-    createdAt: 'test',
-    lastModifiedAt: 'test'
-  },
-  {
-    title: '2 Zimmer mit Küche und riesigem grazer Balkon!',
-    postalCode: 1013,
-    city: 'Graz',
-    id: '1',
-    _partitionKey: 'test',
-    housingCooperative: 'test',
-    projectId: 'test',
-    listingId: 'test',
-    country: 'test',
-    address: 'test',
-    roomCount: 0,
-    squareMeters: 0,
-    availabilityDate: 'test',
-    yearBuilt: 0,
-    hwgEnergyClass: 'test',
-    fgeeEnergyClass: 'test',
-    listingType: 'test',
-    rentPricePerMonth: 0,
-    cooperativeShare: 0,
-    salePrice: 0,
-    additionalFees: 0,
-    detailsUrl: 'test',
-    previewImageUrl: 'test',
-    scraperId: 'test',
-    createdAt: 'test',
-    lastModifiedAt: 'test'
-  },
-  {
-    title: 'Martha im Grün - gefördertes grazer Eigentum',
-    postalCode: 1012,
-    city: 'Graz',
-    id: '1',
-    _partitionKey: 'test',
-    housingCooperative: 'test',
-    projectId: 'test',
-    listingId: 'test',
-    country: 'test',
-    address: 'test',
-    roomCount: 0,
-    squareMeters: 0,
-    availabilityDate: 'test',
-    yearBuilt: 0,
-    hwgEnergyClass: 'test',
-    fgeeEnergyClass: 'test',
-    listingType: 'test',
-    rentPricePerMonth: 0,
-    cooperativeShare: 0,
-    salePrice: 0,
-    additionalFees: 0,
-    detailsUrl: 'test',
-    previewImageUrl: 'test',
-    scraperId: 'test',
-    createdAt: 'test',
-    lastModifiedAt: 'test'
-  },
-]);
-*/
-
-const realResults: Ref<Listing[]> = ref([]);
-onMounted(async () => {
-  realResults.value = await getListings(props.searchCity);
-});
+const listingsStore = useListingsStore();
 
 function redirectToApartment(index: number) {
-  window.open(realResults.value[index].detailsUrl, '_blank');
+  window.open(listingsStore.listings[index].detailsUrl, '_blank');
 }
 </script>
 
 <template>
   <div class="cards mt-3 grid">
-    <div class="col-12 lg:col-4" v-for="(item, index) in realResults" :key="index">
+    <div class="col-12 lg:col-4" v-for="(item, index) in listingsStore.listings" :key="index">
       <Card style="overflow: hidden">
         <template #header>
-          <img
-            alt="appartment"
-            :src="item.previewImageUrl"
-            width="450"
-            height="180"
-            onerror="this.onerror=null;this.src='/src/assets/temp.jpg';"
-          />
+          <img :src="item.previewImageUrl" width="420" height="180" />
         </template>
         <template #title>{{ item.title }}</template>
         <template #subtitle
@@ -321,4 +49,10 @@ function redirectToApartment(index: number) {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+img {
+  background-image: url('/src/assets/temp.jpg');
+  background-size: 418px 180px;
+  background-repeat: no-repeat;
+}
+</style>
