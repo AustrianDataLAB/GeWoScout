@@ -23,6 +23,7 @@
     "vue": "^3.4.21"
   },
   "devDependencies": {
+    "@pinia/testing": "^0.1.3",
     "@rushstack/eslint-patch": "^1.8.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/jsdom": "^21.1.6",
