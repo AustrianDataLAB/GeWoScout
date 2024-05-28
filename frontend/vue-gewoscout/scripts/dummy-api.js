@@ -255,15 +255,48 @@ const listings = [
   }
 ];
 
+let loggedIn = false;
+
 const server = createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'application/json' });
   if (req.url.match("/api/cities/.+/listings/?")) {
+    console.log(req.url);
     const city = req.url.split("/")[3];
     res.end(JSON.stringify({
       results: listings.filter(listing => listing.city.toLowerCase() === city)
     }));
     return;
   }
+  if (req.url.match("/.auth/me/?")) {
+    console.log(req.url);
+    if (loggedIn === false) {
+      res.end(JSON.stringify({
+        "clientPrincipal": null
+      }));
+      return;
+    }
+
+    res.end(JSON.stringify({
+      "clientPrincipal": {
+        "identityProvider": "aad",
+        "userId": "a220ff1e00d94af8a8f6a3c7da71e491",
+        "userDetails": "someuser@austrianopencloudcommunity.onmicrosoft.com",
+        "userRoles": [
+          "anonymous",
+          "authenticated"
+        ]
+      }
+    }));
+    return;
+  }
+
+  if (req.url.match("/.auth/login/aad/?")) {
+    console.log(req.url);
+    loggedIn = true;
+    res.end("OK");
+    return;
+  }
+
   res.end(JSON.stringify({results: listings}));
 });
 
