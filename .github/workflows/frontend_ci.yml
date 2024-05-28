@@ -34,13 +34,13 @@ jobs:
       - name: TearDown docker compose
         run: docker-compose down --remove-orphans
       
-      - name: Build And Deploy
+      - name: Build And deploy to Development
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.SWA_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
-          app_location: "/" # App source code path
+          app_location: "/frontend/vue-gewoscout" # App source code path
           output_location: "dist" # Built app content directory - optional
           deployment_environment: Development
