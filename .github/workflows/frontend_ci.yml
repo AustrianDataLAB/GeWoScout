@@ -53,6 +53,9 @@ jobs:
     - name: Build Frontend
       run: npm run build
 
+    - name: Copy Static Web App Config
+      run: cp staticwebapp.config.json dist/staticwebapp.config.json
+
     - name: Build And deploy to Development
       id: builddeploy
       uses: Azure/static-web-apps-deploy@v1
