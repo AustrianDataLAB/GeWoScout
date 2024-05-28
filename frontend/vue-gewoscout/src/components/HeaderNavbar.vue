@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { getLoggedInUser } from '@/common/user-service';
 
 const items = ref([
   {
@@ -7,6 +8,16 @@ const items = ref([
     icon: 'pi pi-search'
   }
 ]);
+
+
+
+onMounted(async () => {
+  console.log("user", await getLoggedInUser());
+});
+
+async function login() {
+  window.open("/.auth/login/aad", "_self");
+}
 </script>
 
 <template>
@@ -36,7 +47,7 @@ const items = ref([
     </template>
     <template #end>
       <div class="flex align-items-center gap-2">
-        <vueButton label="Login"></vueButton>
+        <vueButton label="Login" @click="login()"></vueButton>
         <!-- <vueAvatar image="/images/avatar/amyelsner.png" shape="circle" /> -->
       </div>
     </template>
