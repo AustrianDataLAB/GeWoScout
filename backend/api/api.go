@@ -274,7 +274,7 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 		))
 		return
 	}*/
-	resp, err := models.InvokeRequestFromBody[interface{}, models.NotificationSettings](r.Body)
+	_, err := models.InvokeRequestFromBody[interface{}, models.NotificationSettings](r.Body)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to read invoke request body: %s\n", err.Error())
 		render.JSON(w, r, models.NewHttpInvokeResponse(
@@ -284,6 +284,4 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 		))
 		return
 	}
-
-	log.Println(resp.Data.Req.Body)
 }

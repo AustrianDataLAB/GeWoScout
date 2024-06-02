@@ -3,8 +3,6 @@ package models
 import (
 	"encoding/json"
 	"io"
-	"log"
-	"strconv"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -73,15 +71,7 @@ func InvokeRequestFromBody[Q any, B any](body io.ReadCloser) (ir InvokeRequest[Q
 		return
 	}
 
-	log.Println(string(b))
-	unquotedB, err := strconv.Unquote(string(b))
-	if err != nil {
-		return
-	}
-
-	log.Println(unquotedB)
-
-	err = json.Unmarshal([]byte(unquotedB), &ir)
+	err = json.Unmarshal([]byte(b), &ir)
 	if err != nil {
 		return
 	}
