@@ -18,7 +18,7 @@ func SwaggerBaseHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SwaggerFileHandler(w http.ResponseWriter, r *http.Request) {
-	req, err := models.InvokeRequestFromBody(r.Body)
+	req, err := models.InvokeRequestFromBody[interface{}, interface{}](r.Body)
 	if err != nil {
 		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusBadRequest,

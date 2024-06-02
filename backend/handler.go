@@ -32,6 +32,7 @@ func setupRouter(useSwagger bool) *chi.Mux {
 	// route and the result is subsequently returned for the original GET
 	// request.
 	r.Post("/listingById", h.GetListingById)
+	r.Post("/updateUserPrefs", h.UpdateUserPrefs)
 
 	if useSwagger {
 		r.Post("/swagger", api.SwaggerBaseHandler)

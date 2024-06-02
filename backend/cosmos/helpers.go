@@ -54,7 +54,7 @@ type fieldMapping struct {
 	value     interface{}
 }
 
-func getFieldMappings(query *models.Query) map[string]fieldMapping {
+func getFieldMappings(query *models.ListingsQuery) map[string]fieldMapping {
 	return map[string]fieldMapping{
 		"title":                {" AND CONTAINS(LOWER(c.title), LOWER(@title))", query.Title},
 		"housingCooperative":   {" AND CONTAINS(LOWER(c.housingCooperative), LOWER(@housingCooperative))", query.HousingCooperative},
@@ -80,7 +80,11 @@ func getFieldMappings(query *models.Query) map[string]fieldMapping {
 	}
 }
 
-func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query *models.Query) *runtime.Pager[azcosmos.QueryItemsResponse] {
+func GetQueryItemsPager(
+	container *azcosmos.ContainerClient,
+	city string,
+	query *models.ListingsQuery,
+) *runtime.Pager[azcosmos.QueryItemsResponse] {
 	var sb strings.Builder
 	sb.WriteString("SELECT * FROM c WHERE c._partitionKey = @city")
 

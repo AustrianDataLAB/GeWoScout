@@ -19,6 +19,10 @@ import (
 	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
 )
 
+const (
+	XMSClientPrincipalHeaderName = "X-MS-CLIENT-PRINCIPAL"
+)
+
 type Handler struct {
 	cosmosOnce sync.Once
 	// Do NOT access directly
@@ -100,7 +104,7 @@ func NewHandler() *Handler {
 // @Failure 500 {object} models.Error
 // @Router /cities/{city}/listings [get]
 func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
-	req, err := models.InvokeRequestFromBody(r.Body)
+	req, err := models.InvokeRequestFromBody[models.ListingsQuery, interface{}](r.Body)
 	if err != nil {
 		// Error is returned to the user here because the validation errors
 		// return information about which fields were invalid.
@@ -243,4 +247,43 @@ func (h *Handler) HandleHealth(w http.ResponseWriter, r *http.Request) {
 		Status: "ok",
 	}
 	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, aliveResponse, nil))
+}
+
+func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
+	/*princB64 := r.Header.Get(XMSClientPrincipalHeaderName)
+	princJsonStr, err := base64.StdEncoding.DecodeString(princB64)
+	if err != nil {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusInternalServerError,
+			models.Error{
+				Message: "Failed to get info of authenticated user",
+			},
+			[]string{fmt.Sprintf("Failed to get info of authenticated user: %s\n", err.Error())},
+		))
+		return
+	}
+
+	princ := models.ClientPrincipalObject{}
+	if err := json.Unmarshal([]byte(princJsonStr), &princ); err != nil {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusInternalServerError,
+			models.Error{
+				Message: "Failed to get info of authenticated user",
+			},
+			[]string{fmt.Sprintf("Failed to parse JSON of client principal: %s\n", err.Error())},
+		))
+		return
+	}*/
+	resp, err := models.InvokeRequestFromBody[interface{}, models.NotificationSettings](r.Body)
+	if err != nil {
+		errMsg := fmt.Sprintf("Failed to read invoke request body: %s\n", err.Error())
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusBadRequest,
+			models.Error{Message: errMsg},
+			[]string{errMsg},
+		))
+		return
+	}
+
+	log.Println(resp.Data.Req.Body)
 }

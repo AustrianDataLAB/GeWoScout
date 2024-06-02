@@ -1,0 +1,29 @@
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "put"
+      ],
+      "route": "users/{city}/preferences/{id}"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "in",
+      "name": "documents",
+      "id": "{id}",
+      "partitionKey": "{city}",
+      "connection": "COSMOS_DB_CONNECTION",
+      "databaseName": "gewoscout-db",
+      "containerName": "NotificationSettingsByCity"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    }
+  ]
+}

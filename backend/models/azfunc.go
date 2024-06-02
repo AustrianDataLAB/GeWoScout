@@ -3,37 +3,20 @@ package models
 import (
 	"encoding/json"
 	"io"
+	"log"
+	"strconv"
 	"time"
 
 	"github.com/go-playground/validator/v10"
 )
 
-type Query struct {
-	ContinuationToken    *string      `json:"continuationToken"`
-	PageSize             *int         `json:"pageSize,string" validate:"omitempty,gt=0,lte=30"`
-	Title                *string      `json:"title" validate:"omitempty"`
-	HousingCooperative   *string      `json:"housingCooperative" validate:"omitempty"`
-	ProjectId            *string      `json:"projectId" validate:"omitempty"`
-	PostalCode           *string      `json:"postalCode" validate:"omitempty"`
-	RoomCount            *int         `json:"roomCount,string" validate:"omitempty,gt=0"`
-	MinRoomCount         *int         `json:"minRoomCount,string" validate:"omitempty,gt=0"`
-	MaxRoomCount         *int         `json:"maxRoomCount,string" validate:"omitempty,gt=0,gtfieldcustom=MinRoomCount"`
-	MinSquareMeters      *int         `json:"minSqm,string" validate:"omitempty,gt=0"`
-	MaxSquareMeters      *int         `json:"maxSqm,string" validate:"omitempty,gt=0,gtfieldcustom=MinSquareMeters"`
-	AvailableFrom        *string      `json:"availableFrom" validate:"omitempty,datecustom"`
-	MinYearBuilt         *int         `json:"minYearBuilt,string" validate:"omitempty,gt=1900"`
-	MaxYearBuilt         *int         `json:"maxYearBuilt,string" validate:"omitempty,gt=1900,gtfieldcustom=MinYearBuilt"`
-	MinHwgEnergyClass    *EnergyClass `json:"minHwgEnergyClass" validate:"omitempty,energycustom"`
-	MinFgeeEnergyClass   *EnergyClass `json:"minFgeeEnergyClass" validate:"omitempty,energycustom"`
-	ListingType          *ListingType `json:"listingType" validate:"omitempty,listingtypecustom"`
-	MinRentPricePerMonth *int         `json:"minRentPrice,string" validate:"omitempty,gt=0"`
-	MaxRentPricePerMonth *int         `json:"maxRentPrice,string" validate:"omitempty,gt=0,gtfieldcustom=MinRentPricePerMonth"`
-	MinCooperativeShare  *int         `json:"minCooperativeShare,string" validate:"omitempty,gt=0"`
-	MaxCooperativeShare  *int         `json:"maxCooperativeShare,string" validate:"omitempty,gt=0,gtfieldcustom=MinCooperativeShare"`
-	MinSalePrice         *int         `json:"minSalePrice,string" validate:"omitempty,gt=0"`
-	MaxSalePrice         *int         `json:"maxSalePrice,string" validate:"omitempty,gt=0,gtfieldcustom=MinSalePrice"`
-	SortBy               *string
-	SortType             *SortType `json:"sortType" validate:"omitempty,sorttypecustom"`
+type ListingsQuery struct {
+	Preferences
+
+	ContinuationToken *string `json:"continuationToken"`
+	PageSize          *int    `json:"pageSize,string" validate:"omitempty,gt=0,lte=30"`
+	SortBy            *string
+	SortType          *SortType `json:"sortType" validate:"omitempty,sorttypecustom"`
 }
 
 func enumFieldValidator[T StringEnum](fl validator.FieldLevel) bool {
@@ -54,23 +37,35 @@ func dateCustomValidator(fl validator.FieldLevel) bool {
 	return err == nil
 }
 
-type InvokeRequest struct {
+type InvokeRequest[Q any, B any] struct {
 	Data struct {
 		Req struct {
 			Url        string
 			Method     string
-			Query      Query
+			Query      Q
 			Headers    map[string]interface{}
 			Host       []string
 			UserAgent  []string `json:"User-Agent"`
 			Params     map[string]string
-			Identities []interface{}
+			Identities []Identity
+			Body       B
 		} `json:"req"`
 	}
 	Metadata map[string]interface{}
 }
 
-func InvokeRequestFromBody(body io.ReadCloser) (ir InvokeRequest, err error) {
+type Identity struct {
+	AuthenticationType *string `json:"AuthenticationType"`
+	IsAuthenticated    bool    `json:"IsAuthenticated"`
+	Actor              *string `json:"Actor"`
+	BootstrapContext   *string `json:"BootstrapContext"`
+	Label              *string `json:"Label"`
+	Name               *string `json:"Name"`
+	NameClaimType      string  `json:"NameClaimType"`
+	RoleClaimType      string  `json:"RoleClaimType"`
+}
+
+func InvokeRequestFromBody[Q any, B any](body io.ReadCloser) (ir InvokeRequest[Q, B], err error) {
 	var b []byte
 	b, err = io.ReadAll(io.Reader(body))
 	defer body.Close()
@@ -78,7 +73,15 @@ func InvokeRequestFromBody(body io.ReadCloser) (ir InvokeRequest, err error) {
 		return
 	}
 
-	err = json.Unmarshal(b, &ir)
+	log.Println(string(b))
+	unquotedB, err := strconv.Unquote(string(b))
+	if err != nil {
+		return
+	}
+
+	log.Println(unquotedB)
+
+	err = json.Unmarshal([]byte(unquotedB), &ir)
 	if err != nil {
 		return
 	}
