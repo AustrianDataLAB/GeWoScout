@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -104,7 +105,7 @@ func NewHandler() *Handler {
 // @Failure 500 {object} models.Error
 // @Router /cities/{city}/listings [get]
 func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
-	req, err := models.InvokeRequestFromBody[models.ListingsQuery, interface{}](r.Body)
+	req, err := models.UnmarshalAndValidate[models.InvokeRequest[models.ListingsQuery]](r.Body)
 	if err != nil {
 		// Error is returned to the user here because the validation errors
 		// return information about which fields were invalid.
@@ -234,6 +235,54 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, listing, nil))
 }
 
+// UpdateUserPrefs Handler function for /updateUserPrefs, which sets a user's
+// notification preferences by either creating or updating them in the DB.
+// Neither the city nor the id are guaranteed to exist at this point.
+// @Summary Set (or update) a user's notification preferences
+// @Description Update notification preferences of the user with the given id
+// @Tags userPreferences
+// @Accept json
+// @Produce json
+// @Param city path string true "The city assigned to the user"
+// @Param id path string true "The id of the user"
+// @Success 200 {object} models.NotificationSettings "Successfully updates notification settings"
+// @Failure 404 {object} models.Error "Notification settings could not be updated"
+// @Failure 400 {object} models.Error "Bad request"
+// @Router /cities/{city}/users/{id}/preferences [put]
+func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
+	req, err := models.UnmarshalAndValidate[models.InvokeRequest[interface{}]](r.Body)
+	if err != nil {
+		errMsg := fmt.Sprintf("Failed to read invoke request body: %s\n", err.Error())
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusBadRequest,
+			models.Error{Message: errMsg},
+			[]string{errMsg},
+		))
+		return
+	}
+
+	if len(req.Data.Req.Body) == 0 {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusBadRequest,
+			models.Error{Message: "Missing body in request data"},
+			[]string{"Missing body in request data"},
+		))
+		return
+	}
+
+	_, err = models.UnmarshalAndValidate[models.NotificationSettings](io.NopCloser(strings.NewReader(req.Data.Req.Body)))
+
+	if err != nil {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusBadRequest,
+			models.Error{Message: "Failed to parse request body"},
+			[]string{fmt.Sprintf("Failed to parse request body: %s\n", err.Error())},
+		))
+		return
+	}
+
+}
+
 // HandleHealth Handler function for /health, which returns a simple alive response
 // @Summary Health check
 // @Description Health check
@@ -247,41 +296,4 @@ func (h *Handler) HandleHealth(w http.ResponseWriter, r *http.Request) {
 		Status: "ok",
 	}
 	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, aliveResponse, nil))
-}
-
-func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
-	/*princB64 := r.Header.Get(XMSClientPrincipalHeaderName)
-	princJsonStr, err := base64.StdEncoding.DecodeString(princB64)
-	if err != nil {
-		render.JSON(w, r, models.NewHttpInvokeResponse(
-			http.StatusInternalServerError,
-			models.Error{
-				Message: "Failed to get info of authenticated user",
-			},
-			[]string{fmt.Sprintf("Failed to get info of authenticated user: %s\n", err.Error())},
-		))
-		return
-	}
-
-	princ := models.ClientPrincipalObject{}
-	if err := json.Unmarshal([]byte(princJsonStr), &princ); err != nil {
-		render.JSON(w, r, models.NewHttpInvokeResponse(
-			http.StatusInternalServerError,
-			models.Error{
-				Message: "Failed to get info of authenticated user",
-			},
-			[]string{fmt.Sprintf("Failed to parse JSON of client principal: %s\n", err.Error())},
-		))
-		return
-	}*/
-	_, err := models.InvokeRequestFromBody[interface{}, models.NotificationSettings](r.Body)
-	if err != nil {
-		errMsg := fmt.Sprintf("Failed to read invoke request body: %s\n", err.Error())
-		render.JSON(w, r, models.NewHttpInvokeResponse(
-			http.StatusBadRequest,
-			models.Error{Message: errMsg},
-			[]string{errMsg},
-		))
-		return
-	}
 }
