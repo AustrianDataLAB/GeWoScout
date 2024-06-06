@@ -16,7 +16,7 @@ func UnmarshalAndValidate[T interface{}](body io.ReadCloser) (s T, err error) {
 		return
 	}
 
-	err = json.Unmarshal([]byte(b), &s)
+	err = json.Unmarshal(b, &s)
 	if err != nil {
 		return
 	}

@@ -6,19 +6,19 @@
       "direction": "in",
       "name": "req",
       "methods": [
-        "put"
+        "get"
       ],
       "route": "cities/{city}/users/{id}/preferences"
     },
     {
       "type": "cosmosDB",
-      "direction": "out",
-      "name": "dbres",
-      "partitionKey": "/_partitionKey",
+      "direction": "in",
+      "name": "documents",
+      "id": "{id}",
+      "partitionKey": "{city}",
       "connection": "COSMOS_DB_CONNECTION",
       "databaseName": "gewoscout-db",
-      "containerName": "NotificationSettingsByCity",
-      "createIfNotExists": true
+      "containerName": "NotificationSettingsByCity"
     },
     {
       "type": "http",

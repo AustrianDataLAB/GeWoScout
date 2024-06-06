@@ -4,15 +4,6 @@ import (
 	"encoding/json"
 )
 
-type ListingsQuery struct {
-	Preferences
-
-	ContinuationToken *string `json:"continuationToken"`
-	PageSize          *int    `json:"pageSize,string" validate:"omitempty,gt=0,lte=30"`
-	SortBy            *string
-	SortType          *SortType `json:"sortType" validate:"omitempty,sorttypecustom"`
-}
-
 type InvokeRequest[Q any] struct {
 	Data struct {
 		Req struct {

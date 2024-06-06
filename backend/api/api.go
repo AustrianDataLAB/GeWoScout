@@ -270,7 +270,7 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = models.UnmarshalAndValidate[models.NotificationSettings](io.NopCloser(strings.NewReader(req.Data.Req.Body)))
+	ns, err := models.UnmarshalAndValidate[models.NotificationSettings](io.NopCloser(strings.NewReader(req.Data.Req.Body)))
 
 	if err != nil {
 		render.JSON(w, r, models.NewHttpInvokeResponse(
@@ -281,6 +281,59 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: read this from authenticated user
+	ns.PartitionKey = "vienna"
+	ns.Id = "0ec50b7c-8aa5-494d-af08-ee4c0cc763ed"
+	ns.Email = "test@gmail.com"
+
+	ir := models.NewHttpInvokeResponse(http.StatusOK, ns, nil)
+	ir.Outputs["dbres"] = ns
+	render.JSON(w, r, ir)
+}
+
+func (h *Handler) GetUserPrefsById(w http.ResponseWriter, r *http.Request) {
+	injectedData := models.CosmosBindingInput{}
+	dec := json.NewDecoder(r.Body)
+	if err := dec.Decode(&injectedData); err != nil {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusInternalServerError,
+			models.Error{
+				Message: "Failed to get user preferences",
+			},
+			[]string{fmt.Sprintf("Failed to unmarshal injected data: %s\n", err.Error())},
+		))
+		return
+	}
+
+	if injectedData.Data.Documents == "null" {
+		errMsg := fmt.Sprintf("Preferences of user with id %s could not be found in city %s", injectedData.Metadata.ID, injectedData.Metadata.City)
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusNotFound,
+			models.Error{
+				Message: errMsg,
+			},
+			[]string{errMsg},
+		))
+		return
+	}
+
+	input, _ := strconv.Unquote(injectedData.Data.Documents)
+
+	ns := models.NotificationSettings{}
+	if err := json.Unmarshal([]byte(input), &ns); err != nil {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusBadRequest,
+			models.Error{
+				Message: "Failed to get user preferences",
+			},
+			[]string{fmt.Sprintf("Failed to unmarshal injected notification settings: %s\n", err.Error())},
+		))
+		return
+	}
+
+	ns.PartitionKey = ""
+
+	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, ns, nil))
 }
 
 // HandleHealth Handler function for /health, which returns a simple alive response
