@@ -321,7 +321,7 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 // @Failure 400 {object} models.Error "Bad request"
 // @Router /cities/{city}/users/preferences [get]
 func (h *Handler) GetUserPrefs(w http.ResponseWriter, r *http.Request) {
-	req, err := models.UnmarshalAndValidate[models.InvokeRequest[models.ListingsQuery]](r.Body)
+	req, err := models.UnmarshalAndValidate[models.InvokeRequest[interface{}]](r.Body)
 	if err != nil {
 		// Error is returned to the user here because the validation errors
 		// return information about which fields were invalid.
