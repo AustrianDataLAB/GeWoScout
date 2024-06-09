@@ -1,12 +1,13 @@
 package cosmos
 
 import (
-	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 	"log"
 	"os"
+
+	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 )
 
-func InitClients() (client *azcosmos.Client, db *azcosmos.DatabaseClient, container *azcosmos.ContainerClient) {
+func InitClients() (client *azcosmos.Client, db *azcosmos.DatabaseClient) {
 	connectionString, ok := os.LookupEnv("COSMOS_DB_CONNECTION")
 	if !ok {
 		log.Fatal("CosmosDbConnection could not be found")
@@ -29,16 +30,13 @@ func InitClients() (client *azcosmos.Client, db *azcosmos.DatabaseClient, contai
 		log.Fatal("Failed to get database")
 	}
 
-	containerName, ok := os.LookupEnv("DB_CONTAINER_NAME")
-	if !ok {
-		log.Printf("Using default DB_CONTAINER_NAME")
-		containerName = "ListingsByCity"
-	}
+	return
+}
 
-	container, err = db.NewContainer(containerName)
+func InitContainerClient(db *azcosmos.DatabaseClient, containerName string) *azcosmos.ContainerClient {
+	container, err := db.NewContainer(containerName)
 	if err != nil {
 		log.Fatal("Failed to get container Listings")
 	}
-
-	return
+	return container
 }

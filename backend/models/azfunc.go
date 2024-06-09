@@ -4,13 +4,18 @@ import (
 	"encoding/json"
 )
 
+const (
+	CLIENT_PRINCIPAL_KEY    = "X-MS-CLIENT-PRINCIPAL"
+	CLIENT_PRINCIPAL_ID_KEY = "X-MS-CLIENT-PRINCIPAL-ID"
+)
+
 type InvokeRequest[Q any] struct {
 	Data struct {
 		Req struct {
 			Url        string
 			Method     string
 			Query      Q
-			Headers    map[string]interface{}
+			Headers    map[string][]string
 			Host       []string
 			UserAgent  []string `json:"User-Agent"`
 			Params     map[string]string
@@ -30,6 +35,18 @@ type Identity struct {
 	Name               *string `json:"Name"`
 	NameClaimType      string  `json:"NameClaimType"`
 	RoleClaimType      string  `json:"RoleClaimType"`
+}
+
+type UserPrincipal struct {
+	AuthTyp string  `json:"auth_typ"`
+	Claims  []Claim `json:"claims"`
+	NameTyp string  `json:"name_typ"`
+	RoleTyp string  `json:"role_typ"`
+}
+
+type Claim struct {
+	Typ string `json:"typ"`
+	Val string `json:"val"`
 }
 
 type HttpResponse struct {

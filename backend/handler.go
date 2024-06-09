@@ -33,7 +33,7 @@ func setupRouter(useSwagger bool) *chi.Mux {
 	// request.
 	r.Post("/listingById", h.GetListingById)
 	r.Post("/updateUserPrefs", h.UpdateUserPrefs)
-	r.Post("/prefsById", h.GetUserPrefsById)
+	r.Post("/userPrefs", h.GetUserPrefs)
 
 	if useSwagger {
 		r.Post("/swagger", api.SwaggerBaseHandler)

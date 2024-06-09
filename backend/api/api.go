@@ -32,12 +32,16 @@ type Handler struct {
 	gewoscoutDbClient *azcosmos.DatabaseClient
 	// Do NOT access directly
 	listingsByCityContainerClient *azcosmos.ContainerClient
+	// Do NOT access directly
+	notificationSettingsByCityContainerClient *azcosmos.ContainerClient
 
 	ScraperResultSchema *gojsonschema.Schema
 }
 
 func (h *Handler) initCosmos() {
-	h.cosmosClient, h.gewoscoutDbClient, h.listingsByCityContainerClient = cosmos.InitClients()
+	h.cosmosClient, h.gewoscoutDbClient = cosmos.InitClients()
+	h.listingsByCityContainerClient = cosmos.InitContainerClient(h.gewoscoutDbClient, "ListingsByCity")
+	h.notificationSettingsByCityContainerClient = cosmos.InitContainerClient(h.gewoscoutDbClient, "NotificationSettingsByCity")
 }
 
 func (h *Handler) GetCosmosClient() *azcosmos.Client {
@@ -53,6 +57,11 @@ func (h *Handler) GetGewoscoutDbClient() *azcosmos.DatabaseClient {
 func (h *Handler) GetListingsByCityContainerClient() *azcosmos.ContainerClient {
 	h.cosmosOnce.Do(h.initCosmos)
 	return h.listingsByCityContainerClient
+}
+
+func (h *Handler) GetNotificationSettingsByCityContainerClient() *azcosmos.ContainerClient {
+	h.cosmosOnce.Do(h.initCosmos)
+	return h.notificationSettingsByCityContainerClient
 }
 
 func NewHandler() *Handler {
@@ -131,7 +140,7 @@ func (h *Handler) GetListings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pager := cosmos.GetQueryItemsPager(h.GetListingsByCityContainerClient(), city, &req.Data.Req.Query)
+	pager := cosmos.GetListingsQueryItemsPager(h.GetListingsByCityContainerClient(), city, &req.Data.Req.Query)
 
 	maxNumListings := cosmos.DEFAULT_PAGE_SIZE
 	if req.Data.Req.Query.PageSize != nil {
@@ -244,11 +253,10 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param city path string true "The city assigned to the user"
-// @Param id path string true "The id of the user"
 // @Success 200 {object} models.NotificationSettings "Successfully updates notification settings"
 // @Failure 404 {object} models.Error "Notification settings could not be updated"
 // @Failure 400 {object} models.Error "Bad request"
-// @Router /cities/{city}/users/{id}/preferences [put]
+// @Router /cities/{city}/users/preferences [put]
 func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 	req, err := models.UnmarshalAndValidate[models.InvokeRequest[interface{}]](r.Body)
 	if err != nil {
@@ -257,6 +265,16 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 			http.StatusBadRequest,
 			models.Error{Message: errMsg},
 			[]string{errMsg},
+		))
+		return
+	}
+
+	clientId, email, err := GetClientPrincipalData(&req)
+	if err != nil {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusUnauthorized,
+			models.Error{Message: err.Error()},
+			[]string{err.Error()},
 		))
 		return
 	}
@@ -281,59 +299,74 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: read this from authenticated user
-	ns.PartitionKey = "vienna"
-	ns.Id = "0ec50b7c-8aa5-494d-af08-ee4c0cc763ed"
-	ns.Email = "test@gmail.com"
+	ns.PartitionKey = req.Data.Req.Params["city"]
+	ns.Id = clientId
+	ns.Email = email
 
 	ir := models.NewHttpInvokeResponse(http.StatusOK, ns, nil)
 	ir.Outputs["dbres"] = ns
 	render.JSON(w, r, ir)
 }
 
-func (h *Handler) GetUserPrefsById(w http.ResponseWriter, r *http.Request) {
-	injectedData := models.CosmosBindingInput{}
-	dec := json.NewDecoder(r.Body)
-	if err := dec.Decode(&injectedData); err != nil {
+// GetUserPrefs Handler function for /userPrefs, which gets a user's
+// notification preferences.
+// @Summary Get a user's notification preferences
+// @Description Get notification preferences of the user with the given id
+// @Tags userPreferences
+// @Accept json
+// @Produce json
+// @Param city path string true "The city assigned to the user"
+// @Success 200 {object} models.NotificationSettings
+// @Failure 404 {object} models.Error "Notification settings could not be found"
+// @Failure 400 {object} models.Error "Bad request"
+// @Router /cities/{city}/users/preferences [get]
+func (h *Handler) GetUserPrefs(w http.ResponseWriter, r *http.Request) {
+	req, err := models.UnmarshalAndValidate[models.InvokeRequest[models.ListingsQuery]](r.Body)
+	if err != nil {
+		// Error is returned to the user here because the validation errors
+		// return information about which fields were invalid.
+		errMsg := fmt.Sprintf("Failed to read invoke request body: %s\n", err.Error())
 		render.JSON(w, r, models.NewHttpInvokeResponse(
-			http.StatusInternalServerError,
-			models.Error{
-				Message: "Failed to get user preferences",
-			},
-			[]string{fmt.Sprintf("Failed to unmarshal injected data: %s\n", err.Error())},
+			http.StatusBadRequest,
+			models.Error{Message: errMsg},
+			[]string{errMsg},
 		))
 		return
 	}
+	city := req.Data.Req.Params["city"]
 
-	if injectedData.Data.Documents == "null" {
-		errMsg := fmt.Sprintf("Preferences of user with id %s could not be found in city %s", injectedData.Metadata.ID, injectedData.Metadata.City)
+	// Manual check that city is not empty, validation through validator package
+	// does not work
+	if len(strings.TrimSpace(city)) == 0 {
+		errMsg := "City param was invalid or empty"
 		render.JSON(w, r, models.NewHttpInvokeResponse(
-			http.StatusNotFound,
-			models.Error{
-				Message: errMsg,
-			},
+			http.StatusBadRequest,
+			models.Error{Message: errMsg},
 			[]string{errMsg},
 		))
 		return
 	}
 
-	input, _ := strconv.Unquote(injectedData.Data.Documents)
-
-	ns := models.NotificationSettings{}
-	if err := json.Unmarshal([]byte(input), &ns); err != nil {
+	clientId, _, err := GetClientPrincipalData(&req)
+	if err != nil {
 		render.JSON(w, r, models.NewHttpInvokeResponse(
-			http.StatusBadRequest,
-			models.Error{
-				Message: "Failed to get user preferences",
-			},
-			[]string{fmt.Sprintf("Failed to unmarshal injected notification settings: %s\n", err.Error())},
+			http.StatusUnauthorized,
+			models.Error{Message: err.Error()},
+			[]string{err.Error()},
 		))
 		return
 	}
 
-	ns.PartitionKey = ""
+	p, err := cosmos.GetPreferences(h.GetNotificationSettingsByCityContainerClient(), city, clientId)
+	if err != nil {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusUnauthorized,
+			models.Error{Message: "Failed to get user preferences"},
+			[]string{err.Error()},
+		))
+	}
 
-	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, ns, nil))
+	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, p, nil))
 }
 
 // HandleHealth Handler function for /health, which returns a simple alive response

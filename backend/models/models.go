@@ -105,25 +105,25 @@ type Preferences struct {
 	PartitionKey         string       `json:"_partitionKey,omitempty"`
 	Id                   string       `json:"id"`
 	Email                string       `json:"email"`
-	Title                *string      `json:"title" validate:"omitempty"`
-	HousingCooperative   *string      `json:"housingCooperative" validate:"omitempty"`
-	ProjectId            *string      `json:"projectId" validate:"omitempty"`
-	PostalCode           *string      `json:"postalCode" validate:"omitempty"`
-	RoomCount            *int         `json:"roomCount" validate:"omitempty,gt=0"`
-	MinRoomCount         *int         `json:"minRoomCount" validate:"omitempty,gt=0"`
-	MaxRoomCount         *int         `json:"maxRoomCount" validate:"omitempty,gt=0,gtfieldcustom=MinRoomCount"`
-	MinSquareMeters      *int         `json:"minSqm" validate:"omitempty,gt=0"`
-	MaxSquareMeters      *int         `json:"maxSqm" validate:"omitempty,gt=0,gtfieldcustom=MinSquareMeters"`
-	AvailableFrom        *string      `json:"availableFrom" validate:"omitempty,datecustom"`
-	MinYearBuilt         *int         `json:"minYearBuilt" validate:"omitempty,gt=1900"`
-	MaxYearBuilt         *int         `json:"maxYearBuilt" validate:"omitempty,gt=1900,gtfieldcustom=MinYearBuilt"`
-	MinHwgEnergyClass    *EnergyClass `json:"minHwgEnergyClass" validate:"omitempty,energycustom"`
-	MinFgeeEnergyClass   *EnergyClass `json:"minFgeeEnergyClass" validate:"omitempty,energycustom"`
-	ListingType          *ListingType `json:"listingType" validate:"omitempty,listingtypecustom"`
-	MinRentPricePerMonth *int         `json:"minRentPrice" validate:"omitempty,gt=0"`
-	MaxRentPricePerMonth *int         `json:"maxRentPrice" validate:"omitempty,gt=0,gtfieldcustom=MinRentPricePerMonth"`
-	MinCooperativeShare  *int         `json:"minCooperativeShare" validate:"omitempty,gt=0"`
-	MaxCooperativeShare  *int         `json:"maxCooperativeShare" validate:"omitempty,gt=0,gtfieldcustom=MinCooperativeShare"`
-	MinSalePrice         *int         `json:"minSalePrice" validate:"omitempty,gt=0"`
-	MaxSalePrice         *int         `json:"maxSalePrice" validate:"omitempty,gt=0,gtfieldcustom=MinSalePrice"`
+	Title                *string      `json:"title,omitempty" validate:"omitempty"`
+	HousingCooperative   *string      `json:"housingCooperative,omitempty" validate:"omitempty"`
+	ProjectId            *string      `json:"projectId,omitempty" validate:"omitempty"`
+	PostalCode           *string      `json:"postalCode,omitempty" validate:"omitempty"`
+	RoomCount            *int         `json:"roomCount,omitempty" validate:"omitempty,gt=0"`
+	MinRoomCount         *int         `json:"minRoomCount,omitempty" validate:"omitempty,gt=0"`
+	MaxRoomCount         *int         `json:"maxRoomCount,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinRoomCount"`
+	MinSquareMeters      *int         `json:"minSqm,omitempty" validate:"omitempty,gt=0"`
+	MaxSquareMeters      *int         `json:"maxSqm,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinSquareMeters"`
+	AvailableFrom        *string      `json:"availableFrom,omitempty" validate:"omitempty,datecustom"`
+	MinYearBuilt         *int         `json:"minYearBuilt,omitempty" validate:"omitempty,gt=1900"`
+	MaxYearBuilt         *int         `json:"maxYearBuilt,omitempty" validate:"omitempty,gt=1900,gtfieldcustom=MinYearBuilt"`
+	MinHwgEnergyClass    *EnergyClass `json:"minHwgEnergyClass,omitempty" validate:"omitempty,energycustom"`
+	MinFgeeEnergyClass   *EnergyClass `json:"minFgeeEnergyClass,omitempty" validate:"omitempty,energycustom"`
+	ListingType          *ListingType `json:"listingType,omitempty" validate:"omitempty,listingtypecustom"`
+	MinRentPricePerMonth *int         `json:"minRentPrice,omitempty" validate:"omitempty,gt=0"`
+	MaxRentPricePerMonth *int         `json:"maxRentPrice,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinRentPricePerMonth"`
+	MinCooperativeShare  *int         `json:"minCooperativeShare,omitempty" validate:"omitempty,gt=0"`
+	MaxCooperativeShare  *int         `json:"maxCooperativeShare,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinCooperativeShare"`
+	MinSalePrice         *int         `json:"minSalePrice,omitempty" validate:"omitempty,gt=0"`
+	MaxSalePrice         *int         `json:"maxSalePrice,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinSalePrice"`
 }

@@ -80,7 +80,7 @@ func getFieldMappings(query *models.ListingsQuery) map[string]fieldMapping {
 	}
 }
 
-func GetQueryItemsPager(
+func GetListingsQueryItemsPager(
 	container *azcosmos.ContainerClient,
 	city string,
 	query *models.ListingsQuery,
@@ -199,6 +199,24 @@ func GetExistingIds(ctx context.Context, container *azcosmos.ContainerClient, id
 	}
 
 	return existingIds, nil
+}
+
+func GetPreferences(
+	container *azcosmos.ContainerClient,
+	city string,
+	userId string,
+) (*models.Preferences, error) {
+	ir, err := container.ReadItem(context.Background(), azcosmos.NewPartitionKeyString(city), userId, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	p := models.Preferences{}
+	if err := json.Unmarshal(ir.Value, &p); err != nil {
+		return nil, err
+	}
+
+	return &p, err
 }
 
 func genStringParamList(ids []string) ([]string, []azcosmos.QueryParameter) {

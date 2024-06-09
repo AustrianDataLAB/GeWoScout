@@ -8,7 +8,7 @@
       "methods": [
         "put"
       ],
-      "route": "cities/{city}/users/{id}/preferences"
+      "route": "cities/{city}/users/preferences"
     },
     {
       "type": "cosmosDB",
