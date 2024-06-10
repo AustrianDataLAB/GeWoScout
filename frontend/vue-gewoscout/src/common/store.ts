@@ -11,7 +11,6 @@ export const useListingsStore = defineStore('listings', () => {
 
 export const useUserStore = defineStore('user', () => {
   const loggedIn: Ref<boolean> = ref(false);
-  const email: Ref<string | null> = ref(null);
 
-  return { loggedIn, email };
+  return { loggedIn };
 });

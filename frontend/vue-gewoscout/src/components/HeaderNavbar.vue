@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref, type Ref } from 'vue';
-import { getLoggedInUser, logoutUser } from '@/common/user-service';
+import { onMounted, ref } from 'vue';
+import { getLoggedInUser } from '@/common/user-service';
 import { useUserStore } from '@/common/store';
 
 const userStore = useUserStore();
@@ -34,15 +34,12 @@ const usermenu = ref();
 const settingsDialogVisible = ref(false);
 
 const notificationsEnabled = ref(false);
-const notificationsUserEmail: Ref<null | string> = ref(null);
 
 onMounted(async () => {
   const userInfo = await getLoggedInUser();
   console.log('user', userInfo);
   if (userInfo !== null) {
     userStore.loggedIn = true;
-    userStore.email = userInfo.userDetails;
-    notificationsUserEmail.value = userStore.email;
   }
 });
 
@@ -56,9 +53,7 @@ async function login() {
 
 function logout() {
   userStore.loggedIn = false;
-  userStore.email = null;
-  logoutUser();
-  // window.open('/.auth/logout', '_self');
+  window.open('/.auth/logout', '_self');
 }
 </script>
 
