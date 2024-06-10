@@ -35,7 +35,7 @@ app.component('vueButton', Button);
 app.component('vueInputText', InputText);
 app.component('vueInputNumber', InputNumber);
 app.component('vueDropdown', Dropdown);
-app.component('vueInputSwitch', MultiSelect);
+app.component('vueInputSwitch', InputSwitch);
 app.component('vueMultiSelect', MultiSelect);
 app.component('vueSelectButton', SelectButton);
 app.component('vueMenubar', Menubar);
