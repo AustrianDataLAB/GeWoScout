@@ -6,8 +6,9 @@ import Ripple from 'primevue/ripple';
 
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
-import Dropdown from 'primevue/dropdown';
 import InputNumber from 'primevue/inputnumber';
+import Dropdown from 'primevue/dropdown';
+import InputSwitch from 'primevue/inputswitch';
 import MultiSelect from 'primevue/multiselect';
 import SelectButton from 'primevue/selectbutton';
 import Menubar from 'primevue/menubar';
@@ -32,8 +33,9 @@ app.directive('ripple', Ripple);
 
 app.component('vueButton', Button);
 app.component('vueInputText', InputText);
-app.component('vueDropdown', Dropdown);
 app.component('vueInputNumber', InputNumber);
+app.component('vueDropdown', Dropdown);
+app.component('vueInputSwitch', MultiSelect);
 app.component('vueMultiSelect', MultiSelect);
 app.component('vueSelectButton', SelectButton);
 app.component('vueMenubar', Menubar);
