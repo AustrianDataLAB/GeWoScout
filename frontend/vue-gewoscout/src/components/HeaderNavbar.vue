@@ -84,7 +84,14 @@ function logout() {
     </template>
     <template #end>
       <div class="flex align-items-center gap-2">
-        <vueAvatar icon="pi pi-user" shape="circle" v-if="userStore.loggedIn" @click="toggle" />
+        <vueAvatar
+          icon="pi pi-user"
+          shape="circle"
+          size="large"
+          class="cursor-pointer"
+          v-if="userStore.loggedIn"
+          @click="toggle"
+        />
         <vueButton label="Login" @click="login()" v-else></vueButton>
 
         <vueMenu ref="menu" id="overlay_menu" :model="usermenuItems" :popup="true" />
@@ -98,17 +105,21 @@ function logout() {
           <span class="p-text-secondary block mb-5">Update your information.</span>
           <div class="flex align-items-center gap-3 mb-5">
             <label for="email" class="font-semibold w-6rem">Email</label>
-            <InputText id="email" class="flex-auto" autocomplete="off" />
+            <vueInputText id="email" class="flex-auto" autocomplete="off" />
           </div>
           <!-- Add other preferences to edit -->
           <div class="flex justify-content-end gap-2">
-            <Button
+            <vueButton
               type="button"
               label="Cancel"
               severity="secondary"
               @click="settingsDialogVisible = false"
-            ></Button>
-            <Button type="button" label="Save" @click="settingsDialogVisible = false"></Button>
+            ></vueButton>
+            <vueButton
+              type="button"
+              label="Save"
+              @click="settingsDialogVisible = false"
+            ></vueButton>
           </div>
         </vueDialog>
       </div>
