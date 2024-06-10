@@ -1,18 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, type Ref } from 'vue';
 import { getLoggedInUser } from '@/common/user-service';
 import { useUserStore } from '@/common/store';
 
 const userStore = useUserStore();
-
-onMounted(async () => {
-  const userInfo = await getLoggedInUser();
-  console.log('user', userInfo);
-  if (userInfo !== null) {
-    userStore.loggedIn = true;
-    userStore.email = userInfo.userDetails;
-  }
-});
 
 const menubarItems = ref([]);
 
@@ -38,15 +29,26 @@ const usermenuItems = ref([
   }
 ]);
 
-const menu = ref();
+const usermenu = ref();
 
 const settingsDialogVisible = ref(false);
 
 const notificationsEnabled = ref(false);
-const notificationsUserEmail = ref(userStore.email);
+const notificationsUserEmail: Ref<null | string> = ref(null);
+
+onMounted(async () => {
+  const userInfo = await getLoggedInUser();
+  console.log('user', userInfo);
+  if (userInfo !== null) {
+    userStore.loggedIn = true;
+    userStore.email = userInfo.userDetails;
+    console.log(userStore.email);
+    notificationsUserEmail.value = userStore.email;
+  }
+});
 
 const toggle = (event: any) => {
-  menu.value.toggle(event);
+  usermenu.value.toggle(event);
 };
 
 async function login() {
@@ -97,23 +99,19 @@ function logout() {
         />
         <vueButton v-else label="Login" @click="login()"></vueButton>
 
-        <vueMenu ref="menu" id="overlay_menu" :model="usermenuItems" :popup="true" />
+        <vueMenu ref="usermenu" id="overlay_menu" :model="usermenuItems" :popup="true" />
 
         <vueDialog
           v-model:visible="settingsDialogVisible"
           modal
           header="Edit Notification Preferences"
-          :style="{ width: '25rem' }"
+          :style="{ width: '30rem' }"
         >
           <div class="flex align-items-center gap-3 mb-5">
             <label for="enableNotifications" class="font-semibold w-6rem"
               >Enable Notifications</label
             >
-            <vueInputSwitch
-              id="enableNotifications"
-              class="flex-auto"
-              v-model="notificationsEnabled"
-            />
+            <vueInputSwitch id="enableNotifications" v-model="notificationsEnabled" />
           </div>
           <div class="flex align-items-center gap-3 mb-5">
             <label for="email" class="font-semibold w-6rem">Email</label>
