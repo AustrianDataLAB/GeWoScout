@@ -1,27 +1,64 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { getLoggedInUser } from '@/common/user-service';
+import { useUserStore } from '@/common/store';
 
-const items = ref([
+const menubarItems = ref([]);
+
+const usermenuItems = ref([
   {
-    label: 'Search',
-    icon: 'pi pi-search'
+    label: 'Profile',
+    items: [
+      {
+        label: 'Settings',
+        icon: 'pi pi-cog',
+        command: () => {
+          settingsDialogVisible.value = true;
+        }
+      },
+      {
+        label: 'Logout',
+        icon: 'pi pi-sign-out',
+        command: () => {
+          logout();
+        }
+      }
+    ]
   }
 ]);
 
+const menu = ref();
 
+const settingsDialogVisible = ref(false);
+
+const userStore = useUserStore();
 
 onMounted(async () => {
-  console.log("user", await getLoggedInUser());
+  const userInfo = await getLoggedInUser();
+  console.log('user', userInfo);
+  if (userInfo !== null) {
+    userStore.loggedIn = true;
+    userStore.email = userInfo.userDetails;
+  }
 });
 
+const toggle = (event: any) => {
+  menu.value.toggle(event);
+};
+
 async function login() {
-  window.open("/.auth/login/aad", "_self");
+  window.open('/.auth/login/aad', '_self');
+}
+
+function logout() {
+  userStore.loggedIn = false;
+  userStore.email = null;
+  // TODO aad action?
 }
 </script>
 
 <template>
-  <vueMenubar :model="items">
+  <vueMenubar :model="menubarItems">
     <template #start>
       <svg
         width="40"
@@ -47,8 +84,33 @@ async function login() {
     </template>
     <template #end>
       <div class="flex align-items-center gap-2">
-        <vueButton label="Login" @click="login()"></vueButton>
-        <!-- <vueAvatar image="/images/avatar/amyelsner.png" shape="circle" /> -->
+        <vueAvatar icon="pi pi-user" shape="circle" v-if="userStore.loggedIn" @click="toggle" />
+        <vueButton label="Login" @click="login()" v-else></vueButton>
+
+        <vueMenu ref="menu" id="overlay_menu" :model="usermenuItems" :popup="true" />
+
+        <vueDialog
+          v-model:visible="settingsDialogVisible"
+          modal
+          header="Edit Preferences"
+          :style="{ width: '25rem' }"
+        >
+          <span class="p-text-secondary block mb-5">Update your information.</span>
+          <div class="flex align-items-center gap-3 mb-5">
+            <label for="email" class="font-semibold w-6rem">Email</label>
+            <InputText id="email" class="flex-auto" autocomplete="off" />
+          </div>
+          <!-- Add other preferences to edit -->
+          <div class="flex justify-content-end gap-2">
+            <Button
+              type="button"
+              label="Cancel"
+              severity="secondary"
+              @click="settingsDialogVisible = false"
+            ></Button>
+            <Button type="button" label="Save" @click="settingsDialogVisible = false"></Button>
+          </div>
+        </vueDialog>
       </div>
     </template>
   </vueMenubar>

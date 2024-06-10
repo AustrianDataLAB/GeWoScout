@@ -14,6 +14,8 @@ import Menubar from 'primevue/menubar';
 import Card from 'primevue/card';
 import Avatar from 'primevue/avatar';
 import Divider from 'primevue/divider';
+import Menu from 'primevue/menu';
+import Dialog from 'primevue/dialog';
 
 import './assets/main.css';
 import 'primevue/resources/themes/lara-light-amber/theme.css';
@@ -38,6 +40,8 @@ app.component('vueMenubar', Menubar);
 app.component('vueCard', Card);
 app.component('vueAvatar', Avatar);
 app.component('vueDivider', Divider);
+app.component('vueMenu', Menu);
+app.component('vueDialog', Dialog);
 
 app.use(pinia);
 
