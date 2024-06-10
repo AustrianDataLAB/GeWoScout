@@ -24,3 +24,22 @@ export async function getLoggedInUser(): Promise<User | null> {
     return null;
   }
 }
+
+export async function logoutUser(): Promise<boolean> {
+  try {
+    const response = await axios.get(`/.auth/logout`);
+
+    if (response.status !== 200) {
+      return false;
+    }
+
+    if (!response.data.clientPrincipal) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}

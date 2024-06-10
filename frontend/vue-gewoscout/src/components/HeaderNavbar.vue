@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, type Ref } from 'vue';
-import { getLoggedInUser } from '@/common/user-service';
+import { getLoggedInUser, logoutUser } from '@/common/user-service';
 import { useUserStore } from '@/common/store';
 
 const userStore = useUserStore();
@@ -58,6 +58,8 @@ function logout() {
   userStore.loggedIn = false;
   userStore.email = null;
   // TODO aad action?
+  // await logoutUser();
+  // window.open('/.auth/logout', '_self');
 }
 </script>
 
@@ -111,15 +113,6 @@ function logout() {
               >Enable Notifications</label
             >
             <vueInputSwitch id="enableNotifications" v-model="notificationsEnabled" />
-          </div>
-          <div class="flex align-items-center gap-3 mb-5">
-            <label for="email" class="font-semibold w-6rem">Email</label>
-            <vueInputText
-              id="email"
-              class="flex-auto"
-              autocomplete="off"
-              v-model="notificationsUserEmail"
-            />
           </div>
           <!-- TODO Add other Notification Preferences to edit -->
           <div class="flex justify-content-end gap-2">
