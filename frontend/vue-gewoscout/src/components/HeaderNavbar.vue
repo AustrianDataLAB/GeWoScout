@@ -57,8 +57,7 @@ async function login() {
 function logout() {
   userStore.loggedIn = false;
   userStore.email = null;
-  // TODO aad action?
-  // await logoutUser();
+  logoutUser();
   // window.open('/.auth/logout', '_self');
 }
 </script>
