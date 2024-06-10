@@ -42,7 +42,6 @@ onMounted(async () => {
   if (userInfo !== null) {
     userStore.loggedIn = true;
     userStore.email = userInfo.userDetails;
-    console.log(userStore.email);
     notificationsUserEmail.value = userStore.email;
   }
 });
