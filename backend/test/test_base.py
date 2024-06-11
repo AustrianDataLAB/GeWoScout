@@ -1,9 +1,9 @@
 import pytest
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
-def test_cosmosdb_fixture_data_insertion(cosmos_db_setup):
-    _database, container = cosmos_db_setup
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
+def test_cosmosdb_fixture_data_insertion(cosmos_db_setup_listings):
+    _database, container = cosmos_db_setup_listings
 
     # Check if data insertion was correct
     # There are 7 listings in the fixture for Vienna

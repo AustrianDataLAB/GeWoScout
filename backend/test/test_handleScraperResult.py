@@ -179,8 +179,8 @@ TEST_LISTING_2_2 = {
 }
 
 
-@pytest.mark.usefixtures("clear_queues", "queue_service_client", "cosmos_db_setup")
-def test_new_listing(queue_service_client: QueueServiceClient, cosmos_db_setup):
+@pytest.mark.usefixtures("clear_queues", "queue_service_client", "cosmos_db_setup_listings")
+def test_new_listing(queue_service_client: QueueServiceClient, cosmos_db_setup_listings):
     # Add a new listing to the queue
     queue_client = queue_service_client.get_queue_client(SCRAPER_RESULTS_QUEUE_NAME)
     msg = base64.b64encode(json.dumps(TEST_LISTING_MSG_1).encode()).decode()
@@ -195,7 +195,7 @@ def test_new_listing(queue_service_client: QueueServiceClient, cosmos_db_setup):
     assert new_listing == TEST_LISTING_1_1, "Expected listing does not match the new listing"
 
     # Check that the entry is also in CosmosDB
-    _, container = cosmos_db_setup
+    _, container = cosmos_db_setup_listings
     item = container.read_item(item=TEST_LISTING_1_1['id'], partition_key="linz")
     assert item is not None, "Listing not found in CosmosDB"
 
@@ -204,9 +204,9 @@ def test_new_listing(queue_service_client: QueueServiceClient, cosmos_db_setup):
         assert item[key] == value, f"Value for key {key} does not match"
 
 
-@pytest.mark.usefixtures("clear_queues", "queue_service_client", "cosmos_db_setup")
-def test_update_listing(queue_service_client: QueueServiceClient, cosmos_db_setup):
-    _, container = cosmos_db_setup
+@pytest.mark.usefixtures("clear_queues", "queue_service_client", "cosmos_db_setup_listings")
+def test_update_listing(queue_service_client: QueueServiceClient, cosmos_db_setup_listings):
+    _, container = cosmos_db_setup_listings
     msg = copy.deepcopy(TEST_LISTING_1_1)
     msg['createdAt'] = "2024-04-06T15:00:00Z"
     msg['lastModifiedAt'] = "2024-04-06T15:00:00Z"
@@ -232,7 +232,7 @@ def test_update_listing(queue_service_client: QueueServiceClient, cosmos_db_setu
     assert len(msgs) == 0, "Expected 0 messages in the new listings queue"
 
     # Check that the entry is also in CosmosDB
-    _, container = cosmos_db_setup
+    _, container = cosmos_db_setup_listings
     item = container.read_item(item=TEST_LISTING_1_1['id'], partition_key="linz")
     assert item is not None, "Listing not found in CosmosDB"
 
@@ -244,10 +244,10 @@ def test_update_listing(queue_service_client: QueueServiceClient, cosmos_db_setu
         assert item[key] == value, f"Value for key {key} does not match"
 
 
-@pytest.mark.usefixtures("clear_queues", "queue_service_client", "cosmos_db_setup")
-def test_multiple_listings(queue_service_client: QueueServiceClient, cosmos_db_setup):
+@pytest.mark.usefixtures("clear_queues", "queue_service_client", "cosmos_db_setup_listings")
+def test_multiple_listings(queue_service_client: QueueServiceClient, cosmos_db_setup_listings):
     # One new, one updated
-    _, container = cosmos_db_setup
+    _, container = cosmos_db_setup_listings
 
     msg = copy.deepcopy(TEST_LISTING_2_1)
     msg['createdAt'] = "2024-04-06T15:00:00Z"
@@ -277,7 +277,7 @@ def test_multiple_listings(queue_service_client: QueueServiceClient, cosmos_db_s
     assert new_listing == TEST_LISTING_2_2, "Expected listing does not match the new listing"
 
     # Check that the updated entry is also in CosmosDB
-    _, container = cosmos_db_setup
+    _, container = cosmos_db_setup_listings
     item = container.read_item(item=TEST_LISTING_2_1['id'], partition_key=TEST_LISTING_2_1['_partitionKey'])
     assert item is not None, "Listing 2_1 not found in CosmosDB"
 

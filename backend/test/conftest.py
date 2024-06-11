@@ -46,7 +46,7 @@ def clear_queues(queue_service_client):
 
 
 @pytest.fixture(scope="module")
-def cosmos_db_setup(cosmos_db_client):
+def cosmos_db_setup_listings(cosmos_db_client):
     # Create the database if it does not exist
     database_name = 'gewoscout-db'
     try:
