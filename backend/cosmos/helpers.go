@@ -201,22 +201,38 @@ func GetExistingIds(ctx context.Context, container *azcosmos.ContainerClient, id
 	return existingIds, nil
 }
 
-func GetPreferences(
-	container *azcosmos.ContainerClient,
-	city string,
-	userId string,
-) (*models.Preferences, error) {
-	ir, err := container.ReadItem(context.Background(), azcosmos.NewPartitionKeyString(city), userId, nil)
-	if err != nil {
-		return nil, err
+func GetUserData(ctx context.Context, container *azcosmos.ContainerClient, userId string) ([]models.UserData, error) {
+	queryParams := []azcosmos.QueryParameter{
+		{Name: "@userId", Value: userId},
+	}
+	options := azcosmos.QueryOptions{
+		QueryParameters: queryParams,
+	}
+	pager := container.NewQueryItemsPager("SELECT * FROM c WHERE c._partitionKey = @userId", azcosmos.NewPartitionKeyString(userId), &options)
+
+	uds := []models.UserData{}
+
+	for pager.More() {
+		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		page, err := pager.NextPage(ctx)
+		cancel()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get next page: %w", err)
+		}
+
+		for _, item := range page.Items {
+			ud := models.UserData{}
+			if err := json.Unmarshal(item, &ud); err != nil {
+				return nil, fmt.Errorf("failed to unmarshal item: %w", err)
+			}
+
+			ud.City = &ud.Id
+
+			uds = append(uds, ud)
+		}
 	}
 
-	p := models.Preferences{}
-	if err := json.Unmarshal(ir.Value, &p); err != nil {
-		return nil, err
-	}
-
-	return &p, err
+	return uds, nil
 }
 
 func genStringParamList(ids []string) ([]string, []azcosmos.QueryParameter) {

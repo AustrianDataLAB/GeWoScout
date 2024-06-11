@@ -34,6 +34,8 @@ type Handler struct {
 	listingsByCityContainerClient *azcosmos.ContainerClient
 	// Do NOT access directly
 	notificationSettingsByCityContainerClient *azcosmos.ContainerClient
+	// Do NOT access directly
+	userDataByUserIdContainerClient *azcosmos.ContainerClient
 
 	ScraperResultSchema *gojsonschema.Schema
 }
@@ -42,6 +44,7 @@ func (h *Handler) initCosmos() {
 	h.cosmosClient, h.gewoscoutDbClient = cosmos.InitClients()
 	h.listingsByCityContainerClient = cosmos.InitContainerClient(h.gewoscoutDbClient, "ListingsByCity")
 	h.notificationSettingsByCityContainerClient = cosmos.InitContainerClient(h.gewoscoutDbClient, "NotificationSettingsByCity")
+	h.userDataByUserIdContainerClient = cosmos.InitContainerClient(h.gewoscoutDbClient, "UserDataByUserId")
 }
 
 func (h *Handler) GetCosmosClient() *azcosmos.Client {
@@ -62,6 +65,11 @@ func (h *Handler) GetListingsByCityContainerClient() *azcosmos.ContainerClient {
 func (h *Handler) GetNotificationSettingsByCityContainerClient() *azcosmos.ContainerClient {
 	h.cosmosOnce.Do(h.initCosmos)
 	return h.notificationSettingsByCityContainerClient
+}
+
+func (h *Handler) GetUserDataByUserIdContainerClient() *azcosmos.ContainerClient {
+	h.cosmosOnce.Do(h.initCosmos)
+	return h.userDataByUserIdContainerClient
 }
 
 func NewHandler() *Handler {
@@ -256,89 +264,11 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} models.NotificationSettings "Successfully updates notification settings"
 // @Failure 404 {object} models.Error "Notification settings could not be updated"
 // @Failure 400 {object} models.Error "Bad request"
-// @Router /cities/{city}/users/preferences [put]
+// @Router /users/preferences [put]
 func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 	req, err := models.UnmarshalAndValidate[models.InvokeRequest[interface{}]](r.Body)
 	if err != nil {
 		errMsg := fmt.Sprintf("Failed to read invoke request body: %s\n", err.Error())
-		render.JSON(w, r, models.NewHttpInvokeResponse(
-			http.StatusBadRequest,
-			models.Error{Message: errMsg},
-			[]string{errMsg},
-		))
-		return
-	}
-
-	clientId, email, err := GetClientPrincipalData(&req)
-	if err != nil {
-		render.JSON(w, r, models.NewHttpInvokeResponse(
-			http.StatusUnauthorized,
-			models.Error{Message: err.Error()},
-			[]string{err.Error()},
-		))
-		return
-	}
-
-	if len(req.Data.Req.Body) == 0 {
-		render.JSON(w, r, models.NewHttpInvokeResponse(
-			http.StatusBadRequest,
-			models.Error{Message: "Missing body in request data"},
-			[]string{"Missing body in request data"},
-		))
-		return
-	}
-
-	ns, err := models.UnmarshalAndValidate[models.NotificationSettings](io.NopCloser(strings.NewReader(req.Data.Req.Body)))
-
-	if err != nil {
-		render.JSON(w, r, models.NewHttpInvokeResponse(
-			http.StatusBadRequest,
-			models.Error{Message: "Failed to parse request body"},
-			[]string{fmt.Sprintf("Failed to parse request body: %s\n", err.Error())},
-		))
-		return
-	}
-
-	ns.PartitionKey = req.Data.Req.Params["city"]
-	ns.Id = clientId
-	ns.Email = email
-
-	ir := models.NewHttpInvokeResponse(http.StatusOK, ns, nil)
-	ir.Outputs["dbres"] = ns
-	render.JSON(w, r, ir)
-}
-
-// GetUserPrefs Handler function for /userPrefs, which gets a user's
-// notification preferences.
-// @Summary Get a user's notification preferences
-// @Description Get notification preferences of the user with the given id
-// @Tags userPreferences
-// @Accept json
-// @Produce json
-// @Param city path string true "The city assigned to the user"
-// @Success 200 {object} models.NotificationSettings
-// @Failure 404 {object} models.Error "Notification settings could not be found"
-// @Failure 400 {object} models.Error "Bad request"
-// @Router /cities/{city}/users/preferences [get]
-func (h *Handler) GetUserPrefs(w http.ResponseWriter, r *http.Request) {
-	req, err := models.UnmarshalAndValidate[models.InvokeRequest[interface{}]](r.Body)
-	if err != nil {
-		// Error is returned to the user here because the validation errors
-		// return information about which fields were invalid.
-		errMsg := fmt.Sprintf("Failed to read invoke request body: %s\n", err.Error())
-		render.JSON(w, r, models.NewHttpInvokeResponse(
-			http.StatusBadRequest,
-			models.Error{Message: errMsg},
-			[]string{errMsg},
-		))
-		return
-	}
-	city := req.Data.Req.Params["city"]
-
-	// Manual check that city is not empty, validation through validator package
-	// does not work
-	if len(strings.TrimSpace(city)) == 0 {
-		errMsg := "City param was invalid or empty"
 		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusBadRequest,
 			models.Error{Message: errMsg},
@@ -357,16 +287,98 @@ func (h *Handler) GetUserPrefs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p, err := cosmos.GetPreferences(h.GetNotificationSettingsByCityContainerClient(), city, clientId)
+	if len(req.Data.Req.Body) == 0 {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusBadRequest,
+			models.Error{Message: "Missing body in request data"},
+			[]string{"Missing body in request data"},
+		))
+		return
+	}
+
+	ns, _ := models.UnmarshalAndValidate[models.NotificationSettings](io.NopCloser(strings.NewReader(req.Data.Req.Body)))
+	ud, err := models.UnmarshalAndValidate[models.NotificationSettings](io.NopCloser(strings.NewReader(req.Data.Req.Body)))
+
+	if err != nil {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusBadRequest,
+			models.Error{Message: "Failed to parse request body"},
+			[]string{fmt.Sprintf("Failed to parse request body: %s", err.Error())},
+		))
+		return
+	}
+
+	if ns.City == nil || *ns.City == "" {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusBadRequest,
+			models.Error{Message: "Missing city in preferences"},
+			[]string{"Missing city in preferences"},
+		))
+		return
+	}
+
+	cLower := strings.ToLower(*ns.City)
+
+	ns.PartitionKey = cLower
+	ns.Id = clientId
+	ns.City = &cLower
+
+	ud.PartitionKey = clientId
+	ud.Id = cLower
+	ud.City = &cLower
+
+	ir := models.NewHttpInvokeResponse(http.StatusOK, ud, nil)
+	ir.Outputs["dbres1"] = ns
+	ir.Outputs["dbres2"] = ud
+	render.JSON(w, r, ir)
+}
+
+// GetUserPrefs Handler function for /userPrefs, which gets a user's
+// notification preferences.
+// @Summary Get a user's notification preferences
+// @Description Get notification preferences of the user with the given id
+// @Tags userPreferences
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.NotificationSettings
+// @Failure 404 {object} models.Error "Notification settings could not be found"
+// @Failure 400 {object} models.Error "Bad request"
+// @Router /users/preferences [get]
+func (h *Handler) GetUserPrefs(w http.ResponseWriter, r *http.Request) {
+	req, err := models.UnmarshalAndValidate[models.InvokeRequest[interface{}]](r.Body)
+	if err != nil {
+		// Error is returned to the user here because the validation errors
+		// return information about which fields were invalid.
+		errMsg := fmt.Sprintf("Failed to read invoke request body: %s\n", err.Error())
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusBadRequest,
+			models.Error{Message: errMsg},
+			[]string{errMsg},
+		))
+		return
+	}
+
+	clientId, _, err := GetClientPrincipalData(&req)
+	if err != nil {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusUnauthorized,
+			models.Error{Message: err.Error()},
+			[]string{err.Error()},
+		))
+		return
+	}
+
+	uds, err := cosmos.GetUserData(context.Background(), h.GetUserDataByUserIdContainerClient(), clientId)
 	if err != nil {
 		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusUnauthorized,
 			models.Error{Message: "Failed to get user preferences"},
-			[]string{err.Error()},
+			[]string{fmt.Sprintf("Failed to get user data: %s", err.Error())},
 		))
+		return
 	}
 
-	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, p, nil))
+	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, uds, nil))
 }
 
 // HandleHealth Handler function for /health, which returns a simple alive response

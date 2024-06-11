@@ -8,7 +8,7 @@
       "methods": [
         "get"
       ],
-      "route": "cities/{city}/users/preferences"
+      "route": "users/preferences"
     },
     {
       "type": "http",

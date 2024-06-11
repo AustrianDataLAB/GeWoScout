@@ -98,6 +98,12 @@ type Error struct {
 }
 
 type NotificationSettings struct {
+	City *string `json:"city"`
+	Preferences
+}
+
+type UserData struct {
+	City *string `json:"city"`
 	Preferences
 }
 
