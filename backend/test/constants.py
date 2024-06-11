@@ -13,3 +13,7 @@ NEW_LISTINGS_QUEUE_NAME = "new-listings-queue"
 
 with open(os.path.join(DIR_PATH, 'listings_fixture.json'), 'r') as file:
     LISTINGS_FIXTURE = json.load(file)
+
+with open(os.path.join(DIR_PATH, 'userdata_preferences_fixture.json'), 'r') as file:
+    USERDATA_PREFERENCES_FIXTURE = json.load(file)
+
