@@ -58,7 +58,7 @@ def extract_listing_info(soup: BeautifulSoup):
                 "listingId": "",
                 "postalCode": postal_code,
                 "address": street_address,
-                "availabilityDate": "sofort"
+                "availabilityDate": datetime.now().strftime("%Y-%m-%d")
             }
 
             if "data-rent" in item.attrs:
