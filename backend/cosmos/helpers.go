@@ -248,3 +248,85 @@ func genStringParamList(ids []string) ([]string, []azcosmos.QueryParameter) {
 	}
 	return placeholders, parameters
 }
+
+func getPreferenceFieldMappings(listing *models.Listing) map[string]fieldMapping {
+	return map[string]fieldMapping{
+		"title":              {" AND c.title ? (CONTAINS(LOWER(@title), LOWER(c.title)) = true) : true", listing.Title},
+		"housingCooperative": {" AND c.housingCooperative ? (CONTAINS(LOWER(@housingCooperative), LOWER(c.housingCooperative)) = true) : true", listing.HousingCooperative},
+		"projectId":          {" AND c.projectId ? (LOWER(c.projectId) = LOWER(@projectId)) : true", listing.ProjectID},
+		"postalCodes":        {" AND c.postalCode ? (CONTAINS(c.postalCode, @postalCodes) = true) : true", listing.PostalCode},
+		"roomCount":          {" AND (c.minRoomCount ? (c.minRoomCount <= @roomCount) : true) AND (c.maxRoomCount ? (c.maxRoomCount >= @roomCount) : true)", listing.RoomCount},
+		"squareMeters":       {" AND (c.minSqm ? (c.minSqm <= @squareMeters) : true) AND (c.maxSqm ? (c.maxSqm >= @squareMeters) : true)", listing.SquareMeters},
+		"availabilityDate":   {" AND c.availableFrom ? (c.availableFrom <= @availabilityDate) : true", listing.AvailabilityDate},
+		"yearBuilt":          {" AND (c.minYearBuilt ? (c.minYearBuilt <= @yearBuilt) : true) AND (c.maxYearBuilt ? (c.maxYearBuilt >= @yearBuilt) : true)", listing.YearBuilt},
+		"hwgEnergyClass":     {" AND c.minHwgEnergyClass ? (ARRAY_CONTAINS(@hwgEnergyClass, c.minHwgEnergyClass) = true) : true", listing.HwgEnergyClass},
+		"fgeeEnergyClass":    {" AND c.minFgeeEnergyClass ? (ARRAY_CONTAINS(@fgeeEnergyClass, c.minFgeeEnergyClass) = true) : true", listing.FgeeEnergyClass},
+		"listingType":        {" AND c.listingType ? (c.listingType = @listingType) : true", listing.ListingType},
+		"rentPricePerMonth":  {" AND (c.minRentPrice ? (c.minRentPrice <= @rentPricePerMonth) : true) AND (c.maxRentPrice ? (c.maxRentPrice >= @rentPricePerMonth) : true)", listing.RentPricePerMonth},
+		"cooperativeShare":   {" AND (c.minCooperativeShare ? (c.minCooperativeShare <= @cooperativeShare) : true) AND (c.maxCooperativeShare ? (c.maxCooperativeShare >= @cooperativeShare) : true)", listing.CooperativeShare},
+		"salePrice":          {" AND (c.minSalePrice ? (c.minSalePrice <= @salePrice) : true) AND (c.maxSalePrice ? (c.maxSalePrice >= @salePrice) : true)", listing.SalePrice},
+	}
+}
+
+func GetUsersMatchingWithListing(ctx context.Context, container *azcosmos.ContainerClient, listing *models.Listing) ([]string, error) {
+	city := strings.ToLower(listing.City)
+
+	var sb strings.Builder
+	sb.WriteString("SELECT c.email FROM c WHERE c._partitionKey = @city")
+
+	queryParams := []azcosmos.QueryParameter{
+		{Name: "@city", Value: city},
+	}
+
+	fieldMappings := getPreferenceFieldMappings(listing)
+
+	for field, mapping := range fieldMappings {
+		switch mapping.value.(type) {
+		case string:
+			if mapping.value != "" {
+				if field == "hwgEnergyClass" || field == "fgeeEnergyClass" {
+					ecStr, ok := (mapping.value).(string)
+					if !ok {
+						return nil, fmt.Errorf("energy class has incorrect format")
+					}
+					ecClass := models.EnergyClass(ecStr)
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[ecClass.GetIndex():])
+				} else {
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
+				}
+			}
+		case int:
+			addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
+		case *int:
+			if mapping.value != nil {
+				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
+			}
+		default:
+			continue
+		}
+
+	}
+
+	partitionKey := azcosmos.NewPartitionKeyString(strings.ToLower(city))
+
+	options := azcosmos.QueryOptions{
+		QueryParameters: queryParams,
+	}
+
+	pager := container.NewQueryItemsPager(sb.String(), partitionKey, &options)
+
+	emails := []string{}
+
+	if pager.More() {
+		response, err := pager.NextPage(ctx)
+		if err != nil {
+			return []string{}, fmt.Errorf("failed to get matching user preferences: %s", err.Error())
+		}
+
+		for _, bytes := range response.Items {
+			emails = append(emails, string(bytes))
+		}
+	}
+
+	return emails, nil
+}
