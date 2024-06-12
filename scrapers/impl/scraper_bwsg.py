@@ -3,6 +3,7 @@ import logging
 import os
 import re
 from datetime import datetime, timezone
+from typing import Optional
 
 import azure.functions as func
 import requests
@@ -21,19 +22,10 @@ QUEUE_BATCH_SIZE = 20
 bp = func.Blueprint()
 
 
-def extract_energy_information(raw_data: dict, field_name: str) -> (float, str):
-    value_extraction = re.findall(r'(\d+[.,\d]*)', raw_data.get(field_name, ""))
-    numeric_value = float(value_extraction[0].replace(',', '.')) if len(value_extraction) > 0 else None
-
+def extract_energy_class(raw_data: dict, field_name: str) -> Optional[str]:
     class_extraction = re.findall(r'\b[A-G]\b\+*', raw_data.get(field_name, ""))
     class_value = class_extraction[0] if len(class_extraction) > 0 else None
-
-    if class_value is None:
-        # TODO: Think about this later
-        print(f"energy class {field_name} missing")
-        class_value = "G"
-
-    return numeric_value, class_value
+    return class_value
 
 
 @bp.timer_trigger(schedule="0 */5 * * * *", arg_name="timerObj", run_on_startup=False)
@@ -96,33 +88,34 @@ def bwsg_scraper(timerObj: func.TimerRequest, q: func.Out[str]) -> None:
 
         detail_infos = info.find(class_='realty-detail-info').find_all('li')
 
-        items = dict()
+        bwsg_description = dict()
         for detail in detail_infos:
             desc = detail.find(class_='list-item-desc').get_text().strip()
             value = detail.find(class_='list-item-value').get_text().strip()
-            items[desc] = value
+            bwsg_description[desc] = value
 
-        Objektnr = items.get("Objektnr.", "").split("/")
+        object_nr = bwsg_description.get("Objektnr.", "").split("/")
 
-        if len(Objektnr) > 1:
-            listing["projectId"] = Objektnr[0]
-            listing["listingId"] = Objektnr[1]
+        if len(object_nr) > 1:
+            listing["projectId"] = object_nr[0]
+            listing["listingId"] = object_nr[1]
         else:
-            listing["projectId"] = Objektnr[0]
+            listing["projectId"] = object_nr[0]
             listing["listingId"] = ""
 
-        room_count = items.get("Zimmer", None)
+        room_count = bwsg_description.get("Zimmer", None)
         listing["roomCount"] = int(room_count) if room_count is not None else None
-        square_meters = re.findall(r'(\d+[.,\d]*)', items["Wohnfläche"])
+        square_meters = re.findall(r'(\d+[.,\d]*)', bwsg_description["Wohnfläche"])
         listing["squareMeters"] = float(square_meters[0].replace(',', '.'))
-        listing["availabilityDate"] = items.get("Beziehbar", "")
-        listing["yearBuilt"] = int(items.get("Baujahr", "-1"))
+        listing["availabilityDate"] = bwsg_description.get("Beziehbar", "")
+        listing["yearBuilt"] = int(bwsg_description.get("Baujahr", "-1"))
 
-        listing["hwgEnergy"], listing["hwgEnergyClass"] = extract_energy_information(items, "HWB")
-        listing["fgeeEnergy"], listing["fgeeEnergyClass"] = extract_energy_information(items, "fGEE")
+        if (hwb_energy_class := extract_energy_class(bwsg_description, "HWB")) is not None:
+            listing["hwgEnergyClass"] = hwb_energy_class
+        if (fgee_energy_class := extract_energy_class(bwsg_description, "fGEE")) is not None:
+            listing["fgeeEnergyClass"] = fgee_energy_class
 
         detail_preis = info.find(class_='realty-detail-prices')
-
         rent_preis = detail_preis.find(class_='rent-price-table').find_all('tr')
 
         rent = dict()
