@@ -21,6 +21,15 @@ QUEUE_BATCH_SIZE = 20
 
 bp = func.Blueprint()
 
+def format_date(date: str):
+    # TODO implement other common BWSG patterns
+    if re.match(r"\d{1,2}\.\d{1,2}\.\d{4}", date):
+        date_obj = datetime.strptime(date, "%d.%m.%Y")
+        return date_obj.strftime("%Y-%m-%d")
+    else:
+        # if date could not be parsed lets assume it's available from today
+        return datetime.now().strftime("%Y-%m-%d")
+
 
 def extract_energy_class(raw_data: dict, field_name: str) -> Optional[str]:
     class_extraction = re.findall(r'\b[A-G]\b\+*', raw_data.get(field_name, ""))
@@ -107,7 +116,7 @@ def bwsg_scraper(timerObj: func.TimerRequest, q: func.Out[str]) -> None:
         listing["roomCount"] = int(room_count) if room_count is not None else None
         square_meters = re.findall(r'(\d+[.,\d]*)', bwsg_description["Wohnfläche"])
         listing["squareMeters"] = float(square_meters[0].replace(',', '.'))
-        listing["availabilityDate"] = bwsg_description.get("Beziehbar", "")
+        listing["availabilityDate"] = format_date(bwsg_description.get("Beziehbar", ""))
         listing["yearBuilt"] = int(bwsg_description.get("Baujahr", "-1"))
 
         if (hwb_energy_class := extract_energy_class(bwsg_description, "HWB")) is not None:
