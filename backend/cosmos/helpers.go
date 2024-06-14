@@ -94,7 +94,7 @@ func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query 
 		if !reflect.ValueOf(mapping.value).IsNil() {
 			if field == "minHwgEnergyClass" || field == "minFgeeEnergyClass" {
 				ecStr, _ := (mapping.value).(*models.EnergyClass)
-				if *ecStr != "F" {
+				if *ecStr != models.EnergyClassG {
 					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[:ecStr.GetIndex()+1])
 				}
 			} else if field == "postalCodes" {
