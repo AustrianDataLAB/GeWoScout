@@ -12,8 +12,8 @@ resource "azurerm_portal_dashboard" "main-dashboard" {
   location            = data.azurerm_resource_group.rg.location
 
   dashboard_properties = templatefile("../dashboards/main.tpl", {
-    dashboard_name = "GewoScout Main Dashboard"
+    dashboard_name  = "GewoScout Main Dashboard"
     subscription_id = "e31c37ff-9b82-4f6b-8337-51314cc300ff"
-    resource_group = data.azurerm_resource_group.rg.name
+    resource_group  = data.azurerm_resource_group.rg.name
   })
 }
