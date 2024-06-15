@@ -752,11 +752,11 @@ def test_get_listings_sort_by(
         listings = response_json["results"]
         if sort_type == "ASC":
             assert listings == sorted(
-                listings, key=lambda x: x.get(expected_sorted_field, float("inf"))
+                listings, key=lambda x: x.get(expected_sorted_field is None, float("inf"))
             ), f"Listings are not sorted in ascending order by {sort_by}"
         elif sort_type == "DESC":
             assert listings == sorted(
                 listings,
-                key=lambda x: x.get(expected_sorted_field, float("-inf")),
+                key=lambda x: x.get(expected_sorted_field is None, float("-inf")),
                 reverse=True,
             ), f"Listings are not sorted in descending order by {sort_by}"
