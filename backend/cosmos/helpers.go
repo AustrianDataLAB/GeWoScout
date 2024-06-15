@@ -261,10 +261,11 @@ func getPreferenceFieldMappings(listing *models.Listing) map[string]fieldMapping
 		"yearBuilt":          {" AND (c.minYearBuilt ? (c.minYearBuilt <= @yearBuilt) : true) AND (c.maxYearBuilt ? (c.maxYearBuilt >= @yearBuilt) : true)", listing.YearBuilt},
 		"hwgEnergyClass":     {" AND c.minHwgEnergyClass ? (ARRAY_CONTAINS(@hwgEnergyClass, c.minHwgEnergyClass) = true) : true", listing.HwgEnergyClass},
 		"fgeeEnergyClass":    {" AND c.minFgeeEnergyClass ? (ARRAY_CONTAINS(@fgeeEnergyClass, c.minFgeeEnergyClass) = true) : true", listing.FgeeEnergyClass},
-		"listingType":        {" AND c.listingType ? (c.listingType = @listingType) : true", listing.ListingType},
-		"rentPricePerMonth":  {" AND (c.minRentPrice ? (c.minRentPrice <= @rentPricePerMonth) : true) AND (c.maxRentPrice ? (c.maxRentPrice >= @rentPricePerMonth) : true)", listing.RentPricePerMonth},
-		"cooperativeShare":   {" AND (c.minCooperativeShare ? (c.minCooperativeShare <= @cooperativeShare) : true) AND (c.maxCooperativeShare ? (c.maxCooperativeShare >= @cooperativeShare) : true)", listing.CooperativeShare},
-		"salePrice":          {" AND (c.minSalePrice ? (c.minSalePrice <= @salePrice) : true) AND (c.maxSalePrice ? (c.maxSalePrice >= @salePrice) : true)", listing.SalePrice},
+		// TODO listingType needs further attention because both = rent + buy
+		"listingType":       {" AND c.listingType ? (c.listingType = @listingType) : true", listing.ListingType},
+		"rentPricePerMonth": {" AND (c.minRentPrice ? (c.minRentPrice <= @rentPricePerMonth) : true) AND (c.maxRentPrice ? (c.maxRentPrice >= @rentPricePerMonth) : true)", listing.RentPricePerMonth},
+		"cooperativeShare":  {" AND (c.minCooperativeShare ? (c.minCooperativeShare <= @cooperativeShare) : true) AND (c.maxCooperativeShare ? (c.maxCooperativeShare >= @cooperativeShare) : true)", listing.CooperativeShare},
+		"salePrice":         {" AND (c.minSalePrice ? (c.minSalePrice <= @salePrice) : true) AND (c.maxSalePrice ? (c.maxSalePrice >= @salePrice) : true)", listing.SalePrice},
 	}
 }
 
