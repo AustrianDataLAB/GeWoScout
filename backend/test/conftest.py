@@ -14,8 +14,7 @@ from .constants import (
     LISTINGS_FIXTURE,
     USERDATA_PREFERENCES_FIXTURE,
     QUEUE_CONNECTION_STRING,
-    SCRAPER_RESULTS_QUEUE_NAME,
-    NEW_LISTINGS_QUEUE_NAME,
+    QUEUE_NAMES,
 )
 
 
@@ -38,7 +37,7 @@ def queue_service_client():
 
 @pytest.fixture(scope="module")
 def clear_queues(queue_service_client):
-    queues = [SCRAPER_RESULTS_QUEUE_NAME, NEW_LISTINGS_QUEUE_NAME]
+    queues = QUEUE_NAMES
 
     for queue_name in queues:
         queue_client = queue_service_client.get_queue_client(queue_name)
@@ -132,51 +131,6 @@ def _cosmos_db_setup(cosmos_db_client, container_name):
     except exceptions.CosmosHttpResponseError:
         container = database.get_container_client(container_name)
     return database, container
-
-
-@pytest.fixture(scope="session", autouse=True)
-def setup_backend_server():
-    # Start the server in the background
-    print("Starting the server...")
-
-    file_dir = os.path.dirname(os.path.realpath(__file__))
-    parent_dir = os.path.dirname(file_dir)
-    print("Working directory: ", parent_dir)
-
-    proc = subprocess.Popen(
-        ["func", "start", "--port", "8000"], shell=True, cwd=parent_dir
-    )
-
-    try:
-        # Wait for the server to be up by checking the health endpoint
-        timeout = 60
-        start_time = time.time()
-        url = "http://localhost:8000/api/health"
-
-        while True:
-            try:
-                response = requests.get(url)
-                if response.status_code == 200:
-                    print("Server is up and running!")
-                    break
-            except requests.ConnectionError:
-                pass  # The server is not up yet
-
-            if time.time() - start_time > timeout:
-                raise TimeoutError("Timed out waiting for the server to start")
-            time.sleep(1)  # Wait a bit before trying again
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        proc.kill()  # Ensure server is killed if setup fails
-        raise
-
-    yield
-
-    # Teardown: stop the server
-    print("Stopping the server...")
-    proc.terminate()
-    proc.wait()
 
 
 @pytest.fixture(scope="session", autouse=True)

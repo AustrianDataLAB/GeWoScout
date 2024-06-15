@@ -96,6 +96,7 @@ jobs:
           mkdir bin
           go build -o bin/handler .
           Copy-Item -Path test/test.settings.json -Destination local.settings.json
+          Copy-Item -Path test/listingPreferenceMatchTrigger__function.json -Destination listingPreferenceMatchTrigger/function.json
 
       - name: Prepare db/container for test
         run: cd test; python prepare_fixture.py

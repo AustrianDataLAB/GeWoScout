@@ -133,3 +133,8 @@ type Preferences struct {
 	MinSalePrice         *int         `json:"minSalePrice,omitempty" validate:"omitempty,gt=0"`
 	MaxSalePrice         *int         `json:"maxSalePrice,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinSalePrice"`
 }
+
+type NotificationData struct {
+	Emails  []string `json:"emails"`
+	Listing Listing  `json:"listing"`
+}
