@@ -235,6 +235,30 @@ func GetUserData(ctx context.Context, container *azcosmos.ContainerClient, userI
 	return uds, nil
 }
 
+func DeleteUserData(
+	ctx context.Context,
+	udContainer *azcosmos.ContainerClient,
+	nsContainer *azcosmos.ContainerClient,
+	userId string,
+	city string,
+) error {
+	ctx1, cancel1 := context.WithTimeout(ctx, 10*time.Second)
+	_, err := udContainer.DeleteItem(ctx1, azcosmos.NewPartitionKeyString(userId), strings.ToLower(city), nil)
+	cancel1()
+	if err != nil {
+		return fmt.Errorf("failed to delete user data item: %w", err)
+	}
+
+	ctx2, cancel2 := context.WithTimeout(ctx, 10*time.Second)
+	_, err = nsContainer.DeleteItem(ctx2, azcosmos.NewPartitionKeyString(strings.ToLower(city)), userId, nil)
+	cancel2()
+	if err != nil {
+		return fmt.Errorf("failed to delete notification settings item: %w", err)
+	}
+
+	return nil
+}
+
 func genStringParamList(ids []string) ([]string, []azcosmos.QueryParameter) {
 	placeholders := make([]string, len(ids))
 	parameters := make([]azcosmos.QueryParameter, len(ids))

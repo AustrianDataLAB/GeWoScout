@@ -260,11 +260,11 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 // @Tags userPreferences
 // @Accept json
 // @Produce json
-// @Param city path string true "The city the preference relate to"
+// @Param city path string true "The city the preferences relate to"
 // @Success 200 {object} models.NotificationSettings "Successfully updates notification settings"
 // @Failure 404 {object} models.Error "Notification settings could not be updated"
 // @Failure 400 {object} models.Error "Bad request"
-// @Router /users/preferences [put]
+// @Router /users/preferences/{city} [put]
 func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 	req, err := models.UnmarshalAndValidate[models.InvokeRequest[interface{}]](r.Body)
 	if err != nil {
@@ -339,7 +339,6 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 // @Summary Get a user's notification preferences
 // @Description Get notification preferences of the user with the given id
 // @Tags userPreferences
-// @Accept json
 // @Produce json
 // @Success 200 {object} models.NotificationSettings
 // @Failure 404 {object} models.Error "Notification settings could not be found"
@@ -380,6 +379,60 @@ func (h *Handler) GetUserPrefs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, uds, nil))
+}
+
+// DeleteUserPrefs Handler function for /deleteUserPrefs, which deletes a user's
+// notification preferences for a given city.
+// @Summary Delete a user's notification preferences for a given city
+// @Description Delete notification preferences of the user for the given city
+// @Tags userPreferences
+// @Param city path string true "The city the preferences relate to"
+// @Success 200 {object} "Successfully deleted notification settings"
+// @Failure 404 {object} models.Error "Notification settings could not be deleted"
+// @Failure 400 {object} models.Error "Bad request"
+// @Router /users/preferences/{city} [put]
+func (h *Handler) DeleteUserPrefs(w http.ResponseWriter, r *http.Request) {
+	req, err := models.UnmarshalAndValidate[models.InvokeRequest[interface{}]](r.Body)
+	if err != nil {
+		// Error is returned to the user here because the validation errors
+		// return information about which fields were invalid.
+		errMsg := fmt.Sprintf("Failed to read invoke request body: %s\n", err.Error())
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusBadRequest,
+			models.Error{Message: errMsg},
+			[]string{errMsg},
+		))
+		return
+	}
+
+	city := req.Data.Req.Params["city"]
+
+	clientId, _, err := GetClientPrincipalData(&req)
+	if err != nil {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusUnauthorized,
+			models.Error{Message: err.Error()},
+			[]string{err.Error()},
+		))
+		return
+	}
+
+	if err := cosmos.DeleteUserData(
+		context.Background(),
+		h.GetUserDataByUserIdContainerClient(),
+		h.GetNotificationSettingsByCityContainerClient(),
+		clientId,
+		city,
+	); err != nil {
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusUnauthorized,
+			models.Error{Message: err.Error()},
+			[]string{err.Error()},
+		))
+		return
+	}
+
+	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, nil, nil))
 }
 
 // HandleHealth Handler function for /health, which returns a simple alive response
