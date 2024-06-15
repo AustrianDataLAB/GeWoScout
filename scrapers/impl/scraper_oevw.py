@@ -126,7 +126,7 @@ def add_details_to_listing(listing: dict, listing_soup: BeautifulSoup) -> Option
 @bp.timer_trigger(schedule="0 */5 * * * *", arg_name="timerObj", run_on_startup=False)
 @bp.queue_output(arg_name="q", queue_name=os.getenv('QUEUE_NAME'), connection="AzureWebJobsStorage")
 def oevw_scraper(timerObj: func.TimerRequest, q: func.Out[str]) -> None:
-    logging.info('OEVW scraper triggered.')
+    logging.info('OEVW scraper triggered v2')
 
     # each page contains 12 listings
     page = 1
