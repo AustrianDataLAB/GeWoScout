@@ -1,0 +1,18 @@
+{
+  "bindings": [
+    {
+      "name": "msg",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "listing-preference-match-input-queue",
+      "connection": "QUEUE_CONNECTION_STRING"
+    },
+    {
+      "name": "msgOut",
+      "type": "queue",
+      "direction": "out",
+      "queueName": "listing-preference-match-output-queue",
+      "connection": "QUEUE_CONNECTION_STRING"
+    }
+  ]
+}
