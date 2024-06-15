@@ -161,8 +161,9 @@ def oevw_scraper(timerObj: func.TimerRequest, q: func.Out[str]) -> None:
                 q.set(json.dumps(output).encode(encoding='UTF-8'))
                 del output['listings']
                 output['listings'] = []
-
         except Exception as e:
             logging.error("Error while scraping OEVW: %s", e)
+
+        page = page + 1
 
     logging.info('OEVW scraper finished.')
