@@ -57,7 +57,4 @@ def test_get_preferences(
     response_json = response.json()
 
     assert len(response_json) == len(userdata_prefs['preferences'])
-
-    for id, preference in enumerate(userdata_prefs['preferences']):
-        assert preference == response_json[id]
-        assert response_json[id]['_partitionKey'] == user_id
+    assert response_json == userdata_prefs['preferences']
