@@ -48,7 +48,7 @@ def test_update_preferences(
     }
 
     city, preferences = city_pref_combo
-    endpoint_url = f"{API_BASE_URL}/users/preferences"
+    endpoint_url = f"{API_BASE_URL}/users/preferences/{city}"
 
     response = requests.put(endpoint_url, headers=headers, json=preferences)
 

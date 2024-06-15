@@ -77,7 +77,7 @@ def cosmos_db_setup_userdata(cosmos_db_client):
     database, container = _cosmos_db_setup(cosmos_db_client, container_name)
 
     for ud in USERDATA_PREFERENCES_FIXTURE:
-        for preference in ud['preferences']:
+        for preference in ud["preferences"]:
             container.upsert_item(preference)
 
     # Provide the database and container to the test function
@@ -90,11 +90,19 @@ def cosmos_db_setup_userdata(cosmos_db_client):
     for item in container.read_all_items():
         container.delete_item(item["id"], partition_key=item["_partitionKey"])
 
+
 @pytest.fixture(scope="module")
 def cosmos_db_setup_notification_settings(cosmos_db_client):
     # Create the container if it does not exist
     container_name = "NotificationSettingsByCity"
     database, container = _cosmos_db_setup(cosmos_db_client, container_name)
+
+    for ud in USERDATA_PREFERENCES_FIXTURE:
+        for i in range(len(ud["preferences"])):
+            pref = ud["preferences"][i]
+            pref["_partitionKey"] = pref["city"]
+            pref["id"] = ud["user_id"]
+            container.upsert_item(pref)
 
     # Provide the database and container to the test function
     yield database, container
