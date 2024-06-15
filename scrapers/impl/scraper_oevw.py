@@ -143,7 +143,10 @@ def oevw_scraper(timerObj: func.TimerRequest, q: func.Out[str]) -> None:
         req = requests.request(method='GET', url=req_url)
 
         # break if automatically redirected to page 1
-        if req.url != req_url:
+        # if req.url != req_url:
+        #    break
+        # azure timeout limitations, scan only first 20 pages
+        if page > 20:
             break
 
         logging.info(f'scraping page no #{page}')
