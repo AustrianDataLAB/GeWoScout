@@ -269,13 +269,11 @@ func getPreferenceFieldMappings(listing *models.Listing) map[string]fieldMapping
 }
 
 func GetUsersMatchingWithListing(ctx context.Context, container *azcosmos.ContainerClient, listing *models.Listing) ([]string, error) {
-	city := strings.ToLower(listing.City)
-
 	var sb strings.Builder
 	sb.WriteString("SELECT c.email FROM c WHERE c._partitionKey = @city")
 
 	queryParams := []azcosmos.QueryParameter{
-		{Name: "@city", Value: city},
+		{Name: "@city", Value: listing.PartitionKey},
 	}
 
 	fieldMappings := getPreferenceFieldMappings(listing)
@@ -307,7 +305,7 @@ func GetUsersMatchingWithListing(ctx context.Context, container *azcosmos.Contai
 
 	}
 
-	partitionKey := azcosmos.NewPartitionKeyString(strings.ToLower(city))
+	partitionKey := azcosmos.NewPartitionKeyString(listing.PartitionKey)
 
 	options := azcosmos.QueryOptions{
 		QueryParameters: queryParams,
@@ -317,6 +315,10 @@ func GetUsersMatchingWithListing(ctx context.Context, container *azcosmos.Contai
 
 	emails := []string{}
 
+	type EmailItem struct {
+		Email string `json:"email"`
+	}
+
 	if pager.More() {
 		response, err := pager.NextPage(ctx)
 		if err != nil {
@@ -324,7 +326,11 @@ func GetUsersMatchingWithListing(ctx context.Context, container *azcosmos.Contai
 		}
 
 		for _, bytes := range response.Items {
-			emails = append(emails, string(bytes))
+			var emailItem EmailItem
+			if err := json.Unmarshal(bytes, &emailItem); err != nil {
+				return []string{}, fmt.Errorf("failed to unmarshal email item: %s", err.Error())
+			}
+			emails = append(emails, emailItem.Email)
 		}
 	}
 

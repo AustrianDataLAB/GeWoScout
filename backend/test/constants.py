@@ -10,6 +10,15 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 SCRAPER_RESULTS_QUEUE_NAME = "scraper-result-queue"
 NEW_LISTINGS_QUEUE_NAME = "new-listings-queue"
+LISTING_PREFERENCE_MATCH_INPUT_QUEUE_NAME = "listing-preference-match-input-queue"
+LISTING_PREFERENCE_MATCH_OUTPUT_QUEUE_NAME = "listing-preference-match-output-queue"
+
+QUEUE_NAMES = [
+    SCRAPER_RESULTS_QUEUE_NAME,
+    NEW_LISTINGS_QUEUE_NAME,
+    LISTING_PREFERENCE_MATCH_INPUT_QUEUE_NAME,
+    LISTING_PREFERENCE_MATCH_OUTPUT_QUEUE_NAME,
+]
 
 with open(os.path.join(DIR_PATH, 'listings_fixture.json'), 'r') as file:
     LISTINGS_FIXTURE = json.load(file)
