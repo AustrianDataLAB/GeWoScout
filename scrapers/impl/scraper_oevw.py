@@ -14,6 +14,20 @@ URL = "https://www.oevw.at"
 bp = func.Blueprint()
 
 
+def string_to_float(text: str) -> float:
+    try:
+        text = text.replace(",", ".").strip()
+        if text.count('.') > 1:
+            first_period_index = text.index('.')
+            # Keep the part of the string up to and including the first period, then remove all other periods
+            text = text[:first_period_index + 1] + text[first_period_index + 1:].replace('.', '')
+
+        return float(text)
+    except Exception as e:
+        logging.error(f"could not convert: {text} to float, exception message: {e}")
+        return 0.0
+
+
 def extract_listing_info(soup: BeautifulSoup):
     """
     Extracts listing information from a BeautifulSoup object.
@@ -44,7 +58,7 @@ def extract_listing_info(soup: BeautifulSoup):
             room_count = 0
             fee = 0
             preview_url = f"{URL}{item.find('img').get('src')}"
-            project_id = item.find(class_="thumb__project small").get_text()
+            project_id = "" if item.find(class_="thumb__project small") == None else item.find(class_="thumb__project small").get_text()
 
             if "Miete mit Kaufoption" in type:
                 type = "both"
@@ -54,10 +68,10 @@ def extract_listing_info(soup: BeautifulSoup):
             for detail in item.find(class_="thumb__subheading").find("ul").find_all("li"):
                 text = detail.get_text()
                 if "m²" in text:
-                    square_meters = float(text.replace("m²", "").replace(",", ".").strip())
+                    square_meters = string_to_float(text.replace("m²", ""))
 
                 if "€" in text:
-                    rent = float(text.replace("€", "").replace(",", ".").strip())
+                    rent = string_to_float(text.replace("€", ""))
 
             for detail in item.find(class_="thumb__text").find("ul").find_all("li"):
                 text = detail.get_text()
@@ -65,13 +79,7 @@ def extract_listing_info(soup: BeautifulSoup):
                     room_count = int(text.replace("Zimmer", "").strip())
 
                 if "Eigenmittel" in text:
-                    text = text.replace("Eigenmittel: €", "").replace(",", ".").strip()
-                    if text.count('.') > 1:
-                        first_period_index = text.index('.')
-                        # Keep the part of the string up to and including the first period, then remove all other periods
-                        text = text[:first_period_index + 1] + text[first_period_index + 1:].replace('.', '')
-
-                    fee = float(text)
+                    fee = string_to_float(text.replace("Eigenmittel: €", ""))
 
             listing = {
                 "title": title,
@@ -95,7 +103,7 @@ def extract_listing_info(soup: BeautifulSoup):
 
             listings.append(listing)
         except Exception as e:
-            logging.error("Error while extracting listing info from url %s", e)
+            logging.error(f" Error while extracting listing info from: {link}, {title}, error message: {e}")
 
     return listings
 
@@ -137,6 +145,8 @@ def oevw_scraper(timerObj: func.TimerRequest, q: func.Out[str]) -> None:
         # break if automatically redirected to page 1
         if req.url != req_url:
             break
+
+        logging.info(f'scraping page no #{page}')
 
         soup = BeautifulSoup(req.text, 'html.parser')
 
