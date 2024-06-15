@@ -99,7 +99,7 @@ def cosmos_db_setup_notification_settings(cosmos_db_client):
 
     for ud in USERDATA_PREFERENCES_FIXTURE:
         for i in range(len(ud["preferences"])):
-            pref = ud["preferences"][i]
+            pref = ud["preferences"][i].copy()
             pref["_partitionKey"] = pref["city"]
             pref["id"] = ud["user_id"]
             container.upsert_item(pref)
