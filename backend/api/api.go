@@ -260,7 +260,7 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 // @Tags userPreferences
 // @Accept json
 // @Produce json
-// @Param city path string true "The city assigned to the user"
+// @Param city path string true "The city the preference relate to"
 // @Success 200 {object} models.NotificationSettings "Successfully updates notification settings"
 // @Failure 404 {object} models.Error "Notification settings could not be updated"
 // @Failure 400 {object} models.Error "Bad request"
@@ -317,7 +317,8 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cLower := strings.ToLower(*ns.City)
+	city := req.Data.Req.Params["city"]
+	cLower := strings.ToLower(city)
 
 	ns.PartitionKey = cLower
 	ns.Id = clientId
