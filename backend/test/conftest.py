@@ -17,6 +17,7 @@ from .constants import (
     QUEUE_CONNECTION_STRING,
     LISTING_PREFERENCE_MATCH_INPUT_QUEUE_NAME,
     LISTING_PREFERENCE_MATCH_OUTPUT_QUEUE_NAME,
+    QUEUE_NAMES,
 )
 
 
@@ -69,6 +70,21 @@ def listing_preference_match_output_queue(queue_service_client):
     yield queue_client
 
     queue_client.clear_messages()
+
+
+@pytest.fixture(scope="module")
+def clear_queues(queue_service_client):
+    queues = QUEUE_NAMES
+
+    for queue_name in queues:
+        queue_client = queue_service_client.get_queue_client(queue_name)
+        queue_client.clear_messages()
+
+    yield
+
+    for queue_name in queues:
+        queue_client = queue_service_client.get_queue_client(queue_name)
+        queue_client.clear_messages()
 
 
 @pytest.fixture(scope="module")
