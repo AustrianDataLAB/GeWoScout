@@ -275,21 +275,20 @@ func genStringParamList(ids []string) ([]string, []azcosmos.QueryParameter) {
 
 func getPreferenceFieldMappings(listing *models.Listing) map[string]fieldMapping {
 	return map[string]fieldMapping{
-		"title":              {" AND c.title ? (CONTAINS(LOWER(@title), LOWER(c.title)) = true) : true", listing.Title},
-		"housingCooperative": {" AND c.housingCooperative ? (CONTAINS(LOWER(@housingCooperative), LOWER(c.housingCooperative)) = true) : true", listing.HousingCooperative},
-		"projectId":          {" AND c.projectId ? (LOWER(c.projectId) = LOWER(@projectId)) : true", listing.ProjectID},
-		"postalCodes":        {" AND c.postalCode ? (CONTAINS(c.postalCode, @postalCodes) = true) : true", listing.PostalCode},
-		"roomCount":          {" AND (c.minRoomCount ? (c.minRoomCount <= @roomCount) : true) AND (c.maxRoomCount ? (c.maxRoomCount >= @roomCount) : true)", listing.RoomCount},
-		"squareMeters":       {" AND (c.minSqm ? (c.minSqm <= @squareMeters) : true) AND (c.maxSqm ? (c.maxSqm >= @squareMeters) : true)", listing.SquareMeters},
-		"availabilityDate":   {" AND c.availableFrom ? (c.availableFrom <= @availabilityDate) : true", listing.AvailabilityDate},
-		"yearBuilt":          {" AND (c.minYearBuilt ? (c.minYearBuilt <= @yearBuilt) : true) AND (c.maxYearBuilt ? (c.maxYearBuilt >= @yearBuilt) : true)", listing.YearBuilt},
-		"hwgEnergyClass":     {" AND c.minHwgEnergyClass ? (ARRAY_CONTAINS(@hwgEnergyClass, c.minHwgEnergyClass) = true) : true", listing.HwgEnergyClass},
-		"fgeeEnergyClass":    {" AND c.minFgeeEnergyClass ? (ARRAY_CONTAINS(@fgeeEnergyClass, c.minFgeeEnergyClass) = true) : true", listing.FgeeEnergyClass},
-		// TODO listingType needs further attention because both = rent + buy
-		"listingType":       {" AND c.listingType ? (c.listingType = @listingType) : true", listing.ListingType},
-		"rentPricePerMonth": {" AND (c.minRentPrice ? (c.minRentPrice <= @rentPricePerMonth) : true) AND (c.maxRentPrice ? (c.maxRentPrice >= @rentPricePerMonth) : true)", listing.RentPricePerMonth},
-		"cooperativeShare":  {" AND (c.minCooperativeShare ? (c.minCooperativeShare <= @cooperativeShare) : true) AND (c.maxCooperativeShare ? (c.maxCooperativeShare >= @cooperativeShare) : true)", listing.CooperativeShare},
-		"salePrice":         {" AND (c.minSalePrice ? (c.minSalePrice <= @salePrice) : true) AND (c.maxSalePrice ? (c.maxSalePrice >= @salePrice) : true)", listing.SalePrice},
+		"title":              {" AND (NOT IS_DEFINED(c.title) OR (CONTAINS(LOWER(@title), LOWER(c.title)) = true))", listing.Title},
+		"housingCooperative": {" AND (NOT IS_DEFINED(c.housingCooperative) OR (CONTAINS(LOWER(@housingCooperative), LOWER(c.housingCooperative)) = true))", listing.HousingCooperative},
+		"projectId":          {" AND (NOT IS_DEFINED(c.projectId) OR (LOWER(c.projectId) = LOWER(@projectId)))", listing.ProjectID},
+		"postalCodes":        {" AND (NOT IS_DEFINED(c.postalCode) OR (CONTAINS(c.postalCode, @postalCodes) = true))", listing.PostalCode},
+		"roomCount":          {" AND ((NOT IS_DEFINED(c.minRoomCount) OR (c.minRoomCount <= @roomCount)) AND (NOT IS_DEFINED(c.maxRoomCount) OR (c.maxRoomCount >= @roomCount)))", listing.RoomCount},
+		"squareMeters":       {" AND ((NOT IS_DEFINED(c.minSqm) OR (c.minSqm <= @squareMeters)) AND (NOT IS_DEFINED(c.maxSqm) OR (c.maxSqm >= @squareMeters)))", listing.SquareMeters},
+		"availabilityDate":   {" AND (NOT IS_DEFINED(c.availableFrom) OR (c.availableFrom <= @availabilityDate))", listing.AvailabilityDate},
+		"yearBuilt":          {" AND ((NOT IS_DEFINED(c.minYearBuilt) OR (c.minYearBuilt <= @yearBuilt)) AND (NOT IS_DEFINED(c.maxYearBuilt) OR (c.maxYearBuilt >= @yearBuilt)))", listing.YearBuilt},
+		"hwgEnergyClass":     {" AND (NOT IS_DEFINED(c.minHwgEnergyClass) OR (ARRAY_CONTAINS(@hwgEnergyClass, c.minHwgEnergyClass) = true))", listing.HwgEnergyClass},
+		"fgeeEnergyClass":    {" AND (NOT IS_DEFINED(c.minFgeeEnergyClass) OR (ARRAY_CONTAINS(@fgeeEnergyClass, c.minFgeeEnergyClass) = true))", listing.FgeeEnergyClass},
+		"listingType":        {" AND (NOT IS_DEFINED(c.listingType) OR c.listingType = 'both' OR @listingType = 'both' OR c.listingType = @listingType)", listing.ListingType},
+		"rentPricePerMonth":  {" AND ((NOT IS_DEFINED(c.minRentPrice) OR (c.minRentPrice <= @rentPricePerMonth)) AND (NOT IS_DEFINED(c.maxRentPrice) OR (c.maxRentPrice >= @rentPricePerMonth)))", listing.RentPricePerMonth},
+		"cooperativeShare":   {" AND ((NOT IS_DEFINED(c.minCooperativeShare) OR (c.minCooperativeShare <= @cooperativeShare)) AND (NOT IS_DEFINED(c.maxCooperativeShare) OR (c.maxCooperativeShare >= @cooperativeShare)))", listing.CooperativeShare},
+		"salePrice":          {" AND ((NOT IS_DEFINED(c.minSalePrice) OR (c.minSalePrice <= @salePrice)) AND (NOT IS_DEFINED(c.maxSalePrice) OR (c.maxSalePrice >= @salePrice)))", listing.SalePrice},
 	}
 }
 
