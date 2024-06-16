@@ -41,8 +41,22 @@ jobs:
 
       - name: Go Test
         run: go test
+
+  pre-integration:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          concurrent_skipping: 'same_newer_content'
+          skip_after_successful_duplicate: 'true'
   
   integration-test:
+    needs: pre-integration
+    if: needs.pre-integration.outputs.should_skip != 'true'
+
     runs-on: windows-latest
     needs: build
     defaults:
@@ -50,11 +64,6 @@ jobs:
         working-directory: backend
 
     steps:
-      - name: Skip Duplicate Actions
-        uses: fkirc/skip-duplicate-actions@v5.3.1
-        with:
-          concurrent_skipping: same_content_newer
-
       - uses: actions/checkout@v4
 
       - name: Start Cosmos Emulator
