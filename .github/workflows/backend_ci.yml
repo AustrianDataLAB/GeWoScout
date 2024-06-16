@@ -50,7 +50,10 @@ jobs:
         working-directory: backend
 
     steps:
-      - uses: fkirc/skip-duplicate-actions@v5
+      - name: Skip duplicates
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          skip-duplicate-actions: same_content_newer
       - uses: actions/checkout@v4
 
       - name: Start Cosmos Emulator
