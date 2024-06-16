@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
-	"github.com/AustrianDataLAB/GeWoScout/backend/models"
-	"github.com/go-chi/render"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
+	"github.com/AustrianDataLAB/GeWoScout/backend/models"
+	"github.com/go-chi/render"
 )
 
 func (h *Handler) HandleNewListingResult(w http.ResponseWriter, r *http.Request) {

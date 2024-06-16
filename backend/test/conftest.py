@@ -6,6 +6,7 @@ import warnings
 import pytest
 import requests
 import urllib3
+from azure.core.exceptions import ResourceNotFoundError
 from azure.cosmos import PartitionKey, CosmosClient, exceptions
 from azure.storage.queue import QueueServiceClient
 
@@ -14,7 +15,8 @@ from .constants import (
     LISTINGS_FIXTURE,
     USERDATA_PREFERENCES_FIXTURE,
     QUEUE_CONNECTION_STRING,
-    QUEUE_NAMES,
+    LISTING_PREFERENCE_MATCH_INPUT_QUEUE_NAME,
+    LISTING_PREFERENCE_MATCH_OUTPUT_QUEUE_NAME,
 )
 
 
@@ -36,18 +38,37 @@ def queue_service_client():
 
 
 @pytest.fixture(scope="module")
-def clear_queues(queue_service_client):
-    queues = QUEUE_NAMES
-
-    for queue_name in queues:
-        queue_client = queue_service_client.get_queue_client(queue_name)
+def listing_preference_match_input_queue(queue_service_client):
+    try:
+        queue_client = queue_service_client.get_queue_client(
+            LISTING_PREFERENCE_MATCH_INPUT_QUEUE_NAME
+        )
         queue_client.clear_messages()
+    except ResourceNotFoundError:
+        queue_client = queue_service_client.create_queue(
+            LISTING_PREFERENCE_MATCH_INPUT_QUEUE_NAME
+        )
 
-    yield
+    yield queue_client
 
-    for queue_name in queues:
-        queue_client = queue_service_client.get_queue_client(queue_name)
+    queue_client.clear_messages()
+
+
+@pytest.fixture(scope="module")
+def listing_preference_match_output_queue(queue_service_client):
+    try:
+        queue_client = queue_service_client.get_queue_client(
+            LISTING_PREFERENCE_MATCH_OUTPUT_QUEUE_NAME
+        )
         queue_client.clear_messages()
+    except ResourceNotFoundError:
+        queue_client = queue_service_client.create_queue(
+            LISTING_PREFERENCE_MATCH_OUTPUT_QUEUE_NAME
+        )
+
+    yield queue_client
+
+    queue_client.clear_messages()
 
 
 @pytest.fixture(scope="module")

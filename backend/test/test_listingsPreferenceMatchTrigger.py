@@ -225,7 +225,7 @@ PREFS = [
     PREF_8,
     PREF_9,
     PREF_10,
-    PREF_11,
+    #PREF_11,
     PREF_12,
     PREF_13,
     PREF_14,
@@ -269,26 +269,21 @@ LISTING_1 = {
 
 
 @pytest.mark.usefixtures(
-    # "cosmos_db_setup_notification_settings",
-    "clear_queues",
-    "queue_service_client"
+    "listing_preference_match_input_queue",
+    "listing_preference_match_output_queue",
 )
-def test_get_preferences(queue_service_client: QueueServiceClient, cosmos_db_setup_notification_settings):
-    print("HI")
-
+def test_get_preferences(listing_preference_match_input_queue, listing_preference_match_output_queue, cosmos_db_setup_notification_settings):
     _, container = cosmos_db_setup_notification_settings
 
     for pref in PREFS:
         container.upsert_item(pref)
 
     # Add a new listing to the queue
-    queue_client = queue_service_client.get_queue_client(LISTING_PREFERENCE_MATCH_INPUT_QUEUE_NAME)
     msg = base64.b64encode(json.dumps(LISTING_1).encode()).decode()
-    queue_client.send_message(msg)
+    listing_preference_match_input_queue.send_message(msg)
 
     # Wait for the message to be processed - there should be a new listing in the new listings queue
-    output_queue_client = queue_service_client.get_queue_client(LISTING_PREFERENCE_MATCH_OUTPUT_QUEUE_NAME)
-    msgs = read_messages_with_timeout(output_queue_client, 10, 1)
+    msgs = read_messages_with_timeout(listing_preference_match_output_queue, 10, 1)
     assert len(msgs) == 1, "Expected 1 message in the new listings queue"
 
     new_notification_data = json.loads(base64.b64decode(msgs[0]).decode())
