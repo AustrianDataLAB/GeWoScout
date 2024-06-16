@@ -102,6 +102,7 @@ jobs:
         run: cd test; python prepare_fixture.py
 
       - name: Run integration tests
+        uses: fkirc/skip-duplicate-actions@v5
         run: cd test; pytest --junit-xml=test-results.xml
 
       - name: Upload test results
