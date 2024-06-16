@@ -67,7 +67,7 @@
                       {
                         "name": "bwsg_scraper Successes",
                         "resourceMetadata": {
-                          "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group}/providers/microsoft.insights/components/appinsights-gewoscout"
+                          "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group}/providers/microsoft.insights/components/${app_insights_name}"
                         },
                         "aggregationType": 1
                       }
@@ -88,7 +88,7 @@
                     "metrics": [
                       {
                         "resourceMetadata": {
-                          "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group}/providers/microsoft.insights/components/appinsights-gewoscout"
+                          "id": "/subscriptions/${subscription_id}/resourceGroups/${resource_group}/providers/microsoft.insights/components/${app_insights_name}"
                         },
                         "name": "customMetrics/bwsg_scraper Successes",
                         "aggregationType": 1,
@@ -101,7 +101,7 @@
                     "title": "Successful Execution Count",
                     "titleKind": 2,
                     "visualization": {
-                      "chartType": 2,
+                      "chartType": 1,
                       "legendVisualization": {
                         "isVisible": true,
                         "position": 2,
