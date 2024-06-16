@@ -387,7 +387,7 @@ func (h *Handler) GetUserPrefs(w http.ResponseWriter, r *http.Request) {
 // @Description Delete notification preferences of the user for the given city
 // @Tags userPreferences
 // @Param city path string true "The city the preferences relate to"
-// @Success 200 {object} "Successfully deleted notification settings"
+// @Success 200 {object} models.InvokeResponse "Successfully deleted notification settings"
 // @Failure 404 {object} models.Error "Notification settings could not be deleted"
 // @Failure 400 {object} models.Error "Bad request"
 // @Router /users/preferences/{city} [put]
