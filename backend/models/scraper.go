@@ -20,7 +20,7 @@ type ScraperResultListing struct {
 	RoomCount          int     `json:"roomCount"`
 	SquareMeters       int     `json:"squareMeters"`
 	AvailabilityDate   string  `json:"availabilityDate"`
-	YearBuilt          int     `json:"yearBuilt"`
+	YearBuilt          *int    `json:"yearBuilt,omitempty"`
 	HwgEnergyClass     *string `json:"hwgEnergyClass,omitempty"`
 	FgeeEnergyClass    *string `json:"fgeeEnergyClass,omitempty"`
 	ListingType        string  `json:"listingType"`
@@ -98,7 +98,7 @@ const ScraperResultListingSchema = `
 					"description": "The date when the flat becomes available for occupancy."
 				},
 				"yearBuilt": {
-					"type": "integer",
+					"type": ["integer", "null"],
 					"description": "The year when the building was constructed."
 				},
 				"hwgEnergyClass": {

@@ -14,7 +14,7 @@ type Listing struct {
 	RoomCount          int     `json:"roomCount"`
 	SquareMeters       int     `json:"squareMeters"`
 	AvailabilityDate   string  `json:"availabilityDate"`
-	YearBuilt          int     `json:"yearBuilt"`
+	YearBuilt          *int    `json:"yearBuilt"`
 	HwgEnergyClass     *string `json:"hwgEnergyClass"`
 	FgeeEnergyClass    *string `json:"fgeeEnergyClass"`
 	ListingType        string  `json:"listingType"`
