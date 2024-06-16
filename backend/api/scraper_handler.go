@@ -4,6 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"slices"
+	"strconv"
+	"strings"
+	"time"
+	"unicode"
+
 	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
@@ -12,16 +19,9 @@ import (
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
-	"net/http"
-	"slices"
-	"strconv"
-	"strings"
-	"time"
-	"unicode"
 )
 
 func (h *Handler) HandleScraperResult(w http.ResponseWriter, r *http.Request) {
-
 	injectedData := models.QueueBindingInput{}
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&injectedData); err != nil {
