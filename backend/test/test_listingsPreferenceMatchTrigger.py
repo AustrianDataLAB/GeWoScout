@@ -118,7 +118,7 @@ PREF_11 = {
     "id": "1241",
     "_partitionKey": "vienna",
     "city": "Vienna",
-    "availableFrom": "2023-12-31",
+    "availableFrom": "2024-10-01",
     "email": "test11@test.com"
 }
 
@@ -225,7 +225,7 @@ PREFS = [
     PREF_8,
     PREF_9,
     PREF_10,
-    #PREF_11,
+    PREF_11,
     PREF_12,
     PREF_13,
     PREF_14,
