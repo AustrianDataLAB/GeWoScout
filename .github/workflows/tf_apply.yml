@@ -36,8 +36,8 @@ jobs:
       TF_VAR_arm_tenant_id: ${{ startsWith(github.ref, vars.PRODUCTION_BRANCH_PREFIX) && vars.INFRA_TENANT_ID_PROD || vars.INFRA_TENANT_ID_DEV }}
       TF_VERSION: 1.7.5
 
-      TF_VAR_NOTIFICATION_EMAIL_PASSWORD: ${{ secrets.NOTIFICATION_EMAIL_PASSWORD }}
-      TF_VAR_NOTIFICATION_EMAIL_ADDRESS: ${{ secrets.NOTIFICATION_EMAIL_ADDRESS }}
+      TF_VAR_notification_email_password: ${{ secrets.NOTIFICATION_EMAIL_PASSWORD }}
+      TF_VAR_notification_email_address: ${{ secrets.NOTIFICATION_EMAIL_ADDRESS }}
 
     defaults:
       run:
