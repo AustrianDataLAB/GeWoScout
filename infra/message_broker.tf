@@ -23,3 +23,9 @@ resource "azurerm_storage_queue" "queue_new_listings" {
   name                 = "new-listings-queue"
   storage_account_name = azurerm_storage_account.sa_queue.name
 }
+
+# Storage Queue - buffer for notifications 
+resource "azurerm_storage_queue" "queue_listing_notifications" {
+  name                 = "listing-notifications-queue"
+  storage_account_name = azurerm_storage_account.sa_queue.name
+}
