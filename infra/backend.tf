@@ -49,6 +49,8 @@ resource "azurerm_linux_function_app" "fa_backend" {
     COSMOS_DB_CONNECTION     = azurerm_cosmosdb_account.db_acc.primary_sql_connection_string
     QUEUE_NAME               = azurerm_storage_queue.queue_scraper_backend.name
     QUEUE_CONNECTION_STRING  = azurerm_storage_account.sa_queue.primary_connection_string
+    NOTIFICATION_EMAIL_PASSWORD = var.notification_email_password
+    NOTIFICATION_EMAIL_ADDRESS = var.notification_email_address
   }
 
   zip_deploy_file = data.archive_file.backend_zip.output_path
