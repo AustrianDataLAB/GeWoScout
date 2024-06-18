@@ -306,15 +306,19 @@ func GetUsersMatchingWithListing(ctx context.Context, container *azcosmos.Contai
 		switch mapping.value.(type) {
 		case string:
 			if mapping.value != "" {
+				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
+			}
+		case *string:
+			if mapping.value != nil {
+				ecStr, ok := (mapping.value).(*string)
+				if !ok {
+					return nil, fmt.Errorf("value of %s has incorrect format", field)
+				}
 				if field == "hwgEnergyClass" || field == "fgeeEnergyClass" {
-					ecStr, ok := (mapping.value).(string)
-					if !ok {
-						return nil, fmt.Errorf("energy class has incorrect format")
-					}
-					ecClass := models.EnergyClass(ecStr)
+					ecClass := models.EnergyClass(*ecStr)
 					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[ecClass.GetIndex():])
 				} else {
-					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *ecStr)
 				}
 			}
 		case int:
