@@ -1,0 +1,65 @@
+[
+    {
+        "user_id": "123123",
+        "preferences": [
+            {
+                "_partitionKey": "123123",
+                "id": "vienna",
+                "city": "vienna",
+                "email": "test@test.com",
+                "title": "Test Title",
+                "housingCooperative": "Test Cooperative",
+                "projectId": "12345",
+                "postalCode": "123456",
+                "roomCount": 3,
+                "minRoomCount": 2,
+                "maxRoomCount": 4,
+                "minSqm": 50,
+                "maxSqm": 100,
+                "availableFrom": "2024-01-01",
+                "minYearBuilt": 1990,
+                "maxYearBuilt": 2020,
+                "minHwgEnergyClass": "A",
+                "minFgeeEnergyClass": "B",
+                "listingType": "rent",
+                "minRentPrice": 500,
+                "maxRentPrice": 1500,
+                "minCooperativeShare": 10000,
+                "maxCooperativeShare": 20000,
+                "minSalePrice": 200000
+            },
+            {
+                "_partitionKey": "123123",
+                "id": "graz",
+                "city": "graz",
+                "email": "test@test.com",
+                "minSqm": 50,
+                "maxSqm": 100,
+                "availableFrom": "2024-01-01",
+                "minYearBuilt": 1990,
+                "maxYearBuilt": 2020,
+                "minHwgEnergyClass": "A",
+                "minFgeeEnergyClass": "B",
+                "listingType": "rent",
+                "minRentPrice": 500,
+                "maxRentPrice": 1500,
+                "minCooperativeShare": 10000,
+                "maxCooperativeShare": 20000,
+                "minSalePrice": 200000
+            }
+        ]
+    },
+    {
+        "user_id": "321321",
+        "preferences": [
+            {
+                "_partitionKey": "321321",
+                "id": "graz",
+                "city": "graz",
+                "email": "test2@test.com",
+                "minSqm": 50,
+                "maxSqm": 100
+            }
+        ]
+    }
+]

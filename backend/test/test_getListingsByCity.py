@@ -6,7 +6,7 @@ import requests
 from .constants import API_BASE_URL, LISTINGS_FIXTURE
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "city,expected_listings_count", [("vienna", 7), ("graz", 1), ("salzburg", 1)]
 )
@@ -54,7 +54,7 @@ def test_get_all_listings_for_city(city, expected_listings_count):
     ), "Expected continuation token to be None"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 def test_get_listings_using_continuation_token():
     endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?pageSize=3"
 
@@ -145,7 +145,7 @@ def test_get_listings_using_continuation_token():
     ), "Expected continuation token to be None in the last page"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 def test_get_listings_for_nonexistent_city():
     endpoint_url = f"{API_BASE_URL}/cities/berlin/listings"
 
@@ -172,9 +172,9 @@ def test_get_listings_for_nonexistent_city():
     ), "Expected continuation token to be None"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
-def test_get_listings_has_default_page_size_10(cosmos_db_setup):
-    _database, container = cosmos_db_setup
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
+def test_get_listings_has_default_page_size_10(cosmos_db_setup_listings):
+    _database, container = cosmos_db_setup_listings
 
     # Insert 20 listings for Vienna
     for i in range(20):
@@ -192,7 +192,7 @@ def test_get_listings_has_default_page_size_10(cosmos_db_setup):
     ), "Expected continuation token to be present"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 def test_get_listings_query_min_flat_size():
     endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?minSqm=80"
     expected_ids = [
@@ -214,7 +214,7 @@ def test_get_listings_query_min_flat_size():
     ] == expected_ids, "Listing IDs do not match"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 def test_get_listings_query_max_flat_size():
     endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?maxSqm=80"
     expected_ids = [
@@ -236,7 +236,7 @@ def test_get_listings_query_max_flat_size():
     ] == expected_ids, "Listing IDs do not match"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 def test_get_listings_query_min_max_flat_size():
     endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?minSqm=80&maxSqm=100"
     expected_ids = [
@@ -258,7 +258,7 @@ def test_get_listings_query_min_max_flat_size():
     ] == expected_ids, "Listing IDs do not match"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 def test_get_listings_with_invalid_city_returns_error():
     endpoint_url = f"{API_BASE_URL}/cities/%20/listings"
 
@@ -267,7 +267,7 @@ def test_get_listings_with_invalid_city_returns_error():
     assert response.status_code == 400, "API did not return a 400 status code"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "continuation_token",
     [
@@ -293,7 +293,7 @@ def test_get_listings_invalid_page_size_returns_error(page_size):
     assert response.status_code == 400, "API did not return a 400 status code"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "size_query",
     [
@@ -314,7 +314,7 @@ def test_get_listings_invalid_size_query_returns_error(size_query):
     assert response.status_code == 400, "API did not return a 400 status code"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "endpoint, expected_ids",
     [
@@ -368,7 +368,7 @@ def test_get_listings_basic_query(endpoint, expected_ids):
     ] == expected_ids, "Listing IDs do not match"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "endpoint, min_room_count, max_room_count, room_count, expected_ids",
     [
@@ -434,7 +434,7 @@ def test_get_listings_room_count_query(
     ] == expected_ids, "Listing IDs do not match"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "min_room_count, max_room_count, expected_status",
     [
@@ -465,7 +465,7 @@ def test_get_listings_room_count_validation(
     ), f"API did not return expected status code {expected_status}"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "min_sqm, max_sqm, expected_status",
     [
@@ -484,7 +484,7 @@ def test_get_listings_sqm_validation(min_sqm, max_sqm, expected_status):
     ), f"API did not return expected status code {expected_status}"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "min_year_built, max_year_built, expected_status",
     [
@@ -505,7 +505,7 @@ def test_get_listings_year_built_validation(
     ), f"API did not return expected status code {expected_status}"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "date, expected_status",
     [
@@ -521,7 +521,7 @@ def test_get_listings_available_from_validation(date, expected_status):
     ), f"API did not return expected status code {expected_status}"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "min_class, expected_status",
     [
@@ -559,7 +559,7 @@ def test_get_listings_hwg_energy_class_validation(min_class, expected_status):
         ), f"Listing energy classes do not match the required minimum, should match {matching_classes}"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "min_class, expected_status",
     [
@@ -598,7 +598,7 @@ def test_get_listings_fgee_energy_class_validation(min_class, expected_status):
         ), "Listing energy classes do not match the required minimum"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "listing_type, expected_status",
     [
@@ -616,7 +616,7 @@ def test_get_listings_listing_type_validation(listing_type, expected_status):
     ), f"API did not return expected status code {expected_status}"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "param, value, expected_status",
     [
@@ -634,7 +634,7 @@ def test_get_listings_rent_price_validation(param, value, expected_status):
     ), f"API did not return expected status code {expected_status}"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "min_rent, max_rent, expected_status",
     [
@@ -650,7 +650,7 @@ def test_get_listings_rent_price_range_validation(min_rent, max_rent, expected_s
     ), f"API did not return expected status code {expected_status}"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "param, value, expected_status",
     [
@@ -668,7 +668,7 @@ def test_get_listings_cooperative_share_validation(param, value, expected_status
     ), f"API did not return expected status code {expected_status}"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "min_share, max_share, expected_status",
     [
@@ -686,7 +686,7 @@ def test_get_listings_cooperative_share_range_validation(
     ), f"API did not return expected status code {expected_status}"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "param, value, expected_status",
     [
@@ -704,7 +704,7 @@ def test_get_listings_sale_price_validation(param, value, expected_status):
     ), f"API did not return expected status code {expected_status}"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "min_price, max_price, expected_status",
     [
@@ -722,7 +722,7 @@ def test_get_listings_sale_price_range_validation(
     ), f"API did not return expected status code {expected_status}"
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize(
     "sort_by, sort_type, expected_sorted_field, expected_status",
     [

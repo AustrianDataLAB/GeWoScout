@@ -54,7 +54,7 @@ type fieldMapping struct {
 	value     interface{}
 }
 
-func getFieldMappings(query *models.Query) map[string]fieldMapping {
+func getFieldMappings(query *models.ListingsQuery) map[string]fieldMapping {
 	return map[string]fieldMapping{
 		"title":                {" AND CONTAINS(LOWER(c.title), LOWER(@title))", query.Title},
 		"housingCooperative":   {" AND CONTAINS(LOWER(c.housingCooperative), LOWER(@housingCooperative))", query.HousingCooperative},
@@ -80,7 +80,11 @@ func getFieldMappings(query *models.Query) map[string]fieldMapping {
 	}
 }
 
-func GetQueryItemsPager(container *azcosmos.ContainerClient, city string, query *models.Query) *runtime.Pager[azcosmos.QueryItemsResponse] {
+func GetListingsQueryItemsPager(
+	container *azcosmos.ContainerClient,
+	city string,
+	query *models.ListingsQuery,
+) *runtime.Pager[azcosmos.QueryItemsResponse] {
 	var sb strings.Builder
 	sb.WriteString("SELECT * FROM c WHERE c._partitionKey = @city")
 
@@ -197,6 +201,64 @@ func GetExistingIds(ctx context.Context, container *azcosmos.ContainerClient, id
 	return existingIds, nil
 }
 
+func GetUserData(ctx context.Context, container *azcosmos.ContainerClient, userId string) ([]models.UserData, error) {
+	queryParams := []azcosmos.QueryParameter{
+		{Name: "@userId", Value: userId},
+	}
+	options := azcosmos.QueryOptions{
+		QueryParameters: queryParams,
+	}
+	pager := container.NewQueryItemsPager("SELECT * FROM c WHERE c._partitionKey = @userId", azcosmos.NewPartitionKeyString(userId), &options)
+
+	uds := []models.UserData{}
+
+	for pager.More() {
+		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		page, err := pager.NextPage(ctx)
+		cancel()
+		if err != nil {
+			return nil, fmt.Errorf("failed to get next page: %w", err)
+		}
+
+		for _, item := range page.Items {
+			ud := models.UserData{}
+			if err := json.Unmarshal(item, &ud); err != nil {
+				return nil, fmt.Errorf("failed to unmarshal item: %w", err)
+			}
+
+			ud.City = &ud.Id
+
+			uds = append(uds, ud)
+		}
+	}
+
+	return uds, nil
+}
+
+func DeleteUserData(
+	ctx context.Context,
+	udContainer *azcosmos.ContainerClient,
+	nsContainer *azcosmos.ContainerClient,
+	userId string,
+	city string,
+) error {
+	ctx1, cancel1 := context.WithTimeout(ctx, 10*time.Second)
+	_, err := udContainer.DeleteItem(ctx1, azcosmos.NewPartitionKeyString(userId), strings.ToLower(city), nil)
+	cancel1()
+	if err != nil {
+		return fmt.Errorf("failed to delete user data item: %w", err)
+	}
+
+	ctx2, cancel2 := context.WithTimeout(ctx, 10*time.Second)
+	_, err = nsContainer.DeleteItem(ctx2, azcosmos.NewPartitionKeyString(strings.ToLower(city)), userId, nil)
+	cancel2()
+	if err != nil {
+		return fmt.Errorf("failed to delete notification settings item: %w", err)
+	}
+
+	return nil
+}
+
 func genStringParamList(ids []string) ([]string, []azcosmos.QueryParameter) {
 	placeholders := make([]string, len(ids))
 	parameters := make([]azcosmos.QueryParameter, len(ids))
@@ -209,4 +271,96 @@ func genStringParamList(ids []string) ([]string, []azcosmos.QueryParameter) {
 		}
 	}
 	return placeholders, parameters
+}
+
+func getPreferenceFieldMappings(listing *models.Listing) map[string]fieldMapping {
+	return map[string]fieldMapping{
+		"title":              {" AND (NOT IS_DEFINED(c.title) OR (CONTAINS(LOWER(@title), LOWER(c.title)) = true))", listing.Title},
+		"housingCooperative": {" AND (NOT IS_DEFINED(c.housingCooperative) OR (CONTAINS(LOWER(@housingCooperative), LOWER(c.housingCooperative)) = true))", listing.HousingCooperative},
+		"projectId":          {" AND (NOT IS_DEFINED(c.projectId) OR (LOWER(c.projectId) = LOWER(@projectId)))", listing.ProjectID},
+		"postalCodes":        {" AND (NOT IS_DEFINED(c.postalCode) OR (CONTAINS(c.postalCode, @postalCodes) = true))", listing.PostalCode},
+		"roomCount":          {" AND ((NOT IS_DEFINED(c.minRoomCount) OR (c.minRoomCount <= @roomCount)) AND (NOT IS_DEFINED(c.maxRoomCount) OR (c.maxRoomCount >= @roomCount)))", listing.RoomCount},
+		"squareMeters":       {" AND ((NOT IS_DEFINED(c.minSqm) OR (c.minSqm <= @squareMeters)) AND (NOT IS_DEFINED(c.maxSqm) OR (c.maxSqm >= @squareMeters)))", listing.SquareMeters},
+		"availabilityDate":   {" AND (NOT IS_DEFINED(c.availableFrom) OR (c.availableFrom <= @availabilityDate))", listing.AvailabilityDate},
+		"yearBuilt":          {" AND ((NOT IS_DEFINED(c.minYearBuilt) OR (c.minYearBuilt <= @yearBuilt)) AND (NOT IS_DEFINED(c.maxYearBuilt) OR (c.maxYearBuilt >= @yearBuilt)))", listing.YearBuilt},
+		"hwgEnergyClass":     {" AND (NOT IS_DEFINED(c.minHwgEnergyClass) OR (ARRAY_CONTAINS(@hwgEnergyClass, c.minHwgEnergyClass) = true))", listing.HwgEnergyClass},
+		"fgeeEnergyClass":    {" AND (NOT IS_DEFINED(c.minFgeeEnergyClass) OR (ARRAY_CONTAINS(@fgeeEnergyClass, c.minFgeeEnergyClass) = true))", listing.FgeeEnergyClass},
+		"listingType":        {" AND (NOT IS_DEFINED(c.listingType) OR c.listingType = 'both' OR @listingType = 'both' OR c.listingType = @listingType)", listing.ListingType},
+		"rentPricePerMonth":  {" AND ((NOT IS_DEFINED(c.minRentPrice) OR (c.minRentPrice <= @rentPricePerMonth)) AND (NOT IS_DEFINED(c.maxRentPrice) OR (c.maxRentPrice >= @rentPricePerMonth)))", listing.RentPricePerMonth},
+		"cooperativeShare":   {" AND ((NOT IS_DEFINED(c.minCooperativeShare) OR (c.minCooperativeShare <= @cooperativeShare)) AND (NOT IS_DEFINED(c.maxCooperativeShare) OR (c.maxCooperativeShare >= @cooperativeShare)))", listing.CooperativeShare},
+		"salePrice":          {" AND ((NOT IS_DEFINED(c.minSalePrice) OR (c.minSalePrice <= @salePrice)) AND (NOT IS_DEFINED(c.maxSalePrice) OR (c.maxSalePrice >= @salePrice)))", listing.SalePrice},
+	}
+}
+
+func GetUsersMatchingWithListing(ctx context.Context, container *azcosmos.ContainerClient, listing *models.Listing) ([]string, error) {
+	var sb strings.Builder
+	sb.WriteString("SELECT c.email FROM c WHERE c._partitionKey = @city")
+
+	queryParams := []azcosmos.QueryParameter{
+		{Name: "@city", Value: listing.PartitionKey},
+	}
+
+	fieldMappings := getPreferenceFieldMappings(listing)
+
+	for field, mapping := range fieldMappings {
+		switch mapping.value.(type) {
+		case string:
+			if mapping.value != "" {
+				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
+			}
+		case *string:
+			if mapping.value != nil {
+				ecStr, ok := (mapping.value).(*string)
+				if !ok {
+					return nil, fmt.Errorf("value of %s has incorrect format", field)
+				}
+				if field == "hwgEnergyClass" || field == "fgeeEnergyClass" {
+					ecClass := models.EnergyClass(*ecStr)
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[ecClass.GetIndex():])
+				} else {
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *ecStr)
+				}
+			}
+		case int:
+			addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
+		case *int:
+			if mapping.value != nil {
+				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
+			}
+		default:
+			continue
+		}
+
+	}
+
+	partitionKey := azcosmos.NewPartitionKeyString(listing.PartitionKey)
+
+	options := azcosmos.QueryOptions{
+		QueryParameters: queryParams,
+	}
+
+	pager := container.NewQueryItemsPager(sb.String(), partitionKey, &options)
+
+	emails := []string{}
+
+	type EmailItem struct {
+		Email string `json:"email"`
+	}
+
+	if pager.More() {
+		response, err := pager.NextPage(ctx)
+		if err != nil {
+			return []string{}, fmt.Errorf("failed to get matching user preferences: %s", err.Error())
+		}
+
+		for _, bytes := range response.Items {
+			var emailItem EmailItem
+			if err := json.Unmarshal(bytes, &emailItem); err != nil {
+				return []string{}, fmt.Errorf("failed to unmarshal email item: %s", err.Error())
+			}
+			emails = append(emails, emailItem.Email)
+		}
+	}
+
+	return emails, nil
 }
