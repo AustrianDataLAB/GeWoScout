@@ -51,6 +51,8 @@ resource "azurerm_linux_function_app" "fa_backend" {
     QUEUE_NEW_LISTINGS_NAME          = azurerm_storage_queue.queue_new_listings.name
     QUEUE_LISTING_NOTIFICATIONS_NAME = azurerm_storage_queue.queue_listing_notifications.name
     QUEUE_CONNECTION_STRING          = azurerm_storage_account.sa_queue.primary_connection_string
+    NOTIFICATION_EMAIL_PASSWORD = var.notification_email_password
+    NOTIFICATION_EMAIL_ADDRESS  = var.notification_email_address
   }
 
   zip_deploy_file = data.archive_file.backend_zip.output_path

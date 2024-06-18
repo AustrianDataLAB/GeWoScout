@@ -5,3 +5,15 @@ resource "azurerm_application_insights" "ai" {
   resource_group_name = data.azurerm_resource_group.rg.name
   application_type    = "other"
 }
+
+resource "azurerm_portal_dashboard" "main-dashboard" {
+  name                = "GewoScout-Main-Dashboard"
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+
+  dashboard_properties = templatefile("../dashboards/main.tpl", {
+    subscription_id   = "e31c37ff-9b82-4f6b-8337-51314cc300ff"
+    resource_group    = data.azurerm_resource_group.rg.name
+    app_insights_name = azurerm_application_insights.ai.name
+  })
+}

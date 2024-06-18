@@ -8,10 +8,18 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: `https://gewoscout-app-go.azurewebsites.net`, //https://localhost:3333
+        target: `https://gewoscout-app-go.azurewebsites.net`, //http://localhost:3333
         changeOrigin: true,
         secure: false
       }
+      /*
+      ,
+      '/.auth': {
+        target: 'http://localhost:3333',
+        changeOrigin: true,
+        secure: false
+      }
+      */
     }
   },
   plugins: [

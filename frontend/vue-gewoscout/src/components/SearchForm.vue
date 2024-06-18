@@ -1,11 +1,13 @@
 <script lang="ts" setup>
 import type SearchInputs from '@/types/SearchInputs';
-import { ref } from 'vue';
+import { onMounted, ref, type Ref } from 'vue';
 
 import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
 import InputNumber from 'primevue/inputnumber';
 import SelectButton from 'primevue/selectbutton';
+import { getListings } from '@/common/api-service';
+import { useListingsStore } from '@/common/store';
 
 const selectedPriceFrom = ref(null);
 const selectedPriceTo = ref();
@@ -16,17 +18,16 @@ const selectedRoomsTo = ref();
 const selectedAreaFrom = ref();
 const selectedAreaTo = ref();
 
-const searchInputs: SearchInputs = {
-  city: ''
-};
+const searchInputs: Ref<SearchInputs> = ref({
+  city: 'vienna',
+  geno: ''
+});
 
-const selectedCity = ref('vienna');
 const cities = ref([
   { name: 'Vienna', code: 'vienna' },
   { name: 'Graz', code: 'graz' }
 ]);
 
-const selectedGeno = ref();
 const genos = ref([
   { name: 'bwsg', code: 'bwsg' },
   { name: 'ÖVW', code: 'oevw' }
@@ -34,6 +35,16 @@ const genos = ref([
 
 const selectedTypes = ref(['All']);
 const types = ref(['All', 'Rent', 'Rent + Option to buy']);
+
+const listingsStore = useListingsStore();
+
+onMounted(async () => {
+  listingsStore.listings = await getListings(searchInputs.value);
+});
+
+async function search() {
+  listingsStore.listings = await getListings(searchInputs.value);
+}
 </script>
 
 <template>
@@ -54,7 +65,7 @@ const types = ref(['All', 'Rent', 'Rent + Option to buy']);
         <label for="city">City</label>
         <Dropdown
           id="city"
-          v-model="selectedCity"
+          v-model="searchInputs.city"
           :options="cities"
           showClear
           optionLabel="name"
@@ -67,7 +78,7 @@ const types = ref(['All', 'Rent', 'Rent + Option to buy']);
         <label for="geno">Genossenschaft</label>
         <Dropdown
           id="geno"
-          v-model="selectedGeno"
+          v-model="searchInputs.geno"
           :options="genos"
           showClear
           optionLabel="name"
@@ -131,7 +142,8 @@ const types = ref(['All', 'Rent', 'Rent + Option to buy']);
         </div>
       </div>
       <div class="field col-4 text-right align-self-end">
-        <Button label="Reset Filters" icon="pi pi-undo" severity="secondary" />
+        <Button class="mr-3" label="Reset Filters" icon="pi pi-undo" severity="secondary" />
+        <Button label="Search" icon="pi pi-search" @click="search()" />
       </div>
     </div>
   </div>

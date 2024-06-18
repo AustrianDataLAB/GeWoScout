@@ -547,10 +547,14 @@ def test_get_listings_hwg_energy_class_validation(min_class, expected_status):
     ), f"API did not return expected status code {expected_status}"
     if expected_status == 200:
         response_json = response.json()
-        valid_classes = ["A++", "A+", "A", "B", "C", "D", "E", "F"]
+        valid_classes = ["A++", "A+", "A", "B", "C", "D", "E", "F", "G", None]
         max_index = valid_classes.index(min_class)
         assert all(
-            l["hwgEnergyClass"] in valid_classes[: max_index + 1] if min_class != "F" else valid_classes + [""] 
+            (
+                l["hwgEnergyClass"] in valid_classes[: max_index + 1]
+                if min_class is not None and min_class != "G"
+                else valid_classes + [""]
+            )
             for l in response_json["results"]
         ), f"Listing energy classes do not match the required minimum, should match {matching_classes}"
 
@@ -581,10 +585,15 @@ def test_get_listings_fgee_energy_class_validation(min_class, expected_status):
     ), f"API did not return expected status code {expected_status}"
     if expected_status == 200:
         response_json = response.json()
-        valid_classes = ["A++", "A+", "A", "B", "C", "D", "E", "F"]
+        valid_classes = ["A++", "A+", "A", "B", "C", "D", "E", "F", "G", None]
         max_index = valid_classes.index(min_class)
         assert all(
-            l["fgeeEnergyClass"] in (valid_classes[: max_index + 1] if min_class != "F" else valid_classes + [""])
+            l["fgeeEnergyClass"]
+            in (
+                valid_classes[: max_index + 1]
+                if min_class is not None and min_class != "G"
+                else valid_classes + [""]
+            )
             for l in response_json["results"]
         ), "Listing energy classes do not match the required minimum"
 
@@ -743,11 +752,11 @@ def test_get_listings_sort_by(
         listings = response_json["results"]
         if sort_type == "ASC":
             assert listings == sorted(
-                listings, key=lambda x: x.get(expected_sorted_field, float("inf"))
+                listings, key=lambda x: x.get(expected_sorted_field is None, float("inf"))
             ), f"Listings are not sorted in ascending order by {sort_by}"
         elif sort_type == "DESC":
             assert listings == sorted(
                 listings,
-                key=lambda x: x.get(expected_sorted_field, float("-inf")),
+                key=lambda x: x.get(expected_sorted_field is None, float("-inf")),
                 reverse=True,
             ), f"Listings are not sorted in descending order by {sort_by}"
