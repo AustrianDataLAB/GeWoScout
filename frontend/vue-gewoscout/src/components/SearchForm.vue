@@ -44,7 +44,8 @@ const cities = ref([
 
 const genos = ref([
   { name: 'bwsg', code: 'bwsg' },
-  { name: 'ÖVW', code: 'oevw' }
+  { name: 'ÖVW', code: 'oevw' },
+  { name: 'wbv-gpa', code: 'wbv-gpa' }
 ]);
 
 const energyClasses = ref([

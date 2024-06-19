@@ -23,7 +23,8 @@ window.onscroll = () => {
 </script>
 
 <template>
-  <div class="cards mt-3 grid">
+  <h1 v-if="listingsStore.listings.length == 0">Teeest</h1>
+  <div v-else class="cards mt-3 grid">
     <div class="col-12 lg:col-4" v-for="(item, index) in listingsStore.listings" :key="index">
       <Card style="overflow: hidden">
         <template #header>
