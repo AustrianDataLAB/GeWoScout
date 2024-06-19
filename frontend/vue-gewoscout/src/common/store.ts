@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { ref, type Ref } from 'vue';
 
 export const useListingsStore = defineStore('listings', () => {
-  const listings: Ref<Listing[]> = ref([]);
+  const listings: Ref<Listing[] | null> = ref(null);
   const continuationToken: Ref<string | null> = ref(null);
 
   return { listings, continuationToken };

@@ -5,9 +5,22 @@ import SearchForm from '../SearchForm.vue';
 import PrimeVue from 'primevue/config';
 import { createPinia, setActivePinia } from 'pinia';
 
+// Import PrimeVue and its styles
+import 'primevue/resources/themes/lara-light-amber/theme.css';
+import 'primeicons/primeicons.css';
+import 'primeflex/primeflex.css';
+
 describe('SearchForm', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+
+    window.matchMedia =
+      window.matchMedia ||
+      function () {
+        return {
+          addEventListener: function () {}
+        };
+      };
   });
 
   it('renders properly', () => {
@@ -19,7 +32,10 @@ describe('SearchForm', () => {
         mocks: {
           $primevue: {
             config: {
-              ripple: true
+              ripple: true,
+              locale: {
+                firstDayOfWeek: 0 // Setting Sunday as the first day of the week
+              }
             }
           }
         }
