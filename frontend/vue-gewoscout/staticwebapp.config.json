@@ -4,7 +4,7 @@
   },
   "routes": [
     {
-      "route": "/api/*",
+      "route": "/api/users/*",
       "allowedRoles": ["authenticated"]
     }
   ]
