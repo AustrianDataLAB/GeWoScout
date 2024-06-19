@@ -16,10 +16,10 @@ import { useListingsStore } from '@/common/store';
 import { EnergyClass, Type } from '@/types/Enums';
 
 const searchInputs: Ref<SearchInputs> = ref({
+  listingType: Type.both,
   city: 'vienna',
   housingCooperative: '',
   postalCode: '',
-  roomCount: null,
   minRoomCount: null,
   maxRoomCount: null,
   minSqm: null,
@@ -29,7 +29,6 @@ const searchInputs: Ref<SearchInputs> = ref({
   maxYearBuilt: null,
   minHwgEnergyClass: null,
   minFgeeEnergyClass: null,
-  listingType: Type.both,
   minRentPricePerMonth: null,
   maxRentPricePerMonth: null,
   minCooperativeShare: null,
@@ -59,8 +58,11 @@ const energyClasses = ref([
   { name: 'F', value: EnergyClass.F }
 ]);
 
-const selectedTypes = ref(['All']);
-const types = ref(['All', 'Rent', 'Sale']);
+const types = ref([
+  { name: 'All', type: Type.both },
+  { name: 'Rent', type: Type.rent },
+  { name: 'Sale', type: Type.sale }
+]);
 
 const listingsStore = useListingsStore();
 
@@ -71,6 +73,30 @@ onMounted(async () => {
 async function search() {
   listingsStore.listings = await getListings(searchInputs.value);
 }
+
+function reset() {
+  searchInputs.value = {
+    listingType: Type.both,
+    city: 'vienna',
+    housingCooperative: '',
+    postalCode: '',
+    minRoomCount: null,
+    maxRoomCount: null,
+    minSqm: null,
+    maxSqm: null,
+    availableFrom: null,
+    minYearBuilt: null,
+    maxYearBuilt: null,
+    minHwgEnergyClass: null,
+    minFgeeEnergyClass: null,
+    minRentPricePerMonth: null,
+    maxRentPricePerMonth: null,
+    minCooperativeShare: null,
+    maxCooperativeShare: null,
+    minSalePrice: null,
+    maxSalePrice: null
+  };
+}
 </script>
 
 <template>
@@ -80,10 +106,11 @@ async function search() {
         <label for="type">Type of acquisition</label>
         <SelectButton
           id="type"
-          v-model="selectedTypes"
+          v-model="searchInputs.listingType"
           :options="types"
-          multiple
-          aria-labelledby="multiple"
+          optionLabel="name"
+          optionValue="type"
+          aria-labelledby="basic"
           class="w-full"
         />
       </div>
@@ -175,7 +202,13 @@ async function search() {
         </div>
       </div>
       <div class="field col-3 text-right align-self-end">
-        <Button class="mr-3" label="Reset Filters" icon="pi pi-undo" severity="secondary" />
+        <Button
+          class="mr-3"
+          label="Reset Filters"
+          icon="pi pi-undo"
+          severity="secondary"
+          @click="reset()"
+        />
         <Button label="Search" icon="pi pi-search" @click="search()" />
       </div>
     </div>
