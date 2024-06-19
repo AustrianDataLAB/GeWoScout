@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { getLoggedInUser } from '@/common/user-service';
 import { useUserStore } from '@/common/store';
+import { getUserPreferences } from '@/common/api-service';
 
 const userStore = useUserStore();
 
@@ -15,7 +16,7 @@ const usermenuItems = ref([
         label: 'Settings',
         icon: 'pi pi-cog',
         command: () => {
-          settingsDialogVisible.value = true;
+          openSettingsDialog();
         }
       },
       {
@@ -46,6 +47,12 @@ onMounted(async () => {
 const toggle = (event: any) => {
   usermenu.value.toggle(event);
 };
+
+async function openSettingsDialog() {
+  settingsDialogVisible.value = true;
+
+  const userPreferences = await getUserPreferences();
+}
 
 async function login() {
   window.open('/.auth/login/aad', '_self');

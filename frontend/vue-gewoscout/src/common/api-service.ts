@@ -102,3 +102,18 @@ export async function getListings(searchInputs: SearchInputs): Promise<Listing[]
     return [];
   }
 }
+
+export async function getUserPreferences(): Promise<Listing[]> {
+  try {
+    const response = await axios.get(`/api/users/preferences`);
+
+    console.log(response);
+    console.log(response.data);
+
+    return [];
+  } catch (error) {
+    console.error(error);
+
+    return [];
+  }
+}
