@@ -20,7 +20,6 @@ interface ListingsParams {
   maxYearBuilt?: number;
   minHwgEnergyClass?: string;
   minFgeeEnergyClass?: string;
-
   minCooperativeShare?: number;
   maxCooperativeShare?: number;
   minSalePrice?: number;
@@ -28,67 +27,9 @@ interface ListingsParams {
 }
 
 export async function getListings(searchInputs: SearchInputs): Promise<Listing[]> {
-  const params: ListingsParams = {
-    listingType: Type[searchInputs.listingType]
-  };
-
-  if (searchInputs.housingCooperative !== '') {
-    params.housingCooperative = searchInputs.housingCooperative;
-  }
-  if (searchInputs.postalCode !== '') {
-    params.postalCode = searchInputs.postalCode;
-  }
-  if (searchInputs.minRoomCount !== null) {
-    params.minRoomCount = searchInputs.minRoomCount;
-  }
-  if (searchInputs.maxRoomCount !== null) {
-    params.maxRoomCount = searchInputs.maxRoomCount;
-  }
-  if (searchInputs.minSqm !== null) {
-    params.minSqm = searchInputs.minSqm;
-  }
-  if (searchInputs.maxSqm !== null) {
-    params.maxSqm = searchInputs.maxSqm;
-  }
-  if (searchInputs.availableFrom !== null) {
-    params.availableFrom = searchInputs.availableFrom.toISOString();
-  }
-  if (searchInputs.minYearBuilt !== null) {
-    params.minYearBuilt = searchInputs.minYearBuilt;
-  }
-  if (searchInputs.maxYearBuilt !== null) {
-    params.maxYearBuilt = searchInputs.maxYearBuilt;
-  }
-  if (searchInputs.minRentPricePerMonth !== null) {
-    params.minRentPricePerMonth = searchInputs.minRentPricePerMonth;
-  }
-  if (searchInputs.maxRentPricePerMonth !== null) {
-    params.maxRentPricePerMonth = searchInputs.maxRentPricePerMonth;
-  }
-  if (searchInputs.minCooperativeShare !== null) {
-    params.minCooperativeShare = searchInputs.minCooperativeShare;
-  }
-  if (searchInputs.maxCooperativeShare !== null) {
-    params.maxCooperativeShare = searchInputs.maxCooperativeShare;
-  }
-  if (searchInputs.minSalePrice !== null) {
-    params.minSalePrice = searchInputs.minSalePrice;
-  }
-  if (searchInputs.maxSalePrice !== null) {
-    params.maxSalePrice = searchInputs.maxSalePrice;
-  }
-  if (searchInputs.minHwgEnergyClass !== null) {
-    params.minHwgEnergyClass = EnergyClass[searchInputs.minHwgEnergyClass];
-  }
-  if (searchInputs.minFgeeEnergyClass !== null) {
-    params.minFgeeEnergyClass = EnergyClass[searchInputs.minFgeeEnergyClass];
-  }
-
-  console.log(params);
-
   try {
     const response = await axios.get(`/api/cities/${searchInputs.city}/listings`, {
-      params: params
+      params: convertInputToOptionalParamsObj(searchInputs)
     });
 
     console.log(response);
@@ -103,9 +44,9 @@ export async function getListings(searchInputs: SearchInputs): Promise<Listing[]
   }
 }
 
-export async function getUserPreferences(): Promise<Listing[]> {
+export async function getUserPreferences(): Promise<SearchInputs[]> {
   try {
-    const response = await axios.get(`/api/users/preferences`);
+    const response = await axios.get('/api/users/preferences');
 
     console.log(response);
     console.log(response.data);
@@ -116,4 +57,82 @@ export async function getUserPreferences(): Promise<Listing[]> {
 
     return [];
   }
+}
+
+export async function setUserPreferences(preferences: SearchInputs): Promise<boolean> {
+  try {
+    const response = await axios.put(`/api/users/preferences/${preferences.city}`, {
+      params: convertInputToOptionalParamsObj(preferences)
+    });
+
+    console.log(response);
+    console.log(response.data);
+
+    return true;
+  } catch (error) {
+    console.error(error);
+
+    return false;
+  }
+}
+
+function convertInputToOptionalParamsObj(input: SearchInputs): ListingsParams {
+  const params: ListingsParams = {
+    listingType: Type[input.listingType]
+  };
+
+  if (input.housingCooperative !== '') {
+    params.housingCooperative = input.housingCooperative;
+  }
+  if (input.postalCode !== '') {
+    params.postalCode = input.postalCode;
+  }
+  if (input.minRoomCount !== null) {
+    params.minRoomCount = input.minRoomCount;
+  }
+  if (input.maxRoomCount !== null) {
+    params.maxRoomCount = input.maxRoomCount;
+  }
+  if (input.minSqm !== null) {
+    params.minSqm = input.minSqm;
+  }
+  if (input.maxSqm !== null) {
+    params.maxSqm = input.maxSqm;
+  }
+  if (input.availableFrom !== null) {
+    params.availableFrom = input.availableFrom.toISOString();
+  }
+  if (input.minYearBuilt !== null) {
+    params.minYearBuilt = input.minYearBuilt;
+  }
+  if (input.maxYearBuilt !== null) {
+    params.maxYearBuilt = input.maxYearBuilt;
+  }
+  if (input.minRentPricePerMonth !== null) {
+    params.minRentPricePerMonth = input.minRentPricePerMonth;
+  }
+  if (input.maxRentPricePerMonth !== null) {
+    params.maxRentPricePerMonth = input.maxRentPricePerMonth;
+  }
+  if (input.minCooperativeShare !== null) {
+    params.minCooperativeShare = input.minCooperativeShare;
+  }
+  if (input.maxCooperativeShare !== null) {
+    params.maxCooperativeShare = input.maxCooperativeShare;
+  }
+  if (input.minSalePrice !== null) {
+    params.minSalePrice = input.minSalePrice;
+  }
+  if (input.maxSalePrice !== null) {
+    params.maxSalePrice = input.maxSalePrice;
+  }
+  if (input.minHwgEnergyClass !== null) {
+    params.minHwgEnergyClass = EnergyClass[input.minHwgEnergyClass];
+  }
+  if (input.minFgeeEnergyClass !== null) {
+    params.minFgeeEnergyClass = EnergyClass[input.minFgeeEnergyClass];
+  }
+
+  console.log(params);
+  return params;
 }
