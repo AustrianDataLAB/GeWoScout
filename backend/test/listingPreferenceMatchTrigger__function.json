@@ -4,14 +4,14 @@
       "name": "msg",
       "type": "queueTrigger",
       "direction": "in",
-      "queueName": "%QUEUE_SCRAPER_RESULT_NAME%",
+      "queueName": "listing-preference-match-input-queue",
       "connection": "QUEUE_CONNECTION_STRING"
     },
     {
       "name": "msgOut",
       "type": "queue",
       "direction": "out",
-      "queueName": "%QUEUE_NEW_LISTINGS_NAME%",
+      "queueName": "listing-preference-match-output-queue",
       "connection": "QUEUE_CONNECTION_STRING"
     }
   ]

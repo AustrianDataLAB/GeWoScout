@@ -41,10 +41,24 @@ jobs:
 
       - name: Go Test
         run: go test
+
+  pre-integration:
+    runs-on: ubuntu-latest
+    needs: build
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          concurrent_skipping: 'same_content_newer'
+          skip_after_successful_duplicate: 'true'
   
   integration-test:
+    needs: pre-integration
+    if: needs.pre-integration.outputs.should_skip != 'true'
+
     runs-on: windows-latest
-    needs: build
     defaults:
       run:
         working-directory: backend
@@ -96,6 +110,7 @@ jobs:
           mkdir bin
           go build -o bin/handler .
           Copy-Item -Path test/test.settings.json -Destination local.settings.json
+          Copy-Item -Path test/listingPreferenceMatchTrigger__function.json -Destination listingPreferenceMatchTrigger/function.json
 
       - name: Prepare db/container for test
         run: cd test; python prepare_fixture.py

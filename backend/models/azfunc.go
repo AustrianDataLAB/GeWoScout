@@ -2,95 +2,51 @@ package models
 
 import (
 	"encoding/json"
-	"io"
-	"time"
-
-	"github.com/go-playground/validator/v10"
 )
 
-type Query struct {
-	ContinuationToken    *string      `json:"continuationToken"`
-	PageSize             *int         `json:"pageSize,string" validate:"omitempty,gt=0,lte=30"`
-	Title                *string      `json:"title" validate:"omitempty"`
-	HousingCooperative   *string      `json:"housingCooperative" validate:"omitempty"`
-	ProjectId            *string      `json:"projectId" validate:"omitempty"`
-	PostalCode           *string      `json:"postalCode" validate:"omitempty"`
-	RoomCount            *int         `json:"roomCount,string" validate:"omitempty,gt=0"`
-	MinRoomCount         *int         `json:"minRoomCount,string" validate:"omitempty,gt=0"`
-	MaxRoomCount         *int         `json:"maxRoomCount,string" validate:"omitempty,gt=0,gtfieldcustom=MinRoomCount"`
-	MinSquareMeters      *int         `json:"minSqm,string" validate:"omitempty,gt=0"`
-	MaxSquareMeters      *int         `json:"maxSqm,string" validate:"omitempty,gt=0,gtfieldcustom=MinSquareMeters"`
-	AvailableFrom        *string      `json:"availableFrom" validate:"omitempty,datecustom"`
-	MinYearBuilt         *int         `json:"minYearBuilt,string" validate:"omitempty,gt=1900"`
-	MaxYearBuilt         *int         `json:"maxYearBuilt,string" validate:"omitempty,gt=1900,gtfieldcustom=MinYearBuilt"`
-	MinHwgEnergyClass    *EnergyClass `json:"minHwgEnergyClass" validate:"omitempty,energycustom"`
-	MinFgeeEnergyClass   *EnergyClass `json:"minFgeeEnergyClass" validate:"omitempty,energycustom"`
-	ListingType          *ListingType `json:"listingType" validate:"omitempty,listingtypecustom"`
-	MinRentPricePerMonth *int         `json:"minRentPrice,string" validate:"omitempty,gt=0"`
-	MaxRentPricePerMonth *int         `json:"maxRentPrice,string" validate:"omitempty,gt=0,gtfieldcustom=MinRentPricePerMonth"`
-	MinCooperativeShare  *int         `json:"minCooperativeShare,string" validate:"omitempty,gt=0"`
-	MaxCooperativeShare  *int         `json:"maxCooperativeShare,string" validate:"omitempty,gt=0,gtfieldcustom=MinCooperativeShare"`
-	MinSalePrice         *int         `json:"minSalePrice,string" validate:"omitempty,gt=0"`
-	MaxSalePrice         *int         `json:"maxSalePrice,string" validate:"omitempty,gt=0,gtfieldcustom=MinSalePrice"`
-	SortBy               *string
-	SortType             *SortType `json:"sortType" validate:"omitempty,sorttypecustom"`
-}
+const (
+	CLIENT_PRINCIPAL_KEY    = "X-MS-CLIENT-PRINCIPAL"
+	CLIENT_PRINCIPAL_ID_KEY = "X-MS-CLIENT-PRINCIPAL-ID"
+)
 
-func enumFieldValidator[T StringEnum](fl validator.FieldLevel) bool {
-	value := fl.Field().Interface().(T)
-	return value.IsEnumValue()
-}
-
-func gtFieldIgnoreNilValidator(fl validator.FieldLevel) bool {
-	otherField := fl.Parent().FieldByName(fl.Param())
-	if !otherField.IsNil() {
-		return otherField.Elem().Int() <= fl.Field().Int()
-	}
-	return true
-}
-
-func dateCustomValidator(fl validator.FieldLevel) bool {
-	_, err := time.Parse("2006-01-02", fl.Field().String())
-	return err == nil
-}
-
-type InvokeRequest struct {
+type InvokeRequest[Q any] struct {
 	Data struct {
 		Req struct {
 			Url        string
 			Method     string
-			Query      Query
-			Headers    map[string]interface{}
+			Query      Q
+			Headers    map[string][]string
 			Host       []string
 			UserAgent  []string `json:"User-Agent"`
 			Params     map[string]string
-			Identities []interface{}
+			Identities []Identity
+			Body       string
 		} `json:"req"`
 	}
 	Metadata map[string]interface{}
 }
 
-func InvokeRequestFromBody(body io.ReadCloser) (ir InvokeRequest, err error) {
-	var b []byte
-	b, err = io.ReadAll(io.Reader(body))
-	defer body.Close()
-	if err != nil {
-		return
-	}
+type Identity struct {
+	AuthenticationType *string `json:"AuthenticationType"`
+	IsAuthenticated    bool    `json:"IsAuthenticated"`
+	Actor              *string `json:"Actor"`
+	BootstrapContext   *string `json:"BootstrapContext"`
+	Label              *string `json:"Label"`
+	Name               *string `json:"Name"`
+	NameClaimType      string  `json:"NameClaimType"`
+	RoleClaimType      string  `json:"RoleClaimType"`
+}
 
-	err = json.Unmarshal(b, &ir)
-	if err != nil {
-		return
-	}
+type UserPrincipal struct {
+	AuthTyp string  `json:"auth_typ"`
+	Claims  []Claim `json:"claims"`
+	NameTyp string  `json:"name_typ"`
+	RoleTyp string  `json:"role_typ"`
+}
 
-	validate := validator.New(validator.WithRequiredStructEnabled())
-	validate.RegisterValidation("datecustom", dateCustomValidator)
-	validate.RegisterValidation("gtfieldcustom", gtFieldIgnoreNilValidator)
-	validate.RegisterValidation("energycustom", enumFieldValidator[EnergyClass])
-	validate.RegisterValidation("listingtypecustom", enumFieldValidator[ListingType])
-	validate.RegisterValidation("sorttypecustom", enumFieldValidator[SortType])
-	err = validate.Struct(ir)
-	return
+type Claim struct {
+	Typ string `json:"typ"`
+	Val string `json:"val"`
 }
 
 type HttpResponse struct {

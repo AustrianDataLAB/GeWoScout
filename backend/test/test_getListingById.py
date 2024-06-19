@@ -4,7 +4,7 @@ import requests
 from .constants import API_BASE_URL, LISTINGS_FIXTURE
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize("id_comb", [
     ("vienna", "ArtHabitat_AHProj053_AHFlat678"),
     ("salzburg", "ArtHabitat_AHProj055_AHFlat681"),
@@ -28,7 +28,7 @@ def test_get_listing(id_comb):
         assert response_data[key] == expected_listing[key]
 
 
-@pytest.mark.usefixtures("cosmos_db_setup")
+@pytest.mark.usefixtures("cosmos_db_setup_listings")
 @pytest.mark.parametrize("id_comb", [
     ("unknown", "ArtHabitat_AHProj055_AHFlat681"),  # unknown city
     ("salzburg", "unknown"),  # unknown listing

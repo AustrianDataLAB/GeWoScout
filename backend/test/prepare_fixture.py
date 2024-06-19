@@ -2,8 +2,7 @@ import urllib3
 from azure.cosmos import CosmosClient, PartitionKey
 from azure.storage.queue import QueueServiceClient
 
-from constants import COSMOS_CONNECTION_STRING, QUEUE_CONNECTION_STRING, SCRAPER_RESULTS_QUEUE_NAME, \
-    NEW_LISTINGS_QUEUE_NAME
+from constants import COSMOS_CONNECTION_STRING, QUEUE_CONNECTION_STRING, QUEUE_NAMES
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -24,7 +23,7 @@ if __name__ == "__main__":
     queue_client = QueueServiceClient.from_connection_string(QUEUE_CONNECTION_STRING)
     existing_queues = [x["name"] for x in queue_client.list_queues()]
 
-    expected_queues = [SCRAPER_RESULTS_QUEUE_NAME, NEW_LISTINGS_QUEUE_NAME]
+    expected_queues = QUEUE_NAMES
     for queue in expected_queues:
         if queue not in existing_queues:
             queue_client.create_queue(queue)

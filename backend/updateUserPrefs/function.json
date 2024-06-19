@@ -1,0 +1,39 @@
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "put"
+      ],
+      "route": "users/preferences/{city}"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "out",
+      "name": "dbres1",
+      "partitionKey": "/_partitionKey",
+      "connection": "COSMOS_DB_CONNECTION",
+      "databaseName": "gewoscout-db",
+      "containerName": "NotificationSettingsByCity",
+      "createIfNotExists": true
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "out",
+      "name": "dbres2",
+      "partitionKey": "/_partitionKey",
+      "connection": "COSMOS_DB_CONNECTION",
+      "databaseName": "gewoscout-db",
+      "containerName": "UserDataByUserId",
+      "createIfNotExists": true
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    }
+  ]
+}
