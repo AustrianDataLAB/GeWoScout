@@ -297,6 +297,13 @@ const server = createServer((req, res) => {
     return;
   }
 
+  if (req.url.match("/.auth/logout/?")) {
+    console.log(req.url);
+    loggedIn = false;
+    res.end("OK");
+    return;
+  }
+
   res.end(JSON.stringify({results: listings}));
 });
 

@@ -1,5 +1,5 @@
-import type { User } from "@/types/User";
-import axios from "axios";
+import type { User } from '@/types/User';
+import axios from 'axios';
 
 export async function getLoggedInUser(): Promise<User | null> {
   try {
@@ -17,7 +17,7 @@ export async function getLoggedInUser(): Promise<User | null> {
       identityProvider: response.data.clientPrincipal.identityProvider,
       userId: response.data.clientPrincipal.userId,
       userDetails: response.data.clientPrincipal.userDetails,
-      userRoles: response.data.clientPrincipal.userRoles,
+      userRoles: response.data.clientPrincipal.userRoles
     };
   } catch (error) {
     console.error(error);

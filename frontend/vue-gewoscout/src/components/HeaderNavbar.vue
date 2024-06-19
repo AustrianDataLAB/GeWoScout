@@ -1,27 +1,64 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { getLoggedInUser } from '@/common/user-service';
+import { useUserStore } from '@/common/store';
 
-const items = ref([
+const userStore = useUserStore();
+
+const menubarItems = ref([]);
+
+const usermenuItems = ref([
   {
-    label: 'Search',
-    icon: 'pi pi-search'
+    label: 'Profile',
+    items: [
+      {
+        label: 'Settings',
+        icon: 'pi pi-cog',
+        command: () => {
+          settingsDialogVisible.value = true;
+        }
+      },
+      {
+        label: 'Logout',
+        icon: 'pi pi-sign-out',
+        command: () => {
+          logout();
+        }
+      }
+    ]
   }
 ]);
 
+const usermenu = ref();
 
+const settingsDialogVisible = ref(false);
+
+const notificationsEnabled = ref(false);
 
 onMounted(async () => {
-  console.log("user", await getLoggedInUser());
+  const userInfo = await getLoggedInUser();
+  console.log('user', userInfo);
+  if (userInfo !== null) {
+    userStore.loggedIn = true;
+  }
 });
 
+const toggle = (event: any) => {
+  usermenu.value.toggle(event);
+};
+
 async function login() {
-  window.open("/.auth/login/aad", "_self");
+  window.open('/.auth/login/aad', '_self');
+}
+
+function logout() {
+  userStore.loggedIn = false;
+  window.open('/.auth/logout', '_self');
 }
 </script>
 
 <template>
-  <vueMenubar :model="items">
+  <vueMenubar :model="menubarItems">
     <template #start>
       <svg
         width="40"
@@ -47,8 +84,45 @@ async function login() {
     </template>
     <template #end>
       <div class="flex align-items-center gap-2">
-        <vueButton label="Login" @click="login()"></vueButton>
-        <!-- <vueAvatar image="/images/avatar/amyelsner.png" shape="circle" /> -->
+        <vueAvatar
+          v-if="userStore.loggedIn"
+          icon="pi pi-user"
+          shape="circle"
+          size="large"
+          class="cursor-pointer"
+          @click="toggle"
+        />
+        <vueButton v-else label="Login" @click="login()"></vueButton>
+
+        <vueMenu ref="usermenu" id="overlay_menu" :model="usermenuItems" :popup="true" />
+
+        <vueDialog
+          v-model:visible="settingsDialogVisible"
+          modal
+          header="Edit Notification Preferences"
+          :style="{ width: '30rem' }"
+        >
+          <div class="flex align-items-center gap-3 mb-5">
+            <label for="enableNotifications" class="font-semibold w-6rem"
+              >Enable Notifications</label
+            >
+            <vueInputSwitch id="enableNotifications" v-model="notificationsEnabled" />
+          </div>
+          <!-- TODO Add other Notification Preferences to edit -->
+          <div class="flex justify-content-end gap-2">
+            <vueButton
+              type="button"
+              label="Cancel"
+              severity="secondary"
+              @click="settingsDialogVisible = false"
+            ></vueButton>
+            <vueButton
+              type="button"
+              label="Save"
+              @click="settingsDialogVisible = false"
+            ></vueButton>
+          </div>
+        </vueDialog>
       </div>
     </template>
   </vueMenubar>

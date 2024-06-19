@@ -9,6 +9,8 @@ export const useListingsStore = defineStore('listings', () => {
   return { listings, continuationToken };
 });
 
-export const useUserStore = defineStore('user', {
-  // TODO
+export const useUserStore = defineStore('user', () => {
+  const loggedIn: Ref<boolean> = ref(false);
+
+  return { loggedIn };
 });
