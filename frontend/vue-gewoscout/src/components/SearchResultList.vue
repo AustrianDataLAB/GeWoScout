@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import Button from 'primevue/button';
 import Card from 'primevue/card';
+import ScrollTop from 'primevue/scrolltop';
 import { useListingsStore } from '@/common/store';
 
 const listingsStore = useListingsStore();
@@ -8,6 +9,17 @@ const listingsStore = useListingsStore();
 function redirectToApartment(index: number) {
   window.open(listingsStore.listings[index].detailsUrl, '_blank');
 }
+
+window.onscroll = () => {
+  const bottomOfWindow =
+    document.documentElement.scrollTop + window.innerHeight ===
+    document.documentElement.offsetHeight;
+
+  if (bottomOfWindow) {
+    // TODO load new listings and add to end of list
+    console.log('End of list');
+  }
+};
 </script>
 
 <template>
@@ -46,6 +58,7 @@ function redirectToApartment(index: number) {
         </template>
       </Card>
     </div>
+    <ScrollTop />
   </div>
 </template>
 
