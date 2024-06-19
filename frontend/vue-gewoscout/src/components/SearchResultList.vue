@@ -23,7 +23,9 @@ window.onscroll = () => {
 </script>
 
 <template>
-  <h1 v-if="listingsStore.listings.length == 0">Teeest</h1>
+  <h3 v-if="listingsStore.listings.length == 0" class="flex justify-content-center">
+    No apartments found, Sorry :(
+  </h3>
   <div v-else class="cards mt-3 grid">
     <div class="col-12 lg:col-4" v-for="(item, index) in listingsStore.listings" :key="index">
       <Card style="overflow: hidden">
