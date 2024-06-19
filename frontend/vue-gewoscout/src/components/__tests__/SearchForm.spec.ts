@@ -6,7 +6,6 @@ import PrimeVue from 'primevue/config';
 import { createPinia, setActivePinia } from 'pinia';
 
 // Import PrimeVue and its styles
-import './assets/main.css';
 import 'primevue/resources/themes/lara-light-amber/theme.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
