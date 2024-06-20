@@ -304,15 +304,6 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if ns.City == nil || *ns.City == "" {
-		render.JSON(w, r, models.NewHttpInvokeResponse(
-			http.StatusBadRequest,
-			models.Error{Message: "Missing city in preferences"},
-			[]string{"Missing city in preferences"},
-		))
-		return
-	}
-
 	city := req.Data.Req.Params["city"]
 	cLower := strings.ToLower(city)
 
