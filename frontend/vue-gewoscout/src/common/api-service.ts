@@ -43,20 +43,16 @@ export async function getListings(searchInputs: SearchInputs): Promise<Listing[]
   }
 }
 
-export async function getUserPreferences(): Promise<SearchInputs | null> {
+export async function getUserPreferences(): Promise<SearchInputs[]> {
   try {
     const response = await axios.get('/api/users/preferences');
 
-    console.log(response);
-    console.log(response.data);
-
     // TODO needs to be tested, will probably fail
-    const preferences: SearchInputs = response.data;
+    const preferences: SearchInputs[] = response.data;
     return preferences;
   } catch (error) {
     console.error(error);
-
-    return null;
+    return [];
   }
 }
 

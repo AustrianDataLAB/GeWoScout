@@ -111,8 +111,12 @@ async function openSettingsDialog() {
 
   const apiCallResponse = await getUserPreferences();
 
-  if (apiCallResponse !== null) {
-    userPreferences.value = apiCallResponse;
+  if (apiCallResponse.length !== 0) {
+    const viennaPreferences = apiCallResponse.find((preference) => preference.city === 'vienna');
+
+    if (viennaPreferences !== undefined) {
+      userPreferences.value = viennaPreferences;
+    }
   }
 }
 
