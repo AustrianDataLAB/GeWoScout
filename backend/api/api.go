@@ -273,7 +273,7 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clientId, _, err := GetClientPrincipalData(&req)
+	clientId, email, err := GetClientPrincipalData(&req)
 	if err != nil {
 		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusUnauthorized,
@@ -309,10 +309,12 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 
 	ns.PartitionKey = cLower
 	ns.Id = clientId
+	ns.Email = email
 	ns.City = &cLower
 
 	ud.PartitionKey = clientId
 	ud.Id = cLower
+	ud.Email = email
 	ud.City = &cLower
 
 	ir := models.NewHttpInvokeResponse(http.StatusOK, ud, nil)
