@@ -86,8 +86,8 @@ const userPreferences: Ref<SearchInputs> = ref({
   maxYearBuilt: null,
   minHwgEnergyClass: null,
   minFgeeEnergyClass: null,
-  minRentPricePerMonth: null,
-  maxRentPricePerMonth: null,
+  minRentPrice: null,
+  maxRentPrice: null,
   minCooperativeShare: null,
   maxCooperativeShare: null,
   minSalePrice: null,
@@ -226,7 +226,7 @@ function logout() {
             <div class="flex flex-row gap-2">
               <InputNumber
                 inputId="priceFrom"
-                v-model="userPreferences.minRentPricePerMonth"
+                v-model="userPreferences.minRentPrice"
                 placeholder="from"
                 inputClass="w-full"
                 locale="de-DE"
@@ -234,7 +234,7 @@ function logout() {
               <p>-</p>
               <InputNumber
                 inputId="priceTo"
-                v-model="userPreferences.maxRentPricePerMonth"
+                v-model="userPreferences.maxRentPrice"
                 placeholder="to"
                 inputClass="w-full"
                 locale="de-DE"
