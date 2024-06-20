@@ -20,10 +20,6 @@ import (
 	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
 )
 
-const (
-	XMSClientPrincipalHeaderName = "X-MS-CLIENT-PRINCIPAL"
-)
-
 type Handler struct {
 	cosmosOnce sync.Once
 	// Do NOT access directly
