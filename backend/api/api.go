@@ -257,6 +257,7 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param city path string true "The city the preferences relate to"
+// @Param preferences body models.NotificationSettings true "The user's new preferences"
 // @Success 200 {object} models.NotificationSettings "Successfully updates notification settings"
 // @Failure 404 {object} models.Error "Notification settings could not be updated"
 // @Failure 400 {object} models.Error "Bad request"
