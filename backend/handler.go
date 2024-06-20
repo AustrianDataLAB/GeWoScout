@@ -24,6 +24,7 @@ func setupRouter(useSwagger bool) *chi.Mux {
 	r.Post("/health", h.HandleHealth)
 	r.Post("/scraperResultTrigger", h.HandleScraperResult)
 	r.Post("/listingPreferenceMatchTrigger", h.HandleNewListingResult)
+	r.Post("/notificationTrigger", h.HandleNotification)
 	r.Post("/listings", h.GetListings)
 	// Mapping for /api/cities/{city}/listings/{id}
 	// The Azure Function defined for this route has an injection from CosmosDB,
