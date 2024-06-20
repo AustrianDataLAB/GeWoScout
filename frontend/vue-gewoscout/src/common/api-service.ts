@@ -8,8 +8,8 @@ import axios from 'axios';
 interface ListingsParams {
   listingType: string;
   housingCooperative?: string; // geno
-  minRentPricePerMonth?: number;
-  maxRentPricePerMonth?: number;
+  minRentPrice?: number;
+  maxRentPrice?: number;
   postalCode?: string;
   minRoomCount?: number;
   maxRoomCount?: number;
@@ -59,7 +59,7 @@ export async function getUserPreferences(): Promise<SearchInputs[]> {
 export async function setUserPreferences(preferences: SearchInputs): Promise<boolean> {
   try {
     const response = await axios.put(`/api/users/preferences/${preferences.city}`, {
-      params: convertInputToOptionalParamsObj(preferences)
+      preferences
     });
 
     console.log(response);
@@ -105,11 +105,11 @@ function convertInputToOptionalParamsObj(input: SearchInputs): ListingsParams {
   if (input.maxYearBuilt !== null) {
     params.maxYearBuilt = input.maxYearBuilt;
   }
-  if (input.minRentPricePerMonth !== null) {
-    params.minRentPricePerMonth = input.minRentPricePerMonth;
+  if (input.minRentPrice !== null) {
+    params.minRentPrice = input.minRentPrice;
   }
-  if (input.maxRentPricePerMonth !== null) {
-    params.maxRentPricePerMonth = input.maxRentPricePerMonth;
+  if (input.maxRentPrice !== null) {
+    params.maxRentPrice = input.maxRentPrice;
   }
   if (input.minCooperativeShare !== null) {
     params.minCooperativeShare = input.minCooperativeShare;

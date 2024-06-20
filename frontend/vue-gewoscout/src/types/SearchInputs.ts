@@ -14,8 +14,8 @@ export default interface SearchInputs {
   minHwgEnergyClass: EnergyClass | null;
   minFgeeEnergyClass: EnergyClass | null;
   listingType: Type;
-  minRentPricePerMonth: number | null;
-  maxRentPricePerMonth: number | null;
+  minRentPrice: number | null;
+  maxRentPrice: number | null;
   minCooperativeShare: number | null;
   maxCooperativeShare: number | null;
   minSalePrice: number | null;
