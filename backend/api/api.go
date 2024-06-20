@@ -358,6 +358,10 @@ func (h *Handler) GetUserPrefs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	j, _ := json.Marshal(&req)
+	render.JSON(w, r, models.NewHttpInvokeResponse(http.StatusOK, req, []string{(string(j))}))
+	return
+
 	clientId, _, err := GetClientPrincipalData(&req)
 	if err != nil {
 		render.JSON(w, r, models.NewHttpInvokeResponse(
