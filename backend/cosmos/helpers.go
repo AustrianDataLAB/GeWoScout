@@ -314,7 +314,7 @@ func GetUsersMatchingWithListing(ctx context.Context, container *azcosmos.Contai
 				if !ok {
 					return nil, fmt.Errorf("value of %s has incorrect format", field)
 				}
-				if field == "hwgEnergyClass" || field == "fgeeEnergyClass" {
+				if field == "hwgEnergyClass" || field == "fgeeEnergyClass" && ecStr != nil {
 					ecClass := models.EnergyClass(*ecStr)
 					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[ecClass.GetIndex():])
 				} else {
