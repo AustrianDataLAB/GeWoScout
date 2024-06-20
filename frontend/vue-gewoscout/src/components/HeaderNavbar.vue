@@ -109,12 +109,20 @@ const toggle = (event: any) => {
 async function openSettingsDialog() {
   settingsDialogVisible.value = true;
 
-  // userPreferences.value = await getUserPreferences();
+  const apiCallResponse = await getUserPreferences();
+
+  if (apiCallResponse !== null) {
+    userPreferences.value = apiCallResponse;
+  }
 }
 
 async function saveUserPreferences() {
   settingsDialogVisible.value = false;
-  const response = setUserPreferences(userPreferences.value);
+  const response = await setUserPreferences(userPreferences.value);
+
+  if (response == false) {
+    console.log('ERROOOR need notification');
+  }
 }
 
 async function login() {
