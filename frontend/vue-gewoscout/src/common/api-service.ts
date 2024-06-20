@@ -39,7 +39,6 @@ export async function getListings(searchInputs: SearchInputs): Promise<Listing[]
     return listings.results;
   } catch (error) {
     console.error(error);
-
     return [];
   }
 }
