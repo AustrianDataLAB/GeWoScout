@@ -58,9 +58,7 @@ export async function getUserPreferences(): Promise<SearchInputs[]> {
 
 export async function setUserPreferences(preferences: SearchInputs): Promise<boolean> {
   try {
-    const response = await axios.put(`/api/users/preferences/${preferences.city}`, {
-      preferences
-    });
+    const response = await axios.put(`/api/users/preferences/${preferences.city}`, preferences);
 
     console.log(response);
     console.log(response.data);
