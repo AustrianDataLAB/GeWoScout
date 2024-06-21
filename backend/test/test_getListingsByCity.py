@@ -238,11 +238,11 @@ def test_get_listings_query_max_flat_size():
 
 @pytest.mark.usefixtures("cosmos_db_setup_listings")
 def test_get_listings_query_min_max_flat_size():
-    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?minSqm=80&maxSqm=100"
+    endpoint_url = f"{API_BASE_URL}/cities/vienna/listings?minSqm=80.5&maxSqm=100"
     expected_ids = [
         l["id"]
         for l in LISTINGS_FIXTURE
-        if l["_partitionKey"] == "vienna" and 80 <= l["squareMeters"] <= 100
+        if l["_partitionKey"] == "vienna" and 80.5 <= l["squareMeters"] <= 100
     ]
 
     response = requests.get(endpoint_url)

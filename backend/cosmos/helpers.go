@@ -96,16 +96,22 @@ func GetListingsQueryItemsPager(
 
 	for field, mapping := range fieldMappings {
 		if !reflect.ValueOf(mapping.value).IsNil() {
-			if field == "minHwgEnergyClass" || field == "minFgeeEnergyClass" {
-				ecStr, _ := (mapping.value).(*models.EnergyClass)
-				if *ecStr != models.EnergyClassG {
-					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[:ecStr.GetIndex()+1])
+			switch mapping.value.(type) {
+			case *float32:
+				v := mapping.value.(*float32)
+				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *v)
+			default:
+				if field == "minHwgEnergyClass" || field == "minFgeeEnergyClass" {
+					ecStr, _ := (mapping.value).(*models.EnergyClass)
+					if *ecStr != models.EnergyClassG {
+						addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[:ecStr.GetIndex()+1])
+					}
+				} else if field == "postalCodes" {
+					postalCodeStr := mapping.value.(*string)
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, strings.Split(*postalCodeStr, ","))
+				} else {
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
 				}
-			} else if field == "postalCodes" {
-				postalCodeStr := mapping.value.(*string)
-				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, strings.Split(*postalCodeStr, ","))
-			} else {
-				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
 			}
 		}
 	}
