@@ -323,9 +323,17 @@ func GetUsersMatchingWithListing(ctx context.Context, container *azcosmos.Contai
 			}
 		case int:
 			addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
+		case float32:
+			v := mapping.value.(float32)
+			addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, v)
 		case *int:
 			if mapping.value != nil {
 				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
+			}
+		case *float32:
+			if mapping.value != nil {
+				v := mapping.value.(*float32)
+				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *v)
 			}
 		default:
 			continue
