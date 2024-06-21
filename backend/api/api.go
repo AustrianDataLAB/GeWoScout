@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 	"io"
 	"log"
 	"net/http"
@@ -25,7 +26,8 @@ const (
 )
 
 type Handler struct {
-	cosmosOnce sync.Once
+	cosmosOnce    sync.Once
+	telemetryOnce sync.Once
 	// Do NOT access directly
 	cosmosClient *azcosmos.Client
 	// Do NOT access directly
@@ -36,7 +38,8 @@ type Handler struct {
 	notificationSettingsByCityContainerClient *azcosmos.ContainerClient
 	// Do NOT access directly
 	userDataByUserIdContainerClient *azcosmos.ContainerClient
-
+	// Do NOT access directly
+	telementryClient    appinsights.TelemetryClient
 	ScraperResultSchema *gojsonschema.Schema
 }
 
@@ -70,6 +73,23 @@ func (h *Handler) GetNotificationSettingsByCityContainerClient() *azcosmos.Conta
 func (h *Handler) GetUserDataByUserIdContainerClient() *azcosmos.ContainerClient {
 	h.cosmosOnce.Do(h.initCosmos)
 	return h.userDataByUserIdContainerClient
+}
+
+func (h *Handler) initTelemetry() {
+	telemetryConfig := appinsights.NewTelemetryConfiguration("<instrumentation key>")
+
+	// Configure how many items can be sent in one call to the data collector:
+	telemetryConfig.MaxBatchSize = 8192
+
+	// Configure the maximum delay before sending queued telemetry:
+	telemetryConfig.MaxBatchInterval = 2 * time.Second
+
+	h.telementryClient = appinsights.NewTelemetryClientFromConfig(telemetryConfig)
+}
+
+func (h *Handler) GetTelemetryClient() *appinsights.TelemetryClient {
+	h.telemetryOnce.Do(h.initTelemetry)
+	return &h.telementryClient
 }
 
 func NewHandler() *Handler {
