@@ -99,7 +99,7 @@ jobs:
   
       - name: Install Azure Functions Core Tools
         run: |
-          npm i -g azure-functions-core-tools@4 --unsafe-perm true
+          npm i -g azure-functions-core-tools@4.0.5801 --unsafe-perm true
           func --version
 
       - name: Install python dependencies

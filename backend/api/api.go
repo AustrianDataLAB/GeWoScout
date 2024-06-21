@@ -20,10 +20,6 @@ import (
 	"github.com/AustrianDataLAB/GeWoScout/backend/cosmos"
 )
 
-const (
-	XMSClientPrincipalHeaderName = "X-MS-CLIENT-PRINCIPAL"
-)
-
 type Handler struct {
 	cosmosOnce sync.Once
 	// Do NOT access directly
@@ -261,6 +257,7 @@ func (h *Handler) GetListingById(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param city path string true "The city the preferences relate to"
+// @Param preferences body models.NotificationSettings true "The user's new preferences"
 // @Success 200 {object} models.NotificationSettings "Successfully updates notification settings"
 // @Failure 404 {object} models.Error "Notification settings could not be updated"
 // @Failure 400 {object} models.Error "Bad request"
@@ -277,7 +274,7 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clientId, _, err := GetClientPrincipalData(&req)
+	clientId, email, err := GetClientPrincipalData(&req)
 	if err != nil {
 		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusUnauthorized,
@@ -308,24 +305,17 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if ns.City == nil || *ns.City == "" {
-		render.JSON(w, r, models.NewHttpInvokeResponse(
-			http.StatusBadRequest,
-			models.Error{Message: "Missing city in preferences"},
-			[]string{"Missing city in preferences"},
-		))
-		return
-	}
-
 	city := req.Data.Req.Params["city"]
 	cLower := strings.ToLower(city)
 
 	ns.PartitionKey = cLower
 	ns.Id = clientId
+	ns.Email = email
 	ns.City = &cLower
 
 	ud.PartitionKey = clientId
 	ud.Id = cLower
+	ud.Email = email
 	ud.City = &cLower
 
 	ir := models.NewHttpInvokeResponse(http.StatusOK, ud, nil)

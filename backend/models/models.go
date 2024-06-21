@@ -1,32 +1,32 @@
 package models
 
 type Listing struct {
-	ID                 string  `json:"id"`
-	PartitionKey       string  `json:"_partitionKey"`
-	Title              string  `json:"title"`
-	HousingCooperative string  `json:"housingCooperative"`
-	ProjectID          string  `json:"projectId"`
-	ListingID          string  `json:"listingId"`
-	Country            string  `json:"country"`
-	City               string  `json:"city"`
-	PostalCode         string  `json:"postalCode"`
-	Address            string  `json:"address"`
-	RoomCount          int     `json:"roomCount"`
-	SquareMeters       int     `json:"squareMeters"`
-	AvailabilityDate   string  `json:"availabilityDate"`
-	YearBuilt          *int    `json:"yearBuilt"`
-	HwgEnergyClass     *string `json:"hwgEnergyClass"`
-	FgeeEnergyClass    *string `json:"fgeeEnergyClass"`
-	ListingType        string  `json:"listingType"`
-	RentPricePerMonth  *int    `json:"rentPricePerMonth"`
-	CooperativeShare   *int    `json:"cooperativeShare"`
-	SalePrice          *int    `json:"salePrice"`
-	AdditionalFees     *int    `json:"additionalFees"`
-	DetailsURL         string  `json:"detailsUrl"`
-	PreviewImageURL    string  `json:"previewImageUrl"`
-	ScraperID          string  `json:"scraperId"`
-	CreatedAt          string  `json:"createdAt"`
-	LastModifiedAt     string  `json:"lastModifiedAt"`
+	ID                 string   `json:"id"`
+	PartitionKey       string   `json:"_partitionKey"`
+	Title              string   `json:"title"`
+	HousingCooperative string   `json:"housingCooperative"`
+	ProjectID          string   `json:"projectId"`
+	ListingID          string   `json:"listingId"`
+	Country            string   `json:"country"`
+	City               string   `json:"city"`
+	PostalCode         string   `json:"postalCode"`
+	Address            string   `json:"address"`
+	RoomCount          float32  `json:"roomCount"`
+	SquareMeters       float32  `json:"squareMeters"`
+	AvailabilityDate   string   `json:"availabilityDate"`
+	YearBuilt          *int     `json:"yearBuilt"`
+	HwgEnergyClass     *string  `json:"hwgEnergyClass"`
+	FgeeEnergyClass    *string  `json:"fgeeEnergyClass"`
+	ListingType        string   `json:"listingType"`
+	RentPricePerMonth  *float32 `json:"rentPricePerMonth"`
+	CooperativeShare   *float32 `json:"cooperativeShare"`
+	SalePrice          *float32 `json:"salePrice"`
+	AdditionalFees     *float32 `json:"additionalFees"`
+	DetailsURL         string   `json:"detailsUrl"`
+	PreviewImageURL    string   `json:"previewImageUrl"`
+	ScraperID          string   `json:"scraperId"`
+	CreatedAt          string   `json:"createdAt"`
+	LastModifiedAt     string   `json:"lastModifiedAt"`
 }
 
 type EnergyClass string
@@ -117,23 +117,23 @@ type Preferences struct {
 	HousingCooperative   *string      `json:"housingCooperative,omitempty" validate:"omitempty"`
 	ProjectId            *string      `json:"projectId,omitempty" validate:"omitempty"`
 	PostalCode           *string      `json:"postalCode,omitempty" validate:"omitempty"`
-	RoomCount            *int         `json:"roomCount,omitempty" validate:"omitempty,gt=0"`
-	MinRoomCount         *int         `json:"minRoomCount,omitempty" validate:"omitempty,gt=0"`
-	MaxRoomCount         *int         `json:"maxRoomCount,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinRoomCount"`
-	MinSquareMeters      *int         `json:"minSqm,omitempty" validate:"omitempty,gt=0"`
-	MaxSquareMeters      *int         `json:"maxSqm,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinSquareMeters"`
+	RoomCount            *float32     `json:"roomCount,omitempty" validate:"omitempty,gt=0"`
+	MinRoomCount         *float32     `json:"minRoomCount,omitempty" validate:"omitempty,gt=0"`
+	MaxRoomCount         *float32     `json:"maxRoomCount,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinRoomCount"`
+	MinSquareMeters      *float32     `json:"minSqm,omitempty" validate:"omitempty,gt=0"`
+	MaxSquareMeters      *float32     `json:"maxSqm,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinSquareMeters"`
 	AvailableFrom        *string      `json:"availableFrom,omitempty" validate:"omitempty,datecustom"`
 	MinYearBuilt         *int         `json:"minYearBuilt,omitempty" validate:"omitempty,gt=1900"`
 	MaxYearBuilt         *int         `json:"maxYearBuilt,omitempty" validate:"omitempty,gt=1900,gtfieldcustom=MinYearBuilt"`
 	MinHwgEnergyClass    *EnergyClass `json:"minHwgEnergyClass,omitempty" validate:"omitempty,energycustom"`
 	MinFgeeEnergyClass   *EnergyClass `json:"minFgeeEnergyClass,omitempty" validate:"omitempty,energycustom"`
 	ListingType          *ListingType `json:"listingType,omitempty" validate:"omitempty,listingtypecustom"`
-	MinRentPricePerMonth *int         `json:"minRentPrice,omitempty" validate:"omitempty,gt=0"`
-	MaxRentPricePerMonth *int         `json:"maxRentPrice,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinRentPricePerMonth"`
-	MinCooperativeShare  *int         `json:"minCooperativeShare,omitempty" validate:"omitempty,gt=0"`
-	MaxCooperativeShare  *int         `json:"maxCooperativeShare,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinCooperativeShare"`
-	MinSalePrice         *int         `json:"minSalePrice,omitempty" validate:"omitempty,gt=0"`
-	MaxSalePrice         *int         `json:"maxSalePrice,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinSalePrice"`
+	MinRentPricePerMonth *float32     `json:"minRentPrice,omitempty" validate:"omitempty,gt=0"`
+	MaxRentPricePerMonth *float32     `json:"maxRentPrice,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinRentPricePerMonth"`
+	MinCooperativeShare  *float32     `json:"minCooperativeShare,omitempty" validate:"omitempty,gt=0"`
+	MaxCooperativeShare  *float32     `json:"maxCooperativeShare,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinCooperativeShare"`
+	MinSalePrice         *float32     `json:"minSalePrice,omitempty" validate:"omitempty,gt=0"`
+	MaxSalePrice         *float32     `json:"maxSalePrice,omitempty" validate:"omitempty,gt=0,gtfieldcustom=MinSalePrice"`
 }
 
 type NotificationData struct {

@@ -15,27 +15,38 @@ import (
 // id and an email address of the user.
 func GetClientPrincipalData[Q any](ir *models.InvokeRequest[Q]) (string, string, error) {
 	principalIds, ok1 := ir.Data.Req.Headers[models.CLIENT_PRINCIPAL_ID_KEY]
-	principals, ok2 := ir.Data.Req.Headers[models.CLIENT_PRINCIPAL_KEY]
+
+	var email string
+
+	ok2 := false
+	var names, principals []string
+	// SWA header (StaticWebAppsAuthCookie)
+	if names, ok2 = ir.Data.Req.Headers[models.CLIENT_PRINCIPAL_NAME_KEY]; ok2 {
+		email = names[0]
+	} else if principals, ok2 = ir.Data.Req.Headers[models.CLIENT_PRINCIPAL_KEY]; ok2 {
+		// App service header
+		principalB64 := principals[0]
+
+		pDec, _ := base64.StdEncoding.DecodeString(principalB64)
+
+		up := models.UserPrincipal{}
+		if err := json.Unmarshal(pDec, &up); err != nil {
+			return "", "", errors.New("failed to read user principal")
+		}
+
+		for _, c := range up.Claims {
+			if c.Typ == "preferred_username" {
+				email = c.Val
+			}
+		}
+	}
+
 	if !ok1 || !ok2 || !ir.Data.Req.Identities[0].IsAuthenticated {
 		return "", "", errors.New("user not authenticated")
 	}
 
 	clientId := principalIds[0]
-	principalB64 := principals[0]
 
-	pDec, _ := base64.StdEncoding.DecodeString(principalB64)
-
-	up := models.UserPrincipal{}
-	if err := json.Unmarshal(pDec, &up); err != nil {
-		return "", "", errors.New("failed to read user principal")
-	}
-
-	var email string
-	for _, c := range up.Claims {
-		if c.Typ == "preferred_username" {
-			email = c.Val
-		}
-	}
 	if email == "" {
 		return "", "", errors.New("failed to read user email")
 	}

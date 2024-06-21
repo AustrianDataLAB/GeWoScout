@@ -55,7 +55,7 @@ PREF_4 = {
     "id": "1234",
     "_partitionKey": "vienna",
     "city": "Vienna",
-    "maxSqm": 94,
+    "maxSqm": 94.5,
     "email": "test4@test.com",
 }
 

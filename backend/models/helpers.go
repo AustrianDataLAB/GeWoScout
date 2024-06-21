@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"io"
+	"reflect"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -39,7 +40,12 @@ func enumFieldValidator[T StringEnum](fl validator.FieldLevel) bool {
 func gtFieldIgnoreNilValidator(fl validator.FieldLevel) bool {
 	otherField := fl.Parent().FieldByName(fl.Param())
 	if !otherField.IsNil() {
-		return otherField.Elem().Int() <= fl.Field().Int()
+		switch fl.Field().Kind() {
+		case reflect.Int:
+			return otherField.Elem().Int() <= fl.Field().Int()
+		case reflect.Float32:
+			return otherField.Elem().Float() <= fl.Field().Float()
+		}
 	}
 	return true
 }

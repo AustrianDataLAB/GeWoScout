@@ -25,28 +25,31 @@ func (h *Handler) HandleScraperResult(w http.ResponseWriter, r *http.Request) {
 	injectedData := models.QueueBindingInput{}
 	dec := json.NewDecoder(r.Body)
 	if err := dec.Decode(&injectedData); err != nil {
-		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, models.InvokeResponse{
-			Logs: []string{fmt.Sprintf("ScraperResultHandler | Failed to read invoke request body: %s", err.Error())},
-		})
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusInternalServerError,
+			nil,
+			[]string{fmt.Sprintf("ScraperResultHandler | Failed to read invoke request body: %s", err.Error())},
+		))
 		return
 	}
 
 	msgId, err := strconv.Unquote(injectedData.Metadata.Id)
 	if err != nil {
-		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, models.InvokeResponse{
-			Logs: []string{fmt.Sprintf("ScraperResultHandler %s | Failed to unquote message ID: %s", injectedData.Metadata.Id, err.Error())},
-		})
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusInternalServerError,
+			nil,
+			[]string{fmt.Sprintf("ScraperResultHandler %s | Failed to unquote message ID: %s", injectedData.Metadata.Id, err.Error())},
+		))
 		return
 	}
 
 	msgPlain, err := strconv.Unquote(injectedData.Data.Msg)
 	if err != nil {
-		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, models.InvokeResponse{
-			Logs: []string{fmt.Sprintf("ScraperResultHandler %s | Failed to unquote message: %s", msgId, err.Error())},
-		})
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusInternalServerError,
+			nil,
+			[]string{fmt.Sprintf("ScraperResultHandler %s | Failed to unquote message: %s", msgId, err.Error())},
+		))
 		return
 	}
 
@@ -57,27 +60,31 @@ func (h *Handler) HandleScraperResult(w http.ResponseWriter, r *http.Request) {
 	msgLoader := gojsonschema.NewStringLoader(msgPlain)
 	result, err := h.ScraperResultSchema.Validate(msgLoader)
 	if err != nil {
-		render.Status(r, http.StatusUnprocessableEntity)
-		render.JSON(w, r, models.InvokeResponse{
-			Logs: []string{fmt.Sprintf("ScraperResultHandler %s | Failed to create message schema loader: %s", msgId, err.Error())},
-		})
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusUnprocessableEntity,
+			nil,
+			[]string{fmt.Sprintf("ScraperResultHandler %s | Failed to create message schema loader: %s", msgId, err.Error())},
+		))
 		return
 	}
 
 	if !result.Valid() {
-		render.JSON(w, r, models.InvokeResponse{
-			Logs: []string{fmt.Sprintf("ScraperResultHandler %s | Message validation failed: %s", msgId, result.Errors())},
-		})
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusInternalServerError,
+			nil,
+			[]string{fmt.Sprintf("ScraperResultHandler %s | Message validation failed: %s", msgId, result.Errors())},
+		))
 		return
 	}
 
 	scraperResult := models.ScraperResultList{}
 	err = json.Unmarshal([]byte(msgPlain), &scraperResult)
 	if err != nil {
-		render.Status(r, http.StatusUnprocessableEntity)
-		render.JSON(w, r, models.InvokeResponse{
-			Logs: []string{fmt.Sprintf("ScraperResultHandler %s | Failed to unmarshal message: %s", msgId, err.Error())},
-		})
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusUnprocessableEntity,
+			nil,
+			[]string{fmt.Sprintf("ScraperResultHandler %s | Failed to unmarshal message: %s", msgId, err.Error())},
+		))
 		return
 	}
 
@@ -96,10 +103,11 @@ func (h *Handler) HandleScraperResult(w http.ResponseWriter, r *http.Request) {
 
 	nonExIds, err := cosmos.GetNonExistingIds(ctx, h.GetListingsByCityContainerClient(), idsByPk)
 	if err != nil {
-		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, models.InvokeResponse{
-			Logs: []string{fmt.Sprintf("ScraperResultHandler %s | Failed to get non-existing IDs: %s", msgId, err.Error())},
-		})
+		render.JSON(w, r, models.NewHttpInvokeResponse(
+			http.StatusInternalServerError,
+			nil,
+			[]string{fmt.Sprintf("ScraperResultHandler %s | Failed to get non-existing IDs: %s", msgId, err.Error())},
+		))
 		return
 	}
 
@@ -172,7 +180,6 @@ func (h *Handler) HandleScraperResult(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 	render.JSON(w, r, invokeResponse)
-
 }
 
 func mapListing(scraperResult models.ScraperResultListing, scraperId string, ts time.Time) *models.Listing {
