@@ -137,6 +137,9 @@ func (h *Handler) HandleScraperResult(w http.ResponseWriter, r *http.Request) {
 				}
 				batch.UpsertItem(marshalled, nil)
 				newListings = append(newListings, listings[i])
+
+				telemetryClient := h.GetTelemetryClient()
+				// TODO stuff
 			} else {
 				batch.PatchItem(id, createListingPatch(listings[i]), nil)
 			}
