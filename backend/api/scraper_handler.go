@@ -175,8 +175,7 @@ func (h *Handler) HandleScraperResult(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func mapListing(scraperResult models.ScraperResultListing, scraperId string, ts time.Time) *models.Listing {
-	timestamp := ts.Format(time.RFC3339)
+func mapListing(scraperResult models.ScraperResultListing, scraperId string, timestamp time.Time) *models.Listing {
 	return &models.Listing{
 		ID:                 mapListingId(scraperResult),
 		PartitionKey:       mapPartitionKey(scraperResult),
