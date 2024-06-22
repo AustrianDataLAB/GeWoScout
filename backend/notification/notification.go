@@ -1,72 +1,106 @@
 package notification
 
 import (
-	"encoding/json"
+	"bytes"
 	"fmt"
-	"log"
-	"net/http"
-	"time"
-
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
+	"html/template"
 )
 
-func CosmosUpdateHandler(w http.ResponseWriter, r *http.Request) {
-	t := time.Now()
-	fmt.Println(t.Month())
-	fmt.Println(t.Day())
-	fmt.Println(t.Year())
-	fmt.Println(r.Header)
-	ua := r.Header.Get("User-Agent")
-	fmt.Printf("user agent is: %s \n", ua)
-	invocationid := r.Header.Get("X-Azure-Functions-InvocationId")
-	fmt.Printf("invocationid is: %s \n", invocationid)
+const emailTemplate = `
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        .content {
+            margin-bottom: 20px;
+        }
+        .content h2 {
+            margin-top: 0;
+        }
+        .content p {
+            margin: 5px 0;
+        }
+        .button {
+            text-align: center;
+        }
+        .button a {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{.PreviewImageURL}}" alt="Listing Image">
+        </div>
+        <div class="content">
+            <h2>{{.Title}}</h2>
+            <p><strong>Location:</strong> {{.Address}}, {{.City}}, {{.Country}}, {{.PostalCode}}</p>
+            <p><strong>Room Count:</strong> {{.RoomCount}}</p>
+            <p><strong>Size:</strong> {{.SquareMeters}} m²</p>
+            <p><strong>Availability Date:</strong> {{.AvailabilityDate}}</p>
+            <p><strong>Year Built:</strong> {{.YearBuilt}}</p>
+            <p><strong>HWG Energy Class:</strong> {{.HwgEnergyClass}}</p>
+            <p><strong>FGEE Energy Class:</strong> {{.FgeeEnergyClass}}</p>
+            <p><strong>Listing Type:</strong> {{.ListingType}}</p>
+            {{if .RentPricePerMonth}}<p><strong>Rent Price Per Month:</strong> €{{.RentPricePerMonth}}</p>{{end}}
+            {{if .CooperativeShare}}<p><strong>Cooperative Share:</strong> €{{.CooperativeShare}}</p>{{end}}
+            {{if .SalePrice}}<p><strong>Sale Price:</strong> €{{.SalePrice}}</p>{{end}}
+            {{if .AdditionalFees}}<p><strong>Additional Fees:</strong> €{{.AdditionalFees}}</p>{{end}}
+        </div>
+        <div class="button">
+            <a href="{{.DetailsURL}}" target="_blank">View Details</a>
+        </div>
+    </div>
+</body>
+</html>
+`
 
-	queryParams := r.URL.Query()
-
-	for k, v := range queryParams {
-		fmt.Println("k:", k, "v:", v)
-	}
-
-	body := make([]byte, r.ContentLength)
-	r.Body.Read(body)
-	fmt.Println("Body:", string(body))
-
-	var cosmosTrigger models.CosmosBindingInput
-	err := json.Unmarshal(body, &cosmosTrigger)
+func generateEmailContent(listing models.Listing) (string, error) {
+	tmpl, err := template.New("email").Parse(emailTemplate)
 	if err != nil {
-		fmt.Println("Error unmarshalling JSON trigger: ", err)
+		return "", err
 	}
 
-	fmt.Println("CosmosTrigger:", cosmosTrigger)
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, listing); err != nil {
+		return "", err
+	}
 
-	md, _ := json.Marshal(cosmosTrigger.Metadata)
-	d, _ := json.Marshal(cosmosTrigger.Data)
+	return buf.String(), nil
+}
 
-	log.Printf("Metadata: %s\n", md)
-	log.Printf("Data: %s\n", d)
-
-	var dataStr string
-	err = json.Unmarshal([]byte(cosmosTrigger.Data.Documents), &dataStr)
+func SendNotification(listing models.Listing, emails []string) error {
+	content, err := generateEmailContent(listing)
 	if err != nil {
-		fmt.Println("Error unmarshalling JSON string: ", err)
+		return fmt.Errorf("failed to generate email content: %w", err)
 	}
 
-	// `MyCosmosDocument` contains an escaped JSON string, parse it too.
-	var documents []map[string]interface{} // Using a map for flexible structure handling
-	err = json.Unmarshal([]byte(dataStr), &documents)
-	if err != nil {
-		fmt.Println("Error unmarshalling JSON documents: ", err)
-	}
-	fmt.Printf("Parsed Documents: %+v\n", documents)
+	subject := fmt.Sprintf("New GeWo in %s matches your preferences!", listing.City)
 
-	invokeResponse := models.InvokeResponse{Logs: []string{}, ReturnValue: documents[0]["id"].(string)}
-
-	js, err := json.Marshal(invokeResponse)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+	return sendHtmlEmail(emails, subject, content)
 }

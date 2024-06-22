@@ -1,0 +1,11 @@
+{
+  "bindings": [
+    {
+      "name": "msg",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "%QUEUE_LISTING_NOTIFICATIONS_NAME%",
+      "connection": "QUEUE_CONNECTION_STRING"
+    }
+  ]
+}

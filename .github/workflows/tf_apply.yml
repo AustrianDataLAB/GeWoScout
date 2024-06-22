@@ -79,7 +79,7 @@ jobs:
       uses: pietrobolcato/install-azure-cli-action@main
 
     - name: Setup azure core tools
-      run: npm i -g azure-functions-core-tools@4 --unsafe-perm true
+      run: npm i -g azure-functions-core-tools@4.0.5801 --unsafe-perm true
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
