@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/AustrianDataLAB/GeWoScout/backend/models"
+	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 	"html/template"
+	"strconv"
+	"time"
 )
 
 const emailTemplate = `
@@ -103,4 +106,16 @@ func SendNotification(listing models.Listing, emails []string) error {
 	subject := fmt.Sprintf("New GeWo in %s matches your preferences!", listing.City)
 
 	return sendHtmlEmail(emails, subject, content)
+}
+
+func PublishTelemetry(client appinsights.TelemetryClient, listing *models.Listing, users int) {
+	processingDuration := time.Now().Sub(listing.CreatedAt)
+	client.TrackMetric("ListingCreationToNotificationDuration", processingDuration.Seconds())
+	client.TrackMetric("UsersNotified", float64(users))
+	usersNotifiedEvent := appinsights.NewEventTelemetry("UsersNotifiedEvent")
+	usersNotifiedEvent.Properties["ListingID"] = listing.ID
+	usersNotifiedEvent.Properties["UserCount"] = strconv.Itoa(users)
+	usersNotifiedEvent.Properties["ProcessingDuration"] = processingDuration.String()
+	client.Track(usersNotifiedEvent)
+	client.Channel().Flush()
 }

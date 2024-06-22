@@ -62,6 +62,8 @@ func (h *Handler) HandleNotification(w http.ResponseWriter, r *http.Request) {
 
 	logs = append(logs, fmt.Sprintf("NotificationHandler %s | Successfully notified %d users about listing %s", msgId, len(newListing.Emails), newListing.Listing.ID))
 
+	notification.PublishTelemetry(h.GetTelemetryClient(), &newListing.Listing, len(newListing.Emails))
+
 	invokeResponse := models.InvokeResponse{
 		Logs:    logs,
 		Outputs: map[string]interface{}{},

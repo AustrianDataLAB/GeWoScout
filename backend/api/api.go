@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -76,7 +77,8 @@ func (h *Handler) GetUserDataByUserIdContainerClient() *azcosmos.ContainerClient
 }
 
 func (h *Handler) initTelemetry() {
-	telemetryConfig := appinsights.NewTelemetryConfiguration("<instrumentation key>")
+	instrumentationKey := os.Getenv("APPINSIGHTS_INSTRUMENTATIONKEY")
+	telemetryConfig := appinsights.NewTelemetryConfiguration(instrumentationKey)
 
 	// Configure how many items can be sent in one call to the data collector:
 	telemetryConfig.MaxBatchSize = 8192
@@ -87,9 +89,9 @@ func (h *Handler) initTelemetry() {
 	h.telementryClient = appinsights.NewTelemetryClientFromConfig(telemetryConfig)
 }
 
-func (h *Handler) GetTelemetryClient() *appinsights.TelemetryClient {
+func (h *Handler) GetTelemetryClient() appinsights.TelemetryClient {
 	h.telemetryOnce.Do(h.initTelemetry)
-	return &h.telementryClient
+	return h.telementryClient
 }
 
 func NewHandler() *Handler {

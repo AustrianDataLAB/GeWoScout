@@ -137,9 +137,6 @@ func (h *Handler) HandleScraperResult(w http.ResponseWriter, r *http.Request) {
 				}
 				batch.UpsertItem(marshalled, nil)
 				newListings = append(newListings, listings[i])
-
-				telemetryClient := h.GetTelemetryClient()
-				// TODO stuff
 			} else {
 				batch.PatchItem(id, createListingPatch(listings[i]), nil)
 			}
@@ -178,8 +175,7 @@ func (h *Handler) HandleScraperResult(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func mapListing(scraperResult models.ScraperResultListing, scraperId string, ts time.Time) *models.Listing {
-	timestamp := ts.Format(time.RFC3339)
+func mapListing(scraperResult models.ScraperResultListing, scraperId string, timestamp time.Time) *models.Listing {
 	return &models.Listing{
 		ID:                 mapListingId(scraperResult),
 		PartitionKey:       mapPartitionKey(scraperResult),
