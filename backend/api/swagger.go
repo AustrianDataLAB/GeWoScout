@@ -44,11 +44,13 @@ func SwaggerFileHandler(w http.ResponseWriter, r *http.Request) {
 
 	httpSwagger.Handler().ServeHTTP(mockWriter, r)
 
-	//ir := models.NewHttpInvokeResponse(mockWriter.StatusCode, mockWriter.Body.String())
 	ir := models.InvokeResponse{}
 	ir.Outputs = map[string]interface{}{}
 	headers := make(map[string]string)
 	for k, v := range mockWriter.Headers {
+		if strings.ToLower(k) == "content-length" {
+			continue
+		}
 		headers[k] = strings.Join(v, "; ")
 	}
 	ir.Outputs["res"] = models.HttpResponse{
