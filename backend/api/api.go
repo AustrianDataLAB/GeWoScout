@@ -299,7 +299,7 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		render.JSON(w, r, models.NewHttpInvokeResponse(
 			http.StatusBadRequest,
-			models.Error{Message: "Failed to parse request body"},
+			models.Error{Message: err.Error()},
 			[]string{fmt.Sprintf("Failed to parse request body: %s", err.Error())},
 		))
 		return
