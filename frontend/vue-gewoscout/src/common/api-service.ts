@@ -100,11 +100,7 @@ export async function setUserPreferences(preferences: UserPreferences): Promise<
       maxSqm: preferences.maxSqm,
       availableFrom:
         preferences.availableFrom !== null
-          ? preferences.availableFrom.getFullYear() +
-            '-' +
-            preferences.availableFrom.getMonth() +
-            '-' +
-            preferences.availableFrom.getDate()
+          ? preferences.availableFrom.toISOString().split('T')[0]
           : null,
       minYearBuilt: preferences.minYearBuilt,
       maxYearBuilt: preferences.maxYearBuilt,
