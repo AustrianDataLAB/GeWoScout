@@ -1,4 +1,5 @@
 import type { ApiListingsResponse, Listing } from '@/types/ApiResponseListings';
+import type ApiResponsePreferences from '@/types/ApiResponsePreferences';
 import { EnergyClass, Type } from '@/types/Enums';
 import type SearchInputs from '@/types/SearchInputs';
 import type UserPreferences from '@/types/UserPreferences';
@@ -44,17 +45,44 @@ export async function getListings(searchInputs: SearchInputs): Promise<Listing[]
   }
 }
 
-export async function getUserPreferences(): Promise<UserPreferences[]> {
+export async function getUserPreferences(city: string): Promise<UserPreferences | null> {
   try {
     const response = await axios.get('/api/users/preferences');
 
     console.log(response);
-    const preferences: UserPreferences[] = response.data;
-    // TODO probably type fix needed
-    return preferences;
+    const preferencesResponse: ApiResponsePreferences[] = response.data;
+
+    const result = preferencesResponse.find((preference) => preference.city === city);
+
+    if (result === undefined) {
+      return null;
+    }
+
+    return {
+      availableFrom: new Date(result.availableFrom),
+      city: city,
+      email: result.email,
+      housingCooperative: result.housingCooperative,
+      listingType: Type[result.listingType as keyof typeof Type],
+      maxCooperativeShare: result.maxCooperativeShare,
+      maxRentPrice: null,
+      maxRoomCount: result.maxRoomCount,
+      maxSalePrice: null,
+      maxSqm: null,
+      maxYearBuilt: result.maxYearBuilt,
+      minCooperativeShare: result.minCooperativeShare,
+      minFgeeEnergyClass: EnergyClass[result.minFgeeEnergyClass as keyof typeof EnergyClass],
+      minHwgEnergyClass: EnergyClass[result.minHwgEnergyClass as keyof typeof EnergyClass],
+      minRentPrice: null,
+      minRoomCount: result.minRoomCount,
+      minSalePrice: result.minSalePrice,
+      minSqm: null,
+      minYearBuilt: result.minYearBuilt,
+      postalCode: result.postalCode
+    };
   } catch (error) {
     console.error(error);
-    return [];
+    return null;
   }
 }
 

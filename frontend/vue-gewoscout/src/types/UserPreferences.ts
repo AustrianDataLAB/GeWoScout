@@ -21,7 +21,4 @@ export default interface UserPreferences {
   minSqm: number | null;
   minYearBuilt: number | null;
   postalCode: string | null;
-  // projectId: string;
-  // roomCount: number;
-  // title: string;
 }

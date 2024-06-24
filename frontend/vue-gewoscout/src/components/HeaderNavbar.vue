@@ -72,6 +72,8 @@ const types = ref([
   { name: 'Sale', type: Type.sale }
 ]);
 
+const selectedCity = ref('vienna');
+
 const userPreferences: Ref<UserPreferences> = ref({
   email: null,
   listingType: Type.both,
@@ -110,14 +112,20 @@ const toggle = (event: any) => {
 async function openSettingsDialog() {
   settingsDialogVisible.value = true;
 
-  const apiCallResponse = await getUserPreferences();
+  const apiCallResponse = await getUserPreferences(selectedCity.value);
 
-  if (apiCallResponse.length !== 0) {
-    const viennaPreferences = apiCallResponse.find((preference) => preference.city === 'vienna');
+  if (apiCallResponse !== null) {
+    userPreferences.value = apiCallResponse;
+  }
+}
 
-    if (viennaPreferences !== undefined) {
-      userPreferences.value = viennaPreferences;
-    }
+async function getCityUserPreferences() {
+  console.log('triiiiiigereeeed');
+
+  const apiCallResponse = await getUserPreferences(selectedCity.value);
+
+  if (apiCallResponse !== null) {
+    userPreferences.value = apiCallResponse;
   }
 }
 
@@ -192,12 +200,13 @@ function logout() {
             <label for="city" class="font-semibold w-6rem">City</label>
             <Dropdown
               id="city"
-              v-model="userPreferences.city"
+              v-model="selectedCity"
               :options="cities"
               optionLabel="name"
               optionValue="code"
               placeholder="Select a City"
               class="w-full"
+              v-on:change="getCityUserPreferences()"
             />
           </div>
           <Divider align="center" type="solid">
