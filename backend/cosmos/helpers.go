@@ -320,11 +320,13 @@ func GetUsersMatchingWithListing(ctx context.Context, container *azcosmos.Contai
 				if !ok {
 					return nil, fmt.Errorf("value of %s has incorrect format", field)
 				}
-				if field == "hwgEnergyClass" || field == "fgeeEnergyClass" && ecStr != nil {
-					ecClass := models.EnergyClass(*ecStr)
-					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[ecClass.GetIndex():])
-				} else {
-					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *ecStr)
+				if ecStr != nil {
+					if field == "hwgEnergyClass" || field == "fgeeEnergyClass" {
+						ecClass := models.EnergyClass(*ecStr)
+						addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[ecClass.GetIndex():])
+					} else {
+						addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *ecStr)
+					}
 				}
 			}
 		case int:
@@ -334,12 +336,17 @@ func GetUsersMatchingWithListing(ctx context.Context, container *azcosmos.Contai
 			addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, v)
 		case *int:
 			if mapping.value != nil {
-				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
+				v := mapping.value.(*int)
+				if v != nil {
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, v)
+				}
 			}
 		case *float32:
 			if mapping.value != nil {
 				v := mapping.value.(*float32)
-				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *v)
+				if v != nil {
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *v)
+				}
 			}
 		default:
 			continue
