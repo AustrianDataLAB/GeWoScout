@@ -116,17 +116,17 @@ async function openSettingsDialog() {
 
   if (apiCallResponse !== null) {
     userPreferences.value = apiCallResponse;
+  } else {
+    resetUserPreferences(selectedCity.value);
   }
 }
 
 async function getCityUserPreferences() {
-  console.log('triiiiiigereeeed');
-
   const apiCallResponse = await getUserPreferences(selectedCity.value);
 
   if (apiCallResponse !== null) {
     userPreferences.value = apiCallResponse;
-  }
+  } else [resetUserPreferences(selectedCity.value)];
 }
 
 async function saveUserPreferences() {
@@ -136,6 +136,31 @@ async function saveUserPreferences() {
   if (response == false) {
     console.log('ERROOOR need notification');
   }
+}
+
+function resetUserPreferences(city: string) {
+  userPreferences.value = {
+    email: null,
+    listingType: Type.both,
+    city: city,
+    housingCooperative: null,
+    postalCode: null,
+    minRoomCount: null,
+    maxRoomCount: null,
+    minSqm: null,
+    maxSqm: null,
+    availableFrom: null,
+    minYearBuilt: null,
+    maxYearBuilt: null,
+    minHwgEnergyClass: EnergyClass.F,
+    minFgeeEnergyClass: EnergyClass.F,
+    minRentPrice: null,
+    maxRentPrice: null,
+    minCooperativeShare: null,
+    maxCooperativeShare: null,
+    minSalePrice: null,
+    maxSalePrice: null
+  };
 }
 
 async function login() {
