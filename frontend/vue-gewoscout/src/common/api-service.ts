@@ -70,9 +70,9 @@ export async function setUserPreferences(preferences: UserPreferences): Promise<
       maxRoomCount: 1,
       minSquareMeters: 1,
       maxSquareMeters: 1,
-      availableFrom: '',
-      minYearBuilt: 1,
-      maxYearBuilt: 1,
+      availableFrom: '2010-01-01',
+      minYearBuilt: 1901,
+      maxYearBuilt: 1901,
       minHwgEnergyClass: 'F',
       minFgeeEnergyClass: 'F',
       listingType: 'both',
@@ -81,7 +81,7 @@ export async function setUserPreferences(preferences: UserPreferences): Promise<
       minCooperativeShare: 1,
       maxCooperativeShare: 1,
       minSalePrice: 1,
-      maxSalePrice: 1
+      maxSalePrice: null
     };
     const response = await axios.put(
       `/api/users/preferences/${preferences.city}`,
