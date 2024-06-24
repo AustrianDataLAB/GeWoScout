@@ -60,28 +60,35 @@ export async function getUserPreferences(): Promise<UserPreferences[]> {
 export async function setUserPreferences(preferences: UserPreferences): Promise<boolean> {
   try {
     const requestUserPrefs = {
-      email: '',
-      title: '',
-      housingCooperative: '',
-      projectId: '',
-      postalCode: '',
-      roomCount: 1,
-      minRoomCount: 1,
-      maxRoomCount: 1,
-      minSquareMeters: 1,
-      maxSquareMeters: 1,
-      availableFrom: '2010-01-01',
-      minYearBuilt: 1901,
-      maxYearBuilt: 1901,
-      minHwgEnergyClass: 'F',
-      minFgeeEnergyClass: 'F',
-      listingType: 'both',
-      minRentPricePerMonth: 1,
-      maxRentPricePerMonth: 1,
-      minCooperativeShare: 1,
-      maxCooperativeShare: 1,
-      minSalePrice: 1,
-      maxSalePrice: null
+      email: preferences.email,
+      title: null,
+      housingCooperative: preferences.housingCooperative,
+      projectId: null,
+      postalCode: preferences.postalCode,
+      roomCount: null,
+      minRoomCount: preferences.minRoomCount,
+      maxRoomCount: preferences.maxRoomCount,
+      minSqm: preferences.minSqm,
+      maxSqm: preferences.maxSqm,
+      availableFrom:
+        preferences.availableFrom !== null
+          ? preferences.availableFrom.getFullYear +
+            '-' +
+            preferences.availableFrom.getMonth +
+            '-' +
+            preferences.availableFrom.getDate
+          : null,
+      minYearBuilt: preferences.minYearBuilt,
+      maxYearBuilt: preferences.maxYearBuilt,
+      minHwgEnergyClass: EnergyClass[preferences.minHwgEnergyClass],
+      minFgeeEnergyClass: EnergyClass[preferences.minHwgEnergyClass],
+      listingType: Type[preferences.listingType],
+      minRentPrice: preferences.minRentPrice,
+      maxRentPrice: preferences.maxRentPrice,
+      minCooperativeShare: preferences.minCooperativeShare,
+      maxCooperativeShare: preferences.maxCooperativeShare,
+      minSalePrice: preferences.minSalePrice,
+      maxSalePrice: preferences.maxSalePrice
     };
     const response = await axios.put(
       `/api/users/preferences/${preferences.city}`,
