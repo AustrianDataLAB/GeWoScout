@@ -159,7 +159,13 @@ func (h *Handler) HandleScraperResult(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if !resp.Success {
-			logs = append(logs, fmt.Sprintf("ScraperResultHandler %s | Failed to execute batch for %s with success %v", msgId, pk, resp.Success))
+			// Transaction failed, look for the offending operation
+			for index, operation := range resp.OperationResults {
+				if operation.StatusCode != http.StatusFailedDependency {
+					logs = append(logs, fmt.Sprintf("ScraperResultHandler %s | Transaction failed due to operation %v which failed with status code %d", msgId, index, operation.StatusCode))
+					break
+				}
+			}
 			break // Go to end
 		}
 
