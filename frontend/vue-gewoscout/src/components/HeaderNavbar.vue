@@ -11,8 +11,8 @@ import Calendar from 'primevue/calendar';
 import { getLoggedInUser } from '@/common/user-service';
 import { useUserStore } from '@/common/store';
 import { getUserPreferences, setUserPreferences } from '@/common/api-service';
-import type SearchInputs from '@/types/SearchInputs';
 import { EnergyClass, Type } from '@/types/Enums';
+import type UserPreferences from '@/types/UserPreferences';
 
 const userStore = useUserStore();
 
@@ -72,11 +72,12 @@ const types = ref([
   { name: 'Sale', type: Type.sale }
 ]);
 
-const userPreferences: Ref<SearchInputs> = ref({
+const userPreferences: Ref<UserPreferences> = ref({
+  email: null,
   listingType: Type.both,
   city: 'vienna',
-  housingCooperative: '',
-  postalCode: '',
+  housingCooperative: null,
+  postalCode: null,
   minRoomCount: null,
   maxRoomCount: null,
   minSqm: null,
@@ -84,8 +85,8 @@ const userPreferences: Ref<SearchInputs> = ref({
   availableFrom: null,
   minYearBuilt: null,
   maxYearBuilt: null,
-  minHwgEnergyClass: null,
-  minFgeeEnergyClass: null,
+  minHwgEnergyClass: EnergyClass.F,
+  minFgeeEnergyClass: EnergyClass.F,
   minRentPrice: null,
   maxRentPrice: null,
   minCooperativeShare: null,
@@ -302,7 +303,7 @@ function logout() {
             />
           </div>
           <div class="field">
-            <label for="hwgClass">Hwg Energy Class</label>
+            <label for="hwgClass">Hwg Energy Class (worst acceptable)</label>
             <Dropdown
               id="hwgClass"
               v-model="userPreferences.minHwgEnergyClass"
@@ -315,7 +316,7 @@ function logout() {
             />
           </div>
           <div class="field">
-            <label for="fgeeClass">Fgee Energy Class</label>
+            <label for="fgeeClass">Fgee Energy Class (worst acceptable)</label>
             <Dropdown
               id="fgeeClass"
               v-model="userPreferences.minFgeeEnergyClass"

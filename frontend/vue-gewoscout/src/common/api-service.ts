@@ -1,6 +1,7 @@
 import type { ApiListingsResponse, Listing } from '@/types/ApiResponseListings';
 import { EnergyClass, Type } from '@/types/Enums';
 import type SearchInputs from '@/types/SearchInputs';
+import type UserPreferences from '@/types/UserPreferences';
 import axios from 'axios';
 
 // flatpak run org.chromium.Chromium --disable-site-isolation-trials --disable-web-security --user-data-dir="~/chromiumteest"
@@ -43,11 +44,11 @@ export async function getListings(searchInputs: SearchInputs): Promise<Listing[]
   }
 }
 
-export async function getUserPreferences(): Promise<SearchInputs[]> {
+export async function getUserPreferences(): Promise<UserPreferences[]> {
   try {
     const response = await axios.get('/api/users/preferences');
 
-    const preferences: SearchInputs[] = response.data;
+    const preferences: UserPreferences[] = response.data;
     // TODO probably type fix needed
     return preferences;
   } catch (error) {
@@ -56,7 +57,7 @@ export async function getUserPreferences(): Promise<SearchInputs[]> {
   }
 }
 
-export async function setUserPreferences(preferences: SearchInputs): Promise<boolean> {
+export async function setUserPreferences(preferences: UserPreferences): Promise<boolean> {
   try {
     const response = await axios.put(`/api/users/preferences/${preferences.city}`, preferences);
 
