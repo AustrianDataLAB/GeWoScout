@@ -47,8 +47,8 @@ export async function getUserPreferences(): Promise<SearchInputs[]> {
   try {
     const response = await axios.get('/api/users/preferences');
 
-    // TODO needs to be tested, will probably fail
     const preferences: SearchInputs[] = response.data;
+    // TODO probably type fix needed
     return preferences;
   } catch (error) {
     console.error(error);
