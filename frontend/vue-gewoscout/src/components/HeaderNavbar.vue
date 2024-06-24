@@ -186,6 +186,9 @@ function logout() {
           :style="{ width: '30rem' }"
         >
           <div class="flex align-items-center gap-3 mb-5">
+            <label for="email" class="font-semibold w-6rem">E-Mail</label>
+            <InputText id="email" type="email" v-model="userPreferences.email" class="w-full" />
+
             <label for="city" class="font-semibold w-6rem">City</label>
             <Dropdown
               id="city"

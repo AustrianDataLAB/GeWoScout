@@ -48,6 +48,7 @@ export async function getUserPreferences(): Promise<UserPreferences[]> {
   try {
     const response = await axios.get('/api/users/preferences');
 
+    console.log(response);
     const preferences: UserPreferences[] = response.data;
     // TODO probably type fix needed
     return preferences;
