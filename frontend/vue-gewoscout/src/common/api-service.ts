@@ -49,10 +49,9 @@ export async function getUserPreferences(city: string): Promise<UserPreferences 
   try {
     const response = await axios.get('/api/users/preferences');
 
-    console.log(response);
-    const preferencesResponse: ApiResponsePreferences[] = response.data;
+    const apiResponsePreferences: ApiResponsePreferences[] = response.data;
 
-    const result = preferencesResponse.find((preference) => preference.city === city);
+    const result = apiResponsePreferences.find((preference) => preference.city === city);
 
     if (result === undefined) {
       return null;
@@ -101,11 +100,11 @@ export async function setUserPreferences(preferences: UserPreferences): Promise<
       maxSqm: preferences.maxSqm,
       availableFrom:
         preferences.availableFrom !== null
-          ? preferences.availableFrom.getFullYear +
+          ? preferences.availableFrom.getFullYear() +
             '-' +
-            preferences.availableFrom.getMonth +
+            preferences.availableFrom.getMonth() +
             '-' +
-            preferences.availableFrom.getDate
+            preferences.availableFrom.getDate()
           : null,
       minYearBuilt: preferences.minYearBuilt,
       maxYearBuilt: preferences.maxYearBuilt,

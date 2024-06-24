@@ -194,9 +194,6 @@ function logout() {
           :style="{ width: '30rem' }"
         >
           <div class="flex align-items-center gap-3 mb-5">
-            <label for="email" class="font-semibold w-6rem">E-Mail</label>
-            <InputText id="email" type="email" v-model="userPreferences.email" class="w-full" />
-
             <label for="city" class="font-semibold w-6rem">City</label>
             <Dropdown
               id="city"
@@ -212,7 +209,10 @@ function logout() {
           <Divider align="center" type="solid">
             <b>Preferences for selected City</b>
           </Divider>
-          <!-- TODO Add other Notification Preferences to edit -->
+          <div class="field">
+            <label for="email">E-Mail</label>
+            <InputText id="email" type="email" v-model="userPreferences.email" class="w-full" />
+          </div>
           <div class="field">
             <label for="type">Type of acquisition</label>
             <SelectButton
