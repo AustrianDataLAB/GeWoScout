@@ -59,7 +59,34 @@ export async function getUserPreferences(): Promise<UserPreferences[]> {
 
 export async function setUserPreferences(preferences: UserPreferences): Promise<boolean> {
   try {
-    const response = await axios.put(`/api/users/preferences/${preferences.city}`, preferences);
+    const requestUserPrefs = {
+      email: '',
+      title: '',
+      housingCooperative: '',
+      projectId: '',
+      postalCode: '',
+      roomCount: 1,
+      minRoomCount: 1,
+      maxRoomCount: 1,
+      minSquareMeters: 1,
+      maxSquareMeters: 1,
+      availableFrom: '',
+      minYearBuilt: 1,
+      maxYearBuilt: 1,
+      minHwgEnergyClass: 'F',
+      minFgeeEnergyClass: 'F',
+      listingType: 'both',
+      minRentPricePerMonth: 1,
+      maxRentPricePerMonth: 1,
+      minCooperativeShare: 1,
+      maxCooperativeShare: 1,
+      minSalePrice: 1,
+      maxSalePrice: 1
+    };
+    const response = await axios.put(
+      `/api/users/preferences/${preferences.city}`,
+      requestUserPrefs
+    );
 
     console.log(response);
     console.log(response.data);
