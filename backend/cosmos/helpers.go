@@ -110,7 +110,7 @@ func GetListingsQueryItemsPager(
 					postalCodeStr := mapping.value.(*string)
 					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, strings.Split(*postalCodeStr, ","))
 				} else if field == "listingType" {
-					listingType := mapping.value.(*string)
+					listingType := mapping.value.(*models.ListingType)
 					if *listingType != "both" {
 						addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *listingType)
 					}
