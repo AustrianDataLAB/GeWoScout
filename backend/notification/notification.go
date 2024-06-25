@@ -3,11 +3,12 @@ package notification
 import (
 	"bytes"
 	"fmt"
-	"github.com/AustrianDataLAB/GeWoScout/backend/models"
-	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 	"html/template"
 	"strconv"
 	"time"
+
+	"github.com/AustrianDataLAB/GeWoScout/backend/models"
+	"github.com/microsoft/ApplicationInsights-Go/appinsights"
 )
 
 const emailTemplate = `
@@ -109,7 +110,7 @@ func SendNotification(listing models.Listing, emails []string) error {
 }
 
 func PublishTelemetry(client appinsights.TelemetryClient, listing *models.Listing, users int) {
-	processingDuration := time.Now().Sub(listing.CreatedAt)
+	processingDuration := time.Since(listing.CreatedAt)
 	client.TrackMetric("ListingCreationToNotificationDuration", processingDuration.Seconds())
 	client.TrackMetric("UsersNotified", float64(users))
 	usersNotifiedEvent := appinsights.NewEventTelemetry("UsersNotifiedEvent")

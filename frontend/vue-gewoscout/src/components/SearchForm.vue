@@ -29,8 +29,8 @@ const searchInputs: Ref<SearchInputs> = ref({
   maxYearBuilt: null,
   minHwgEnergyClass: null,
   minFgeeEnergyClass: null,
-  minRentPricePerMonth: null,
-  maxRentPricePerMonth: null,
+  minRentPrice: null,
+  maxRentPrice: null,
   minCooperativeShare: null,
   maxCooperativeShare: null,
   minSalePrice: null,
@@ -43,7 +43,7 @@ const cities = ref([
 ]);
 
 const genos = ref([
-  { name: 'bwsg', code: 'bwsg' },
+  { name: 'BWS-Gruppe', code: 'BWS-Gruppe' },
   { name: 'ÖVW', code: 'oevw' },
   { name: 'wbv-gpa', code: 'wbv-gpa' }
 ]);
@@ -90,8 +90,8 @@ function reset() {
     maxYearBuilt: null,
     minHwgEnergyClass: null,
     minFgeeEnergyClass: null,
-    minRentPricePerMonth: null,
-    maxRentPricePerMonth: null,
+    minRentPrice: null,
+    maxRentPrice: null,
     minCooperativeShare: null,
     maxCooperativeShare: null,
     minSalePrice: null,
@@ -147,7 +147,7 @@ function reset() {
         <div class="flex flex-row gap-2">
           <InputNumber
             inputId="priceFrom"
-            v-model="searchInputs.minRentPricePerMonth"
+            v-model="searchInputs.minRentPrice"
             placeholder="from"
             inputClass="w-full"
             locale="de-DE"
@@ -155,7 +155,7 @@ function reset() {
           <p>-</p>
           <InputNumber
             inputId="priceTo"
-            v-model="searchInputs.maxRentPricePerMonth"
+            v-model="searchInputs.maxRentPrice"
             placeholder="to"
             inputClass="w-full"
             locale="de-DE"

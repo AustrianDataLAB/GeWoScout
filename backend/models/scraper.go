@@ -9,27 +9,27 @@ type ScraperResultList struct {
 }
 
 type ScraperResultListing struct {
-	Title              string  `json:"title"`
-	HousingCooperative string  `json:"housingCooperative"`
-	ProjectId          string  `json:"projectId"`
-	ListingId          string  `json:"listingId"`
-	Country            string  `json:"country"`
-	City               string  `json:"city"`
-	PostalCode         string  `json:"postalCode"`
-	Address            string  `json:"address"`
-	RoomCount          int     `json:"roomCount"`
-	SquareMeters       int     `json:"squareMeters"`
-	AvailabilityDate   string  `json:"availabilityDate"`
-	YearBuilt          *int    `json:"yearBuilt,omitempty"`
-	HwgEnergyClass     *string `json:"hwgEnergyClass,omitempty"`
-	FgeeEnergyClass    *string `json:"fgeeEnergyClass,omitempty"`
-	ListingType        string  `json:"listingType"`
-	RentPricePerMonth  *int    `json:"rentPricePerMonth,omitempty"`
-	CooperativeShare   *int    `json:"cooperativeShare,omitempty"`
-	SalePrice          *int    `json:"salePrice,omitempty"`
-	AdditionalFees     *int    `json:"additionalFees,omitempty"`
-	DetailsUrl         string  `json:"detailsUrl"`
-	PreviewImageUrl    string  `json:"previewImageUrl"`
+	Title              string   `json:"title"`
+	HousingCooperative string   `json:"housingCooperative"`
+	ProjectId          string   `json:"projectId"`
+	ListingId          string   `json:"listingId"`
+	Country            string   `json:"country"`
+	City               string   `json:"city"`
+	PostalCode         string   `json:"postalCode"`
+	Address            string   `json:"address"`
+	RoomCount          *float32 `json:"roomCount"`
+	SquareMeters       float32  `json:"squareMeters"`
+	AvailabilityDate   string   `json:"availabilityDate"`
+	YearBuilt          *int     `json:"yearBuilt,omitempty"`
+	HwgEnergyClass     *string  `json:"hwgEnergyClass,omitempty"`
+	FgeeEnergyClass    *string  `json:"fgeeEnergyClass,omitempty"`
+	ListingType        string   `json:"listingType"`
+	RentPricePerMonth  *float32 `json:"rentPricePerMonth,omitempty"`
+	CooperativeShare   *float32 `json:"cooperativeShare,omitempty"`
+	SalePrice          *float32 `json:"salePrice,omitempty"`
+	AdditionalFees     *float32 `json:"additionalFees,omitempty"`
+	DetailsUrl         string   `json:"detailsUrl"`
+	PreviewImageUrl    string   `json:"previewImageUrl"`
 }
 
 const ScraperResultListingSchema = `
@@ -85,7 +85,7 @@ const ScraperResultListingSchema = `
 					"description": "The street address of the flat."
 				},
 				"roomCount": {
-					"type": "number",
+					"type": ["number", "null"],
 					"description": "The total number of rooms in the flat."
 				},
 				"squareMeters": {

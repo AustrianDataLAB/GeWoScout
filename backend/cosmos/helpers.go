@@ -96,16 +96,27 @@ func GetListingsQueryItemsPager(
 
 	for field, mapping := range fieldMappings {
 		if !reflect.ValueOf(mapping.value).IsNil() {
-			if field == "minHwgEnergyClass" || field == "minFgeeEnergyClass" {
-				ecStr, _ := (mapping.value).(*models.EnergyClass)
-				if *ecStr != models.EnergyClassG {
-					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[:ecStr.GetIndex()+1])
+			switch mapping.value.(type) {
+			case *float32:
+				v := mapping.value.(*float32)
+				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *v)
+			default:
+				if field == "minHwgEnergyClass" || field == "minFgeeEnergyClass" {
+					ecStr, _ := (mapping.value).(*models.EnergyClass)
+					if *ecStr != models.EnergyClassG {
+						addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[:ecStr.GetIndex()+1])
+					}
+				} else if field == "postalCodes" {
+					postalCodeStr := mapping.value.(*string)
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, strings.Split(*postalCodeStr, ","))
+				} else if field == "listingType" {
+					listingType := mapping.value.(*models.ListingType)
+					if *listingType != "both" {
+						addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *listingType)
+					}
+				} else {
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
 				}
-			} else if field == "postalCodes" {
-				postalCodeStr := mapping.value.(*string)
-				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, strings.Split(*postalCodeStr, ","))
-			} else {
-				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
 			}
 		}
 	}
@@ -314,18 +325,33 @@ func GetUsersMatchingWithListing(ctx context.Context, container *azcosmos.Contai
 				if !ok {
 					return nil, fmt.Errorf("value of %s has incorrect format", field)
 				}
-				if field == "hwgEnergyClass" || field == "fgeeEnergyClass" {
-					ecClass := models.EnergyClass(*ecStr)
-					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[ecClass.GetIndex():])
-				} else {
-					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *ecStr)
+				if ecStr != nil {
+					if field == "hwgEnergyClass" || field == "fgeeEnergyClass" {
+						ecClass := models.EnergyClass(*ecStr)
+						addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, models.GetEnergyClasses()[ecClass.GetIndex():])
+					} else {
+						addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *ecStr)
+					}
 				}
 			}
 		case int:
 			addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
+		case float32:
+			v := mapping.value.(float32)
+			addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, v)
 		case *int:
 			if mapping.value != nil {
-				addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, mapping.value)
+				v := mapping.value.(*int)
+				if v != nil {
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, v)
+				}
+			}
+		case *float32:
+			if mapping.value != nil {
+				v := mapping.value.(*float32)
+				if v != nil {
+					addQueryParam(&sb, &queryParams, "@"+field, mapping.condition, *v)
+				}
 			}
 		default:
 			continue

@@ -47,12 +47,16 @@ window.onscroll = () => {
           <template #content>
             <div class="card flex justify-content-around">
               <div class="flex flex-column m-0">
-                <p>Rooms</p>
-                <p class="text-center m-0">2</p>
+                <div v-if="item.roomCount">
+                  <p>Rooms</p>
+                  <p class="text-center m-0"> {{ item.roomCount }} </p>
+                </div>
               </div>
               <div class="flex flex-column m-0">
-                <p>Area</p>
-                <p class="text-center m-0">75 m²</p>
+                <div v-if="item.squareMeters">
+                  <p>Area</p>
+                  <p class="text-center m-0"> {{ item.squareMeters }} m²</p>
+                </div>
               </div>
             </div>
           </template>
