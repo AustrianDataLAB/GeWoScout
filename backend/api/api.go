@@ -310,12 +310,16 @@ func (h *Handler) UpdateUserPrefs(w http.ResponseWriter, r *http.Request) {
 
 	ns.PartitionKey = cLower
 	ns.Id = clientId
-	ns.Email = email
+	if ns.Email == "" {
+		ns.Email = email
+	}
 	ns.City = &cLower
 
 	ud.PartitionKey = clientId
 	ud.Id = cLower
-	ud.Email = email
+	if ud.Email == "" {
+		ud.Email = email
+	}
 	ud.City = &cLower
 
 	ir := models.NewHttpInvokeResponse(http.StatusOK, ud, nil)

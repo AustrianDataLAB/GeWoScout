@@ -112,7 +112,7 @@ type UserData struct {
 type Preferences struct {
 	PartitionKey         string       `json:"_partitionKey,omitempty"`
 	Id                   string       `json:"id"`
-	Email                string       `json:"email"`
+	Email                string       `json:"email" validate:"email"`
 	Title                *string      `json:"title,omitempty" validate:"omitempty"`
 	HousingCooperative   *string      `json:"housingCooperative,omitempty" validate:"omitempty"`
 	ProjectId            *string      `json:"projectId,omitempty" validate:"omitempty"`
