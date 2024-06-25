@@ -114,7 +114,8 @@ def bwsg_scraper(timerObj: func.TimerRequest, q: func.Out[str]) -> None:
 
         room_count = bwsg_description.get("Zimmer", None)
         listing["roomCount"] = int(room_count) if room_count is not None else None
-        square_meters = re.findall(r'(\d+[.,\d]*)', bwsg_description["Wohnfläche"])
+        if "Wohnfläche" in bwsg_description:
+            square_meters = re.findall(r'(\d+[.,\d]*)', bwsg_description["Wohnfläche"])
         listing["squareMeters"] = float(square_meters[0].replace(',', '.'))
         listing["availabilityDate"] = format_date(bwsg_description.get("Beziehbar", ""))
         listing["yearBuilt"] = int(bwsg_description.get("Baujahr", "-1"))
