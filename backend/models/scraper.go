@@ -17,7 +17,7 @@ type ScraperResultListing struct {
 	City               string   `json:"city"`
 	PostalCode         string   `json:"postalCode"`
 	Address            string   `json:"address"`
-	RoomCount          float32  `json:"roomCount"`
+	RoomCount          *float32 `json:"roomCount"`
 	SquareMeters       float32  `json:"squareMeters"`
 	AvailabilityDate   string   `json:"availabilityDate"`
 	YearBuilt          *int     `json:"yearBuilt,omitempty"`
@@ -85,7 +85,7 @@ const ScraperResultListingSchema = `
 					"description": "The street address of the flat."
 				},
 				"roomCount": {
-					"type": "number",
+					"type": ["number", "null"],
 					"description": "The total number of rooms in the flat."
 				},
 				"squareMeters": {

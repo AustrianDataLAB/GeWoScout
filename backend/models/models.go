@@ -11,7 +11,7 @@ type Listing struct {
 	City               string   `json:"city"`
 	PostalCode         string   `json:"postalCode"`
 	Address            string   `json:"address"`
-	RoomCount          float32  `json:"roomCount"`
+	RoomCount          *float32 `json:"roomCount"`
 	SquareMeters       float32  `json:"squareMeters"`
 	AvailabilityDate   string   `json:"availabilityDate"`
 	YearBuilt          *int     `json:"yearBuilt"`
