@@ -50,7 +50,7 @@ const cities = ref([
 ]);
 
 const genos = ref([
-  { name: 'bwsg', code: 'bwsg' },
+  { name: 'BWS-Gruppe', code: 'BWS-Gruppe' },
   { name: 'ÖVW', code: 'oevw' },
   { name: 'wbv-gpa', code: 'wbv-gpa' }
 ]);
