@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/AustrianDataLAB/GeWoScout/backend/notification"
 	"net/http"
 	"strconv"
 	"time"
@@ -71,6 +72,7 @@ func (h *Handler) HandleNewListingResult(w http.ResponseWriter, r *http.Request)
 		render.JSON(w, r, models.InvokeResponse{
 			Logs: []string{fmt.Sprintf("NewListingHandler %s | No users found matching the listing %s", msgId, newListing.ID)},
 		})
+		notification.PublishTelemetry(h.GetTelemetryClient(), &newListing, 0)
 		return
 	}
 

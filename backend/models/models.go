@@ -1,32 +1,34 @@
 package models
 
+import "time"
+
 type Listing struct {
-	ID                 string   `json:"id"`
-	PartitionKey       string   `json:"_partitionKey"`
-	Title              string   `json:"title"`
-	HousingCooperative string   `json:"housingCooperative"`
-	ProjectID          string   `json:"projectId"`
-	ListingID          string   `json:"listingId"`
-	Country            string   `json:"country"`
-	City               string   `json:"city"`
-	PostalCode         string   `json:"postalCode"`
-	Address            string   `json:"address"`
-	RoomCount          *float32 `json:"roomCount"`
-	SquareMeters       float32  `json:"squareMeters"`
-	AvailabilityDate   string   `json:"availabilityDate"`
-	YearBuilt          *int     `json:"yearBuilt"`
-	HwgEnergyClass     *string  `json:"hwgEnergyClass"`
-	FgeeEnergyClass    *string  `json:"fgeeEnergyClass"`
-	ListingType        string   `json:"listingType"`
-	RentPricePerMonth  *float32 `json:"rentPricePerMonth"`
-	CooperativeShare   *float32 `json:"cooperativeShare"`
-	SalePrice          *float32 `json:"salePrice"`
-	AdditionalFees     *float32 `json:"additionalFees"`
-	DetailsURL         string   `json:"detailsUrl"`
-	PreviewImageURL    string   `json:"previewImageUrl"`
-	ScraperID          string   `json:"scraperId"`
-	CreatedAt          string   `json:"createdAt"`
-	LastModifiedAt     string   `json:"lastModifiedAt"`
+	ID                 string    `json:"id"`
+	PartitionKey       string    `json:"_partitionKey"`
+	Title              string    `json:"title"`
+	HousingCooperative string    `json:"housingCooperative"`
+	ProjectID          string    `json:"projectId"`
+	ListingID          string    `json:"listingId"`
+	Country            string    `json:"country"`
+	City               string    `json:"city"`
+	PostalCode         string    `json:"postalCode"`
+	Address            string    `json:"address"`
+	RoomCount          *float32  `json:"roomCount"`
+	SquareMeters       float32   `json:"squareMeters"`
+	AvailabilityDate   string    `json:"availabilityDate"`
+	YearBuilt          *int      `json:"yearBuilt"`
+	HwgEnergyClass     *string   `json:"hwgEnergyClass"`
+	FgeeEnergyClass    *string   `json:"fgeeEnergyClass"`
+	ListingType        string    `json:"listingType"`
+	RentPricePerMonth  *float32  `json:"rentPricePerMonth"`
+	CooperativeShare   *float32  `json:"cooperativeShare"`
+	SalePrice          *float32  `json:"salePrice"`
+	AdditionalFees     *float32  `json:"additionalFees"`
+	DetailsURL         string    `json:"detailsUrl"`
+	PreviewImageURL    string    `json:"previewImageUrl"`
+	ScraperID          string    `json:"scraperId"`
+	CreatedAt          time.Time `json:"createdAt"`
+	LastModifiedAt     time.Time `json:"lastModifiedAt"`
 }
 
 type EnergyClass string
