@@ -227,31 +227,76 @@ const emailTemplate = `
       }
     </style>
   </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <img src="{{.PreviewImageURL}}" alt="Listing Image">
+  <body>
+    <div class="template">
+      <div class="header-logo">
+        <div class="logo-text">
+          <svg width="41" height="40" viewBox="0 0 35 41" fill="yellow" xmlns="http://www.w3.org/2000/svg" class="h-2rem">
+            <text x="0" y="15" fill="var(--primary-color)" stroke="var(--primary-color)" font-size="15"> GeWoScout </text>
+            <text x="0" y="40" fill="var(--text-color)" stroke="var(--text-color)" font-size="15"> Scout </text>
+          </svg>
+          <p class="user-greeting p-component">There is a new GeWo you might be interested in :)</p>
         </div>
-        <div class="content">
-            <h2>{{.Title}}</h2>
-            <p><strong>Location:</strong> {{.Address}}, {{.City}}, {{.Country}}, {{.PostalCode}}</p>
-            <p><strong>Room Count:</strong> {{.RoomCount}}</p>
-            <p><strong>Size:</strong> {{.SquareMeters}} m²</p>
-            <p><strong>Availability Date:</strong> {{.AvailabilityDate}}</p>
-            <p><strong>Year Built:</strong> {{.YearBuilt}}</p>
-            <p><strong>HWG Energy Class:</strong> {{.HwgEnergyClass}}</p>
-            <p><strong>FGEE Energy Class:</strong> {{.FgeeEnergyClass}}</p>
-            <p><strong>Listing Type:</strong> {{.ListingType}}</p>
-            {{if .RentPricePerMonth}}<p><strong>Rent Price Per Month:</strong> €{{.RentPricePerMonth}}</p>{{end}}
-            {{if .CooperativeShare}}<p><strong>Cooperative Share:</strong> €{{.CooperativeShare}}</p>{{end}}
-            {{if .SalePrice}}<p><strong>Sale Price:</strong> €{{.SalePrice}}</p>{{end}}
-            {{if .AdditionalFees}}<p><strong>Additional Fees:</strong> €{{.AdditionalFees}}</p>{{end}}
+      </div>
+      <div class="box-listing">
+        <div class="p-card p-component" style="overflow: hidden;">
+          <div class="p-card-header">
+            <img src="{{.PreviewImageURL}}" width="100%" height="200">
+          </div>
+          <div class="p-card-body">
+            <div class="p-card-caption">
+              <div class="p-card-title">{{.Title}}</div>
+              <div class="p-card-subtitle">
+                <span class="pi pi-map-marker"></span> {{.PostalCode}} {{.City}}
+              </div>
+            </div>
+            <div class="p-card-content">
+              <div class="card flex justify-content-around">
+                <div class="flex flex-column m-0">
+                  <p>Rooms</p>
+                  <p class="text-center m-0">{{.RoomCount}}</p>
+                </div>
+                <div class="flex flex-column m-0">
+                  <p>Area</p>
+                  <p class="text-center m-0">{{.SquareMeters}} m²</p>
+                </div>
+              </div>
+              <div class="p-divider p-component p-divider-horizontal p-divider-solid p-divider-center" style="justify-content: center;"></div>
+              <div class="card flex justify-content-around">
+                <div class="flex flex-column m-0">
+                  {{if .AvailabilityDate}}<p><strong>Availability Date</strong></p>{{end}}
+                  {{if .YearBuilt}}<p><strong>Year Built</strong></p>{{end}}
+                  {{if .HwgEnergyClass}}<p><strong>HWG Energy Class</strong></p>{{end}}
+                  {{if .FgeeEnergyClass}}<p><strong>FGEE Energy Class</strong></p>{{end}}
+                  {{if .RentPricePerMonth}}<p><strong>Rent Price Per Month</strong></p>{{end}}
+                  {{if .CooperativeShare}}<p><strong>Cooperative Share</strong></p>{{end}}
+                  {{if .SalePrice}}<p><strong>Sale Price</strong></p>{{end}}
+                  {{if .AdditionalFees}}<p><strong>Additional Fees</strong></p>{{end}}
+                </div>
+                <div class="flex flex-column m-0 text-right">
+                  {{if .AvailabilityDate}}<p>{{.AvailabilityDate}}</p>{{end}}
+                  {{if .YearBuilt}}<p>{{.YearBuilt}}</p>{{end}}
+                  {{if .HwgEnergyClass}}<p>{{.HwgEnergyClass}}</p>{{end}}
+                  {{if .FgeeEnergyClass}}<p>{{.FgeeEnergyClass}}</p>{{end}}
+                  {{if .RentPricePerMonth}}<p>€ {{.RentPricePerMonth}}</p>{{end}}
+                  {{if .CooperativeShare}}<p>€ {{.CooperativeShare}}</p>{{end}}
+                  {{if .SalePrice}}<p>€ {{.SalePrice}}</p>{{end}}
+                  {{if .AdditionalFees}}<p>€ {{.AdditionalFees}}</p>{{end}}
+                </div>
+              </div>
+            </div>
+            <div class="p-card-footer">
+              <div class="flex gap-3 mt-1">
+                <a class="p-button p-component w-full" href="{{.DetailsURL}}">
+                  <span class="p-button-label">Request</span>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="button">
-            <a href="{{.DetailsURL}}" target="_blank">View Details</a>
-        </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>
 `
 
